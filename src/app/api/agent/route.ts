@@ -1,38 +1,41 @@
-import {type CoreMessage, streamText, tool  , smoothStream} from "ai";
+import { type CoreMessage, streamText, tool, smoothStream } from "ai";
 import { google } from "@ai-sdk/google";
 import { z } from "zod";
 import { Sandbox } from "@e2b/code-interpreter";
 import { PROMPT } from "~/lib/prompt";
 import { getSandbox } from "~/lib/utils";
-
+import { webSearch } from "~/lib/web/web-search";
 
 export async function POST(req: Request) {
   const { messages }: { messages: CoreMessage[] } = await req.json();
 
-  // Create sandbox
   const sandbox = await Sandbox.create("zite-npm");
   const sandboxId = sandbox.sandboxId;
 
   const result = streamText({
     messages,
-    model: google("gemini-2.5-flash-preview-04-17"), // or use gemini
+    model: google("gemini-2.5-flash-preview-04-17"),
     system: PROMPT,
     toolCallStreaming: true,
+
     experimental_transform: smoothStream({
-        delayInMs: 10, 
-        chunking: 'word', 
-      }),
+      delayInMs: 10,
+      chunking: "word",
+    }),
     tools: {
-      terminal: tool({
-        description: "Use the terminal to run commands",
+      bash: tool({
+        description:
+          "Run a terminal command. Each command runs in a new shell. IMPORTANT: Do not use this tool to edit files. Use the `edit_file` tool instead.",
         parameters: z.object({
-          command: z.string(),
+          command: z.string()
         }),
-        execute: async ({ command }) => {
-          const buffer = { stdout: "", stderr: "" };
+        execute: async ({
+          command,
+        }) => {
+          const buffer = {stdout: "", stderr: ""};
           try {
             const sandbox = await getSandbox(sandboxId);
-            const result = await sandbox.commands.run(command, {
+            const result = await sandbox.commands.run(command , {
               onStdout: (data) => {
                 buffer.stdout += data;
               },
@@ -41,58 +44,246 @@ export async function POST(req: Request) {
               },
             });
             return result.stdout;
-          } catch (e) {
-            return `Command failed : ${e as Error} \nstdout ${
-              buffer.stdout
-            } \nstderr ${buffer.stderr}`;
+          } catch (error) {
+            return `Command failed to execute: ${command}\nOutput: ${buffer.stdout}\nError: ${buffer.stderr}\nError: ${error}`;
           }
         },
       }),
 
-      createOrUpdateFile: tool({
-        description: "Create or update a file in the sandbox",
+      ls: tool({
+        description:
+          "List the contents of a directory. The quick tool to use for discovery, before using more targeted tools like semantic search or file reading.",
         parameters: z.object({
-          files: z.array(
-            z.object({
-              path: z.string(),
-              content: z.string(),
-            })
-          ),
+          relative_dir_path: z.string(),
         }),
-        execute: async ({ files }) => {
+        execute: async ({ relative_dir_path }) => {
           try {
             const sandbox = await getSandbox(sandboxId);
-            for (const file of files) {
-              await sandbox.files.write(file.path, file.content);
-            }
-            return files.map((file) => file.path);
+            const result = await sandbox.commands.run(
+              `ls -la ${relative_dir_path}`,
+            );
+            return result.stdout;
           } catch (error) {
-            return `Error creating files: ${error}`;
+            return `Error listing directory: ${error}`;
           }
         },
       }),
 
-      readFiles: tool({
-        description: "Read the contents of files",
+      glob: tool({
+        description:
+          "Search for files using glob patterns. Supports patterns like *.ts, **/*.tsx, src/**/*.{js,ts}, etc.",
         parameters: z.object({
-          files: z.array(z.string()),
+          pattern: z.string(),
+          exclude_pattern: z.string().optional(),
         }),
-        execute: async ({ files }) => {
+        execute: async ({ pattern, exclude_pattern }) => {
           try {
             const sandbox = await getSandbox(sandboxId);
-            const contents = [];
-            for (const file of files) {
-              const content = await sandbox.files.read(file);
-              contents.push({ path: file, content });
+            let command = `find . -name "${pattern}"`;
+            if (exclude_pattern) {
+              command += ` ! -path "${exclude_pattern}"`;
             }
-            return JSON.stringify(contents);
+            const result = await sandbox.commands.run(command);
+            return result.stdout;
           } catch (error) {
-            return `Error reading files: ${error}`;
+            return `Error searching files: ${error}`;
           }
         },
       }),
+
+      grep: tool({
+        description:
+          "Fast text-based regex search that finds exact pattern matches within files or directories, utilizing the ripgrep command for efficient searching.",
+        parameters: z.object({
+          query: z.string(),
+          case_sensitive: z.boolean(),
+          include_pattern: z.string().optional(),
+          exclude_pattern: z.string().optional(),
+        }),
+        execute: async ({
+          query,
+          case_sensitive,
+          include_pattern,
+          exclude_pattern,
+        }) => {
+          try {
+            const sandbox = await getSandbox(sandboxId);
+            let command = `grep -r ${case_sensitive ? "" : "-i"} "${query}"`;
+            if (include_pattern) {
+              command += ` --include="${include_pattern}"`;
+            }
+            if (exclude_pattern) {
+              command += ` --exclude="${exclude_pattern}"`;
+            }
+            command += " .";
+            const result = await sandbox.commands.run(command);
+            return result.stdout;
+          } catch (error) {
+            return `Error searching: ${error}`;
+          }
+        },
+      }),
+
+      read_file: tool({
+        description:
+          "Read the contents of a file. For text files, the output will be the 1-indexed file contents from start_line_one_indexed to end_line_one_indexed_inclusive.",
+        parameters: z.object({
+          relative_file_path: z.string(),
+          should_read_entire_file: z.boolean(),
+          start_line_one_indexed: z.number().optional(),
+          end_line_one_indexed: z.number().optional(),
+        }),
+        execute: async ({
+          relative_file_path,
+          should_read_entire_file,
+          start_line_one_indexed,
+          end_line_one_indexed,
+        }) => {
+          try {
+            const sandbox = await getSandbox(sandboxId);
+            if (should_read_entire_file) {
+              const content = await sandbox.files.read(relative_file_path);
+              return content;
+            } else {
+              const command = `sed -n '${start_line_one_indexed},${end_line_one_indexed}p' ${relative_file_path}`;
+              const result = await sandbox.commands.run(command);
+              return result.stdout;
+            }
+          } catch (error) {
+            return `Error reading file: ${error}`;
+          }
+        },
+      }),
+
+      delete_file: tool({
+        description:
+          "Deletes a file at the specified path. The operation will fail gracefully if the file doesn't exist.",
+        parameters: z.object({
+          relative_file_path: z.string(),
+        }),
+        execute: async ({ relative_file_path }) => {
+          try {
+            await getSandbox(sandboxId);
+            await sandbox.commands.run(`rm -f ${relative_file_path}`);
+            return `File ${relative_file_path} deleted successfully`;
+          } catch (error) {
+            return `Error deleting file: ${error}`;
+          }
+        },
+      }),
+
+      edit_file: tool({
+        description:
+          "Use this tool to make large edits or refactorings to an existing file or create a new file.",
+        parameters: z.object({
+          relative_file_path: z.string(),
+          instructions: z.string(),
+          code_edit: z.string(),
+          smart_apply: z.boolean(),
+        }),
+        execute: async ({ relative_file_path, instructions, code_edit }) => {
+          try {
+            const sandbox = await getSandbox(sandboxId);
+            await sandbox.files.write(relative_file_path, code_edit);
+            return `File ${relative_file_path} edited successfully. Instructions: ${instructions}`;
+          } catch (error) {
+            return `Error editing file: ${error}`;
+          }
+        },
+      }),
+
+      string_replace: tool({
+        description:
+          "Performs exact string replacements in files. Use this tool to make small, specific edits to a file.",
+        parameters: z.object({
+          relative_file_path: z.string(),
+          old_string: z.string(),
+          new_string: z.string(),
+          replace_all: z.boolean(),
+        }),
+        execute: async ({
+          relative_file_path,
+          old_string,
+          new_string,
+          replace_all,
+        }) => {
+          try {
+            const sandbox = await getSandbox(sandboxId);
+            const content = await sandbox.files.read(relative_file_path);
+            const updatedContent = replace_all
+              ? content.replaceAll(old_string, new_string)
+              : content.replace(old_string, new_string);
+            await sandbox.files.write(relative_file_path, updatedContent);
+            return `String replacement completed in ${relative_file_path}`;
+          } catch (error) {
+            return `Error replacing string: ${error}`;
+          }
+        },
+      }),
+
+      run_linter: tool({
+        description:
+          "Run linter on the project. Make sure a lint script exists in package.json and packages are installed.",
+        parameters: z.object({
+          project_directory: z.string(),
+          package_manager: z.enum(["bun", "pnpm", "npm"]),
+        }),
+        execute: async ({ project_directory, package_manager }) => {
+          try {
+            const sandbox = await getSandbox(sandboxId);
+            const result = await sandbox.commands.run(
+              `cd ${project_directory} && ${package_manager} run lint`,
+            );
+            return result.stdout;
+          } catch (error) {
+            return `Linter error: ${error}`;
+          }
+        },
+      }),
+
+      suggestions: tool({
+        description: "Suggest 1-5 next steps to implement with the USER.",
+        parameters: z.object({
+          suggestions: z.array(z.string()),
+        }),
+        execute: async ({ suggestions }) => {
+          return {
+            suggestions,
+            message: "Here are the suggested next steps:",
+          };
+        },
+      }),
+
+      web_search: tool({
+        description: "Search the web for real-time text and image responses.",
+        parameters: z.object({
+          search_term: z.string(),
+          type: z.enum(["text", "images"]),
+        }),
+        execute: async ({ search_term, type }) => {
+          const search = await webSearch(search_term, type);
+          return search;
+        },
+      }),
+
+      // web_scrape: tool({
+      //   description: "Scrape a website to see its design and content.",
+      //   parameters: z.object({
+      //     url: z.string(),
+      //     theme: z.enum(["light", "dark"]),
+      //     viewport: z.enum(["mobile", "tablet", "desktop"]),
+      //     include_screenshot: z.boolean(),
+      //   }),
+      //   execute: async ({ url, theme, viewport }) => {
+      //     // Note: You'll need to implement actual web scraping functionality
+      //     // This is a placeholder implementation
+      //     return `Web scraping ${url} in ${theme} mode, ${viewport} viewport - Implementation needed`;
+      //   },
+      // }),
     },
     maxSteps: 10,
+    toolChoice: "required",
+    experimental_continueSteps: true,
 
     onFinish: async ({ response }) => {
       const sandboxUrl = `https://${sandbox.getHost(3000)}`;
@@ -100,8 +291,6 @@ export async function POST(req: Request) {
       messages.push(...response.messages);
     },
   });
-
-
 
   return result.toDataStreamResponse();
 }
