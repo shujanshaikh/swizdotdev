@@ -39,14 +39,14 @@ export async function POST(req: Request) {
   }
 
   const previousMessages = await getMessagesByProjectId({ id });
-  console.log("previousMessages", previousMessages);
+  
 
   const messages = appendClientMessage({
     // @ts-expect-error: todo add type conversion from DBMessage[] to UIMessage[]
     messages: previousMessages,
     message,
   });
-  console.log("Appended messages", messages);
+
 
   const sandbox = await Sandbox.create("zite-npm", { timeoutMs: 3_600_000 });
   const sandboxId = sandbox.sandboxId;

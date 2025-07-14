@@ -42,6 +42,7 @@
     "postgres": "^3.4.7",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-resizable-panels": "^3.0.3",
     "server-only": "^0.0.1",
     "superjson": "^2.2.2",
     "tailwind-merge": "^3.3.1",
