@@ -1,20 +1,75 @@
-import { type CoreMessage, streamText, tool, smoothStream } from "ai";
+import {
+  streamText,
+  tool,
+  smoothStream,
+  type UIMessage,
+  appendClientMessage,
+  appendResponseMessages,
+} from "ai";
 import { google } from "@ai-sdk/google";
 import { z } from "zod";
 import { Sandbox } from "@e2b/code-interpreter";
 import { PROMPT } from "~/lib/prompt";
-import { getSandbox } from "~/lib/utils";
+import { getSandbox, getTrailingMessageId } from "~/lib/utils";
 import { webSearch } from "~/lib/web/web-search";
+import {
+  getMessagesByProjectId,
+  getProjectById,
+  saveMessages,
+  saveProject,
+} from "~/server/db/queries";
+import { generateTitleFromUserMessage } from "~/lib/generate-title";
 
 export async function POST(req: Request) {
-  const { messages }: { messages: CoreMessage[] } = await req.json();
+  const { message, id }: { message: UIMessage; id: string } = await req.json();
 
-  const sandbox = await Sandbox.create("zite-npm");
+  const project = await getProjectById({ id });
+
+  if (!project) {
+    const title = await generateTitleFromUserMessage({
+      message,
+    });
+
+    await saveProject({
+      id: id,
+      title,
+    });
+  } else {
+    console.log("project already exists");
+  }
+
+  const previousMessages = await getMessagesByProjectId({ id });
+  console.log("previousMessages", previousMessages);
+
+  const messages = appendClientMessage({
+    // @ts-expect-error: todo add type conversion from DBMessage[] to UIMessage[]
+    messages: previousMessages,
+    message,
+  });
+  console.log("Appended messages", messages);
+
+  const sandbox = await Sandbox.create("zite-npm", { timeoutMs: 3_600_000 });
   const sandboxId = sandbox.sandboxId;
+
+  await saveMessages({
+    messages: [
+      {
+        id: message.id,
+        projectId: id,
+        model: "gemini-2.5-flash",
+        role: 'user',
+        parts: message.parts,
+        attachments: message.experimental_attachments ?? [],
+        createdAt: new Date(), 
+        updatedAt: new Date(),
+      },
+    ],
+  });
+
 
   const result = streamText({
     messages,
-    model: google("gemini-2.5-flash-preview-04-17"),
+    model: google("gemini-2.5-flash"),
     system: PROMPT,
     toolCallStreaming: true,
 
@@ -25,17 +80,15 @@ export async function POST(req: Request) {
     tools: {
       bash: tool({
         description:
-          "Run a terminal command. Each command runs in a new shell. IMPORTANT: Do not use this tool to edit files. Use the `edit_file` tool instead.",
+          "Run a terminal command. IMPORTANT: Do not use this tool to edit files. Use the `edit_file` tool instead.",
         parameters: z.object({
-          command: z.string()
+          command: z.string(),
         }),
-        execute: async ({
-          command,
-        }) => {
-          const buffer = {stdout: "", stderr: ""};
+        execute: async ({ command }) => {
+          const buffer = { stdout: "", stderr: "" };
           try {
             const sandbox = await getSandbox(sandboxId);
-            const result = await sandbox.commands.run(command , {
+            const result = await sandbox.commands.run(command, {
               onStdout: (data) => {
                 buffer.stdout += data;
               },
@@ -266,20 +319,19 @@ export async function POST(req: Request) {
         },
       }),
 
-      // web_scrape: tool({
-      //   description: "Scrape a website to see its design and content.",
-      //   parameters: z.object({
-      //     url: z.string(),
-      //     theme: z.enum(["light", "dark"]),
-      //     viewport: z.enum(["mobile", "tablet", "desktop"]),
-      //     include_screenshot: z.boolean(),
-      //   }),
-      //   execute: async ({ url, theme, viewport }) => {
-      //     // Note: You'll need to implement actual web scraping functionality
-      //     // This is a placeholder implementation
-      //     return `Web scraping ${url} in ${theme} mode, ${viewport} viewport - Implementation needed`;
-      //   },
-      // }),
+      web_scrape: tool({
+        description: "Scrape a website to see its design and content.",
+        parameters: z.object({
+          url: z.string(),
+          theme: z.enum(["light", "dark"]),
+          viewport: z.enum(["mobile", "tablet", "desktop"]),
+          include_screenshot: z.boolean(),
+        }),
+        execute: async ({ url, theme, viewport }) => {
+          // Todo : Implement web scraping functionality
+          return `Web scraping ${url} in ${theme} mode, ${viewport} viewport - Implementation needed`;
+        },
+      }),
     },
     maxSteps: 10,
     toolChoice: "required",
@@ -288,9 +340,39 @@ export async function POST(req: Request) {
     onFinish: async ({ response }) => {
       const sandboxUrl = `https://${sandbox.getHost(3000)}`;
       console.log(sandboxUrl);
-      messages.push(...response.messages);
+
+      const assistantId = getTrailingMessageId({
+        messages: response.messages.filter(
+          (message) => message.role === "assistant",
+        ),
+      });
+
+      if (!assistantId) {
+        throw new Error("No assistant message found!");
+      }
+
+      const [, assistantMessage] = appendResponseMessages({
+        messages: [message],
+        responseMessages: response.messages,
+      });
+
+      await saveMessages({
+        messages: [
+          {
+            id: crypto.randomUUID(),
+            projectId: id,
+            model: "gemini-2.5-flash",
+            role: assistantMessage!.role,
+            parts: assistantMessage?.parts ?? [],
+            attachments: assistantMessage?.experimental_attachments ?? [],
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        ],
+      });
     },
   });
+  result.consumeStream();
 
   return result.toDataStreamResponse();
 }
