@@ -49,7 +49,7 @@ export default function MessageBox({
           )}
           ref={textareaRef}
         />
-        <Button
+        <Button 
           type="submit"
           disabled={status !== "ready" || !input.trim()}
           className={cn(

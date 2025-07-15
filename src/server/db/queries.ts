@@ -1,17 +1,16 @@
 import type { UIMessage } from "ai";
 import { db } from "../db/index";
 import { message, project, type DBMessage } from "./schema";
-import { asc, eq } from "drizzle-orm";
+import { asc, desc, eq } from "drizzle-orm";
 
 export const createProject = async ({ title }: { title: string }) => {
   const result = await db.insert(project).values({ title }).returning();
 
-  console.log(result);
   return result[0]?.id;
 };
 
 export const getProject = async () => {
-  const c = await db.select().from(project);
+  const c = await db.select().from(project).orderBy(desc(project.updatedAt));
   return c;
 };
 
@@ -23,7 +22,6 @@ export const loadProject = async (projectId: string) => {
     .where(eq(message.projectId, projectId))
     .orderBy(message.createdAt);
 
-  console.log(messagesResult);
   return messagesResult as unknown as UIMessage[];
   //   return messagesResult.map((msg) => ({
   //     id: msg.id,

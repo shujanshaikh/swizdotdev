@@ -123,3 +123,41 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  /* Hide scrollbar while maintaining scroll functionality */
+  .scrollbar-hide {
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    
+    /* Hide scrollbar for IE, Edge and Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;     /* Firefox */
+  }
+  
+  /* Show scrollbar on hover */
+  .scrollbar-show:hover {
+    &::-webkit-scrollbar {
+      display: block;
+      width: 6px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: oklch(0.4 0 0 / 30%);
+      border-radius: 3px;
+    }
+    
+    &::-webkit-scrollbar-thumb:hover {
+      background: oklch(0.5 0 0 / 50%);
+    }
+    
+    scrollbar-width: thin;
+    scrollbar-color: oklch(0.4 0 0 / 30%) transparent;
+  }
+}
