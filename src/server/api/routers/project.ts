@@ -1,6 +1,6 @@
 import z from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { createProject } from "~/server/db/queries";
+import { createProject, getProject } from "~/server/db/queries";
 
 export const projectRouter = createTRPCRouter({
   createProject: publicProcedure
@@ -10,4 +10,9 @@ export const projectRouter = createTRPCRouter({
       const projectId = await createProject({ title });
       return projectId;
     }),
+
+  getProjects: publicProcedure.query(async () => {
+    const projects = await getProject();
+    return projects;
+  }),
 });

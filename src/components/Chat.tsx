@@ -3,7 +3,8 @@
 import { useChat } from "@ai-sdk/react";
 import type { UIMessage } from "ai";
 import MessageBox from "./Message-box";
-
+import { SidebarProvider } from "./ui/sidebar";
+import SidebarComponent from "./Sidebar";
 
 export default function Chat({
   id,
@@ -25,34 +26,32 @@ export default function Chat({
     maxSteps: 3,
   });
 
-  
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black to-white/20 flex items-center justify-center p-4 select-none pb-100 relative">
-      <div className="absolute top-10 left-10 text-white font-semibold text-2xl z-10">
-        swiz
+    <SidebarProvider defaultOpen={true}>
+      <div className="flex min-h-screen w-full">
+        <SidebarComponent/>
+        <div className="flex-1 min-h-screen bg-gradient-to-b from-black to-white/20 flex items-start justify-center pt-45 p-4 select-none">
+          <div className="w-full max-w-4xl text-center space-y-6">
+            <div className="space-y-4">
+              <h1 className="text-3xl md:text-6xl font-semibold text-white select-none">
+                Make anything
+              </h1>
+              <p className="text-lg text-gray-400 select-none">
+                Build fullstack web apps by prompting
+              </p>
+            </div>
+            
+            <div className="mt-12">
+              <MessageBox 
+                input={input}
+                status={status}
+                handleInputChange={handleInputChange}
+                handleSubmit={handleSubmit}
+              />
+            </div>
+          </div>
+        </div>
       </div>
-      
-      <div className="w-full max-w-4xl text-center">
-       
-        <h1 className="text-3xl md:text-6xl font-bold text-white mb-6 select-none">
-          Make anything
-        </h1>
-
-     
-        <p className="text-lg text-gray-400 mb-12 select-none">
-          Build fullstack web apps by prompting
-        </p>
-
-        
-       
-          <MessageBox 
-            input={input}
-            status={status}
-            handleInputChange={handleInputChange}
-            handleSubmit={handleSubmit}
-          />
-       
-      </div>
-    </div>
+    </SidebarProvider>
   );
 }
