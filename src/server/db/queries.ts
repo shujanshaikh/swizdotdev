@@ -9,9 +9,14 @@ export const createProject = async ({ title }: { title: string }) => {
   return result[0]?.id;
 };
 
-export const getProject = async () => {
-  const c = await db.select().from(project).orderBy(desc(project.updatedAt));
-  return c;
+export const getProjects = async () => {
+  try {
+    const projects = await db.select().from(project).orderBy(desc(project.updatedAt));
+    return projects;
+  } catch (error) {
+    console.error("Failed to fetch projects:", error);
+    throw new Error("Failed to fetch projects");
+  }
 };
 
 

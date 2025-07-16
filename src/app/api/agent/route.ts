@@ -22,6 +22,8 @@ import { generateTitleFromUserMessage } from "~/lib/generate-title";
 
 export async function POST(req: Request) {
   const { message, id }: { message: UIMessage; id: string } = await req.json();
+  console.log(message , "message");
+  console.log(id , "id");
 
   const project = await getProjectById({ id });
 

@@ -101,7 +101,7 @@ export default function SidebarComponent() {
             variant="secondary"
             className="flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-2.5 font-medium text-white shadow-sm transition-all duration-200"
             onClick={() => {
-              console.log("Create new project");
+              navigate("/");
             }}
           >
             New Project

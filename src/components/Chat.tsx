@@ -3,6 +3,7 @@ import type { UIMessage } from "ai";
 import MessageBox from "./Message-box";
 import { SidebarProvider } from "./ui/sidebar";
 import SidebarComponent from "./Sidebar";
+import { useNavigate } from "react-router-dom";
 
 export default function Chat({
   id,
@@ -11,6 +12,8 @@ export default function Chat({
   id: string,
   initialMessages: Array<UIMessage>;
 }) {
+  const navigate = useNavigate();
+  
   const { input, status, handleInputChange, handleSubmit } = useChat({
     id,
     initialMessages,
@@ -22,8 +25,16 @@ export default function Chat({
     }),
     sendExtraMessageFields: true,
     maxSteps: 3,
-    
   });
+
+  const handleInitialSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!input.trim() || status === 'streaming') return;
+    
+    handleSubmit(e);
+    
+    navigate(`/project/${id}`);
+  };
   
   return (
     <SidebarProvider defaultOpen={true}>
@@ -45,7 +56,7 @@ export default function Chat({
                 input={input}
                 status={status}
                 handleInputChange={handleInputChange}
-                handleSubmit={handleSubmit}
+                handleSubmit={handleInitialSubmit}
               />
             </div>
           </div>

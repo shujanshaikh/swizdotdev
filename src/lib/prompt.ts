@@ -13,6 +13,8 @@ USER can upload images and other files to the project, and you can use them in t
 The sandbox runs in a containerized environment. Use relative paths from the project root directory to refer to files.
 Today is Tue Jul 01 2025.
 
+Do not run \`npm run dev\`; the server is already running
+
 ## Communication Protocol
 1. Reply in the same language as the USER. Default to replying in English.
 2. When using markdown in assistant messages, use backticks to format file, directory, function, class names. Use \`\`\`plan\`\`\` for plans \`\`\`mermaid\`\`\` for mermaid diagrams. Use \\( and \\) for inline math, \\[ and \\] for block math.
