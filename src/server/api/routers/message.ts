@@ -20,4 +20,13 @@ export const messageRouter = createTRPCRouter({
       });
       return messages;
     }),
+
+    getSandboxUrl: publicProcedure.input(z.object({
+      projectId: z.string(),
+    })).query(async ({ ctx, input }) => {
+      const messages = await ctx.db.query.message.findMany({
+        where: eq(message.id, input.projectId),
+      });
+      return messages.find((message) => message.sandboxUrl)?.sandboxUrl;
+    }),
 });

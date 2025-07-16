@@ -15,6 +15,13 @@
       "when": 1752432135737,
       "tag": "0001_shocking_ares",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1752672015490,
+      "tag": "0002_numerous_captain_marvel",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,11 @@
+import { useEffect, useState } from "react";
 import { Button } from "./ui/button"
 
-export default function PreviewUrl() {
+export default function PreviewUrl({ sandboxUrl }: { sandboxUrl: string }) {
+    const [url, setUrl] = useState(sandboxUrl || "");
+    useEffect(() => {
+        setUrl(sandboxUrl || "");
+    }, [sandboxUrl]);
     return (
         <div className="w-full h-full flex flex-col">
             <div className="bg-zinc-900/50 px-4 py-2 flex items-center gap-3">
@@ -30,7 +35,8 @@ export default function PreviewUrl() {
                         type="text" 
                         className="flex-1 outline-none text-sm text-white bg-transparent placeholder:text-gray-400"
                         placeholder="Enter URL to preview"
-                        defaultValue=""
+                        value={url}
+                        onChange={(e) => setUrl(e.target.value)}
                     />
                 </div>
 
@@ -47,7 +53,7 @@ export default function PreviewUrl() {
                 <iframe  
                     width="100%" 
                     height="100%" 
-                    src="https://s3chat.space/" 
+                    src={sandboxUrl} 
                     className="border-none w-full h-full"
                 />
             </div>

@@ -1,0 +1,1 @@
+ALTER TABLE "swiz_message" ADD COLUMN "sandbox_url" text;

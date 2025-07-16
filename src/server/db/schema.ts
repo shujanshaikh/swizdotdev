@@ -1,7 +1,7 @@
 // Example model schema from the Drizzle docs
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
-import type { InferSelectModel } from "drizzle-orm";
+import { relations, type InferSelectModel } from "drizzle-orm";
 import {
   jsonb,
   pgTableCreator,
@@ -35,8 +35,16 @@ export const message = createTable("message", {
   parts: jsonb("parts").notNull(),
   role: varchar("role").notNull(),
   attachments: jsonb("attachments"),
+  sandboxUrl: text("sandbox_url"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 export type DBMessage = InferSelectModel<typeof message>;
+
+export const messageRelations = relations(message, ({ one }) => ({
+  project: one(project, {
+    fields: [message.projectId],
+    references: [project.id],
+  }),
+}));

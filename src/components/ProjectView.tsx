@@ -49,7 +49,11 @@ export default function ProjectView() {
     maxSteps: 5,
   });
 
-  
+  const { data: sandboxUrl } = api.message.getSandboxUrl.useQuery(
+    { projectId: dbMessages?.at(-1)?.id ?? "" },
+    { enabled: !!dbMessages?.at(-1)?.id }
+  );
+
   if (isLoading) {
     return (
       <div className="h-screen flex items-center justify-center bg-zinc-900">
@@ -90,7 +94,7 @@ export default function ProjectView() {
               </TabsTrigger>
             </TabsList>
             <TabsContent value="app">
-              <PreviewUrl />
+              <PreviewUrl sandboxUrl={sandboxUrl!} />
             </TabsContent>
           </Tabs>
         </ResizablePanel>

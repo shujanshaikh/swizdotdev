@@ -62,6 +62,7 @@ export async function POST(req: Request) {
         attachments: message.experimental_attachments ?? [],
         createdAt: new Date(), 
         updatedAt: new Date(),
+        sandboxUrl: "",
       },
     ],
   });
@@ -80,7 +81,7 @@ export async function POST(req: Request) {
     tools: {
       bash: tool({
         description:
-          "Run a terminal command. IMPORTANT: Do not use this tool to edit files. Use the `edit_file` tool instead.",
+          "Run a terminal command",
         parameters: z.object({
           command: z.string(),
         }),
@@ -276,17 +277,19 @@ export async function POST(req: Request) {
 
       run_linter: tool({
         description:
-          "Run linter on the project. Make sure a lint script exists in package.json and packages are installed.",
+          "Run linter on the project",
         parameters: z.object({
           project_directory: z.string(),
-          package_manager: z.enum(["bun", "pnpm", "npm"]),
         }),
-        execute: async ({ project_directory, package_manager }) => {
+        execute: async ({ project_directory }) => {
           try {
             const sandbox = await getSandbox(sandboxId);
+            console.log(project_directory , "project_directory");
             const result = await sandbox.commands.run(
-              `cd ${project_directory} && ${package_manager} run lint`,
+              `cd ${project_directory} && npm run lint`,
             );
+              console.log(result , "result");
+              console.log(result.stdout , "result.stdout");
             return result.stdout;
           } catch (error) {
             return `Linter error: ${error}`;
@@ -336,7 +339,6 @@ export async function POST(req: Request) {
     maxSteps: 10,
     toolChoice: "required",
     experimental_continueSteps: true,
-
     onFinish: async ({ response }) => {
       const sandboxUrl = `https://${sandbox.getHost(3000)}`;
       console.log(sandboxUrl);
@@ -365,6 +367,7 @@ export async function POST(req: Request) {
             role: assistantMessage!.role,
             parts: assistantMessage?.parts ?? [],
             attachments: assistantMessage?.experimental_attachments ?? [],
+            sandboxUrl: sandboxUrl,
             createdAt: new Date(),
             updatedAt: new Date(),
           },
