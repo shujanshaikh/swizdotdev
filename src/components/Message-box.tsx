@@ -33,14 +33,14 @@ export default function MessageBox({
       <div className={cn(
         "relative w-full rounded-2xl bg-zinc-800 transition-all duration-300 ease-in-out",
         isFocused ? "border-white/30" : "hover:border-zinc-600/50",
-        "backdrop-blur-sm bg-zinc-800/90"
+        "backdrop-blur-sm"
       )}>
         <textarea
           value={input}
           onChange={handleTextareaChange}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          placeholder="create a booking system for appointments with calendar integration..."
+          placeholder="Tell swiz what you want to do..."
           className={cn(
             "w-full min-h-[96px] max-h-[200px] p-6 pr-12 rounded-2xl bg-transparent text-white placeholder:text-zinc-400",
             "text-lg resize-none overflow-hidden leading-relaxed",

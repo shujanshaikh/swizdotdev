@@ -1,13 +1,11 @@
-"use client";
-
 import { useState, useEffect, useRef } from "react";
 import { PanelLeftClose, ChevronDown } from "lucide-react";
+import { Skeleton } from "./ui/skeleton";
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -34,7 +32,6 @@ export default function SidebarComponent() {
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -76,38 +73,34 @@ export default function SidebarComponent() {
       side="left"
       variant="sidebar"
       collapsible="none"
-      className="overflow-hidden border-r border-zinc-800/50 bg-zinc-950"
+      className="overflow-hidden border-r border-zinc-800/50 bg-zinc-900"
     >
-      <SidebarHeader className="border-b border-zinc-800/30 bg-zinc-950 px-5 py-5">
-        <div className="flex w-full items-center justify-between">
-          <div className="flex items-center gap-2">
+      <SidebarContent className="flex flex-col overflow-hidden bg-zinc-900/50 py-3">
+        <div className="flex w-full items-center justify-between px-3 py-2">
+          <div className="flex items-center gap-3">
             <Image
               src="/logo.svg"
               alt="Swiz"
-              width={24}
-              height={24}
-              className="flex-shrink-0"
+              width={28}
+              height={28}
+              className="flex-shrink-0" 
             />
-            <span className="font-poppins text-2xl font-semibold tracking-wide text-white">
+            <span className="font-poppins text-xl font-semibold tracking-wide text-white">
               swizdotdev
             </span>
           </div>
           <button
             onClick={toggleSidebar}
-            className="rounded-md p-1.5 transition-all duration-200 hover:bg-zinc-800/40"
+            className="rounded-md p-2 text-zinc-500 transition-colors duration-200 hover:bg-zinc-800/50 hover:text-zinc-300"
           >
-            <PanelLeftClose className="h-4 w-4 text-zinc-500 hover:text-zinc-300" />
+            <PanelLeftClose className="h-5 w-5" />
           </button>
         </div>
-      </SidebarHeader>
-
-      <SidebarContent className="flex flex-col overflow-hidden bg-zinc-950 py-3">
         <div className="mb-4 px-3">
           <Button
             variant="secondary"
             className="flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-2.5 font-medium text-white shadow-sm transition-all duration-200"
             onClick={() => {
-              // Handle new project creation
               console.log("Create new project");
             }}
           >
@@ -152,7 +145,17 @@ export default function SidebarComponent() {
             <div className="group relative h-full">
               <div className="scrollbar-hide hover:scrollbar-show h-full overflow-y-auto transition-all duration-200">
                 <SidebarMenu className="space-y-1 pr-2">
-                  {recentProjects.length > 0 ? (
+                  {projects.isLoading ? (
+                    Array.from({ length: 5 }).map((_, index) => (
+                      <SidebarMenuItem key={`skeleton-${index}`}>
+                        <div className="flex items-center gap-3 px-3 py-2">
+                          <div className="flex-1">
+                            <Skeleton className="h-4 w-4/5 rounded-md" />
+                          </div>
+                        </div>
+                      </SidebarMenuItem>
+                    ))
+                  ) : recentProjects.length > 0 ? (
                     recentProjects.map((project) => (
                       <SidebarMenuItem key={project.id}>
                         <SidebarMenuButton
@@ -185,7 +188,6 @@ export default function SidebarComponent() {
                   )}
                 </SidebarMenu>
               </div>
-              <div className="pointer-events-none absolute right-0 bottom-0 left-0 h-6 bg-gradient-to-t from-zinc-950 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
             </div>
           </SidebarGroupContent>
         </SidebarGroup>

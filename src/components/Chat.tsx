@@ -1,5 +1,3 @@
-"use client";
-
 import { useChat } from "@ai-sdk/react";
 import type { UIMessage } from "ai";
 import MessageBox from "./Message-box";
@@ -24,8 +22,9 @@ export default function Chat({
     }),
     sendExtraMessageFields: true,
     maxSteps: 3,
+    
   });
-
+  
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="flex min-h-screen w-full">
