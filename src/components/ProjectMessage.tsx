@@ -202,8 +202,10 @@ const ToolExecution = ({ toolName, args, result }: {
 
 export default function ProjectMessageView({
   messages,
+  status
 }: {
   messages: Array<UIMessage>;
+  status: "submitted" | "streaming" | "ready" | "error";
 }) {
   return (
     <div className="h-full w-full overflow-y-auto scrollbar-hide">
@@ -215,68 +217,97 @@ export default function ProjectMessageView({
             <div className="text-sm text-gray-500">Start a conversation to see your chat history!</div>
           </div>
         ) : (
-          messages.map((message) => (
-            <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div className={`${message.role === "user" ? "max-w-[75%] ml-auto" : "w-full"}`}>
-                {message.role === "user" ? (
-                  <div className="bg-zinc-800 text-white rounded-2xl px-5 py-4">
-                    {message.parts.map((part, partIndex) => (
-                      <div key={partIndex}>
-                        {part.type === "text" && (
-                          <div className="whitespace-pre-wrap text-md leading-relaxed">
-                            {part.text}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-3 w-full py-4">
-                    {message.parts.map((part, partIndex) => {
-                      if (part.type === "text") {
-                        return (
-                          <div key={partIndex} className="text-gray-200 text-[15px] leading-relaxed whitespace-pre-wrap ">
-                            {part.text}
-                          </div>
-                        );
-                      }
-
-                      if (part.type === "tool-invocation") {
-                        const callId = part.toolInvocation.toolCallId;
-                        const toolName = part.toolInvocation.toolName;
-                        const state = part.toolInvocation.state;
-                        const args = part.toolInvocation.args;
-                        
-                        let result: string | undefined;
-                        if (state === "result" && "result" in part.toolInvocation) {
-                          result = typeof part.toolInvocation.result === "string" 
-                            ? part.toolInvocation.result 
-                            : JSON.stringify(part.toolInvocation.result);
+          <>
+            {messages.map((message) => (
+              <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+                <div className={`${message.role === "user" ? "max-w-[75%] ml-auto" : "w-full"}`}>
+                  {message.role === "user" ? (
+                    <div className="bg-zinc-800 text-white rounded-2xl px-5 py-4">
+                      {message.parts.map((part, partIndex) => (
+                        <div key={partIndex}>
+                          {part.type === "text" && (
+                            <div className="whitespace-pre-wrap text-md leading-relaxed">
+                              {part.text}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="space-y-3 w-full py-4">
+                      {message.parts.map((part, partIndex) => {
+                        if (part.type === "text") {
+                          return (
+                            <div key={partIndex} className="text-gray-200 text-[15px] leading-relaxed whitespace-pre-wrap ">
+                              {part.text}
+                            </div>
+                          );
                         }
 
-                        return (
-                          <ToolExecution
-                            key={callId}
-                            toolName={toolName}
-                            args={args}
-                            result={result}
-                          />
-                        );
-                      }
+                        if (part.type === "tool-invocation") {
+                          const callId = part.toolInvocation.toolCallId;
+                          const toolName = part.toolInvocation.toolName;
+                          const state = part.toolInvocation.state;
+                          const args = part.toolInvocation.args;
+                          
+                          let result: string | undefined;
+                          if (state === "result" && "result" in part.toolInvocation) {
+                            result = typeof part.toolInvocation.result === "string" 
+                              ? part.toolInvocation.result 
+                              : JSON.stringify(part.toolInvocation.result);
+                          }
 
-                      return null;
-                    })}
-                  </div>
-                )}
+                          return (
+                            <ToolExecution
+                              key={callId}
+                              toolName={toolName}
+                              args={args}
+                              result={result}
+                            />
+                          );
+                        }
 
-                {message.experimental_attachments && message.experimental_attachments.length > 0 && (
-                  <div className="mt-2 text-xs text-gray-500">
-                    📎 {message.experimental_attachments.length} file{message.experimental_attachments.length !== 1 ? 's' : ''}
-                  </div>
-                )}
+                        return null;
+                      })}
+                    </div>
+                  )}
+
+                  {message.experimental_attachments && message.experimental_attachments.length > 0 && (
+                    <div className="mt-2 text-xs text-gray-500">
+                      📎 {message.experimental_attachments.length} file{message.experimental_attachments.length !== 1 ? 's' : ''}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))
+            ))}
+            
+            {(status === "submitted") && (
+              <div className="flex justify-start">
+                <div className="flex items-center gap-2 py-4">
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"/>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse delay-100"/>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse delay-200"/>
+                </div>
+              </div>
+            )}
+            
+            {status === "error" && (
+              <div className="flex justify-start">
+                <div className="w-full">
+                  <div className="space-y-3 w-full py-4">
+                    <div className="flex items-center gap-2 bg-red-900/20 rounded-lg px-4 py-3">
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"/>
+                        <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse delay-100"/>
+                        <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse delay-200"/>
+                      </div>
+                      <span className="text-sm text-red-400">Error occurred</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

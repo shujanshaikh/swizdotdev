@@ -50,12 +50,24 @@ export default function PreviewUrl({ sandboxUrl }: { sandboxUrl: string }) {
             </div>
 
             <div className="flex-1">
-                <iframe  
-                    width="100%" 
-                    height="100%" 
-                    src={sandboxUrl} 
-                    className="border-none w-full h-full"
-                />
+                {url ? (
+                    <iframe  
+                        width="100%" 
+                        height="100%" 
+                        src={url} 
+                        className="border-none w-full h-full"
+                    />
+                ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-zinc-900/20">
+                        <div className="text-center text-gray-400">
+                            <svg className="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9" />
+                            </svg>
+                            <p className="text-lg font-medium">No URL to preview</p>
+                            <p className="text-sm">Enter a URL in the address bar above</p>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     )

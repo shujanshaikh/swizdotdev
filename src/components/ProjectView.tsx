@@ -36,7 +36,7 @@ export default function ProjectView() {
 
   const initialMessages = dbMessages ? convertToUIMessages(dbMessages) : [];
 
-  const { input, status, handleInputChange, handleSubmit, messages } = useChat({
+  const { input, status, handleInputChange, handleSubmit, messages , reload } = useChat({
     id,
     initialMessages,
     generateId : () => crypto.randomUUID(),
@@ -45,14 +45,14 @@ export default function ProjectView() {
       message: body.messages.at(-1),
       id,
     }),
+    experimental_throttle: 100,
     sendExtraMessageFields: true,
-    maxSteps: 5,
   });
 
-  const { data: sandboxUrl } = api.message.getSandboxUrl.useQuery(
-    { projectId: dbMessages?.at(-1)?.id ?? "" },
+   const { data: sandboxUrl } = api.message.getSandboxUrl.useQuery(
+    { messageId: dbMessages?.at(-1)?.id ?? "" },
     { enabled: !!dbMessages?.at(-1)?.id }
-  );
+  )
 
   if (isLoading) {
     return (
@@ -68,7 +68,7 @@ export default function ProjectView() {
         <ResizablePanel maxSize={40} minSize={20} defaultSize={30}>
           <div className="flex h-full flex-col bg-zinc-900">
             <div className="flex-1 min-h-0">
-              <ProjectMessageView messages={messages}/>
+              <ProjectMessageView messages={messages} status={status}/>
             </div>
             <div className="flex-shrink-0 p-4 border-t border-zinc-700/50">
               <MessageBox

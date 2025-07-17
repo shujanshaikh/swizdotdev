@@ -22,11 +22,11 @@ export const messageRouter = createTRPCRouter({
     }),
 
     getSandboxUrl: publicProcedure.input(z.object({
-      projectId: z.string(),
+      messageId: z.string(),
     })).query(async ({ ctx, input }) => {
-      const messages = await ctx.db.query.message.findMany({
-        where: eq(message.id, input.projectId),
+      const sandboxUrl = await ctx.db.query.message.findFirst({
+        where: eq(message.id, input.messageId),
       });
-      return messages.find((message) => message.sandboxUrl)?.sandboxUrl;
+      return sandboxUrl?.sandboxUrl;
     }),
 });

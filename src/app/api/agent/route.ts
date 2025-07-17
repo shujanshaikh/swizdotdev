@@ -41,7 +41,7 @@ export async function POST(req: Request) {
   }
 
   const previousMessages = await getMessagesByProjectId({ id });
-  
+  console.log("previousMessages are as follows" , previousMessages);
 
   const messages = appendClientMessage({
     // @ts-expect-error: todo add type conversion from DBMessage[] to UIMessage[]
@@ -241,7 +241,7 @@ export async function POST(req: Request) {
           try {
             const sandbox = await getSandbox(sandboxId);
             await sandbox.files.write(relative_file_path, code_edit);
-            return `File ${relative_file_path} edited successfully. Instructions: ${instructions}`;
+            return `File ${relative_file_path} edited successfully. Instructions: ${instructions} ${code_edit}`;
           } catch (error) {
             return `Error editing file: ${error}`;
           }
@@ -286,12 +286,9 @@ export async function POST(req: Request) {
         execute: async ({ project_directory }) => {
           try {
             const sandbox = await getSandbox(sandboxId);
-            console.log(project_directory , "project_directory");
             const result = await sandbox.commands.run(
               `cd ${project_directory} && npm run lint`,
             );
-              console.log(result , "result");
-              console.log(result.stdout , "result.stdout");
             return result.stdout;
           } catch (error) {
             return `Linter error: ${error}`;
@@ -340,7 +337,6 @@ export async function POST(req: Request) {
     },
     maxSteps: 10,
     toolChoice: "required",
-    experimental_continueSteps: true,
     onFinish: async ({ response }) => {
       const sandboxUrl = `https://${sandbox.getHost(3000)}`;
       console.log(sandboxUrl);
