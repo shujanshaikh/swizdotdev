@@ -22,8 +22,7 @@ import { generateTitleFromUserMessage } from "~/lib/generate-title";
 
 export async function POST(req: Request) {
   const { message, id }: { message: UIMessage; id: string } = await req.json();
-  console.log(message , "message");
-  console.log(id , "id");
+  console.log(message, "message");
 
   const project = await getProjectById({ id });
 
@@ -41,7 +40,6 @@ export async function POST(req: Request) {
   }
 
   const previousMessages = await getMessagesByProjectId({ id });
-  console.log("previousMessages are as follows" , previousMessages);
 
   const messages = appendClientMessage({
     // @ts-expect-error: todo add type conversion from DBMessage[] to UIMessage[]
@@ -50,7 +48,7 @@ export async function POST(req: Request) {
   });
 
 
-  const sandbox = await Sandbox.create("zite-npm", { timeoutMs: 3_600_000 });
+  const sandbox = await Sandbox.create("zite-npm");
   const sandboxId = sandbox.sandboxId;
 
   await saveMessages({
@@ -75,7 +73,8 @@ export async function POST(req: Request) {
     model: google("gemini-2.5-flash"),
     system: PROMPT,
     toolCallStreaming: true,
-
+    maxSteps: 10,
+    toolChoice: "required",
     experimental_transform: smoothStream({
       delayInMs: 10,
       chunking: "word",
@@ -243,7 +242,7 @@ export async function POST(req: Request) {
             await sandbox.files.write(relative_file_path, code_edit);
             return `File ${relative_file_path} edited successfully. Instructions: ${instructions} ${code_edit}`;
           } catch (error) {
-            return `Error editing file: ${error}`;
+            return `Error editing file: ${error} ${relative_file_path} ${instructions} ${code_edit}`;
           }
         },
       }),
@@ -297,7 +296,7 @@ export async function POST(req: Request) {
       }),
 
       suggestions: tool({
-        description: "Suggest 1-5 next steps to implement with the USER.",
+        description: "Suggest 1-5 next steps to implement with the USER. Suggest only once and only if the user has not provided a solution.",
         parameters: z.object({
           suggestions: z.array(z.string()),
         }),
@@ -329,14 +328,12 @@ export async function POST(req: Request) {
           viewport: z.enum(["mobile", "tablet", "desktop"]),
           include_screenshot: z.boolean(),
         }),
-        execute: async ({ url, theme, viewport }) => {
+        execute: async ({ url, theme, viewport, include_screenshot }) => {
           // Todo : Implement web scraping functionality
           return `Web scraping ${url} in ${theme} mode, ${viewport} viewport - Implementation needed`;
         },
       }),
     },
-    maxSteps: 10,
-    toolChoice: "required",
     onFinish: async ({ response }) => {
       const sandboxUrl = `https://${sandbox.getHost(3000)}`;
       console.log(sandboxUrl);

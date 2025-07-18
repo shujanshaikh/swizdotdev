@@ -36,7 +36,7 @@ export default function ProjectView() {
 
   const initialMessages = dbMessages ? convertToUIMessages(dbMessages) : [];
 
-  const { input, status, handleInputChange, handleSubmit, messages , reload } = useChat({
+  const { input, status, handleInputChange, handleSubmit, messages } = useChat({
     id,
     initialMessages,
     generateId : () => crypto.randomUUID(),

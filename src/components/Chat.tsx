@@ -1,5 +1,5 @@
 import { useChat } from "@ai-sdk/react";
-import type { UIMessage } from "ai";
+import type { UIMessage, Attachment } from "ai";
 import MessageBox from "./Message-box";
 import { SidebarProvider } from "./ui/sidebar";
 import SidebarComponent from "./Sidebar";
@@ -24,16 +24,16 @@ export default function Chat({
       id,
     }),
     sendExtraMessageFields: true,
-    maxSteps: 3,
   });
 
-  const handleInitialSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleInitialSubmit = async (e: React.FormEvent<HTMLFormElement>, options: { experimental_attachments: Attachment[] }) => {
     e.preventDefault();
     if (!input.trim() || status === 'streaming') return;
     
-    handleSubmit(e);
+    handleSubmit(e, options);
     
-    navigate(`/project/${id}`);
+   
+      navigate(`/project/${id}`);
   };
   
   return (

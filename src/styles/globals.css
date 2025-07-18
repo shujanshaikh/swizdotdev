@@ -1,7 +1,10 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "uploadthing/tw/v4";
+@source "../node_modules/@uploadthing/react/dist";
 
 @custom-variant dark (&:is(.dark *));
+
 
 @theme {
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
