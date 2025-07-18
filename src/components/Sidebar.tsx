@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { PanelLeftClose, ChevronDown } from "lucide-react";
+import { PanelLeftClose, ChevronDown, Plus, Clock, Archive } from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
+
+
 import {
   Sidebar,
   SidebarContent,
@@ -16,7 +18,6 @@ import { api } from "~/trpc/react";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
 import Image from "next/image";
-
 export default function SidebarComponent() {
   const projects = api.project.getProjects.useQuery();
   const navigate = useNavigate();
@@ -73,65 +74,79 @@ export default function SidebarComponent() {
       side="left"
       variant="sidebar"
       collapsible="none"
-      className="overflow-hidden border-r border-zinc-800/50 bg-zinc-900"
+      className="overflow-hidden border-r border-zinc-800/30 bg-gradient-to-b from-zinc-900 to-zinc-950"
     >
-      <SidebarContent className="flex flex-col overflow-hidden bg-zinc-900/50 py-3">
-        <div className="flex w-full items-center justify-between px-3 py-2">
+      <SidebarContent className="flex flex-col overflow-hidden bg-transparent py-4">
+        {/* Header */}
+        <div className="flex w-full items-center justify-between px-4 py-3 mb-2">
           <div className="flex items-center gap-3">
-            <Image
-              src="/logo.svg"
-              alt="Swiz"
-              width={28}
-              height={28}
-              className="flex-shrink-0" 
-            />
-            <span className="font-poppins text-xl font-semibold tracking-wide text-white">
-              swizdotdev
-            </span>
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-xl blur-sm"></div>
+              <div className="relative bg-gradient-to-br from-zinc-800 to-zinc-900 p-2 rounded-xl border border-zinc-700/50">
+                <Image
+                  src="/logo.svg"
+                  alt="Swiz"
+                  width={20}
+                  height={20}
+                  className="flex-shrink-0" 
+                />
+              </div>
+            </div>
+            <div>
+              <span className="font-semibold text-2xl text-white tracking-tight">
+                swizdotdev
+              </span>
+            </div>
           </div>
           <button
             onClick={toggleSidebar}
-            className="rounded-md p-2 text-zinc-500 transition-colors duration-200 hover:bg-zinc-800/50 hover:text-zinc-300"
+            className="rounded-lg p-2 text-zinc-400 transition-all duration-200 hover:bg-zinc-800/60 hover:text-zinc-200"
           >
-            <PanelLeftClose className="h-5 w-5" />
+            <PanelLeftClose className="h-4 w-4" />
           </button>
         </div>
-        <div className="mb-4 px-3">
+
+        {/* New Project Button */}
+        <div className="mb-6 px-4">
           <Button
-            variant="secondary"
-            className="flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-2.5 font-medium text-white shadow-sm transition-all duration-200"
-            onClick={() => {
-              navigate("/");
-            }}
+            onClick={() => navigate("/")}
+            className="w-full bg-gradient-to-r from-zinc-800 to-zinc-700 hover:from-zinc-700 hover:to-zinc-600 border border-zinc-600/50 text-white font-medium py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] hover:shadow-lg hover:shadow-zinc-900/20"
           >
             New Project
           </Button>
         </div>
 
-        <SidebarGroup className="min-h-0 flex-1 px-3">
-          <div className="mb-3">
+        {/* Projects Section */}
+        <SidebarGroup className="min-h-0 flex-1 px-4">
+          {/* Filter Header */}
+          <div className="mb-4">
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-                className="flex items-center gap-2 text-xs font-medium tracking-wide text-zinc-400 uppercase transition-colors hover:text-zinc-300"
+                className="flex items-center gap-2 text-xs font-semibold tracking-wider text-zinc-300 uppercase transition-all duration-200 hover:text-white group"
               >
+                <Clock className="w-3 h-3" />
                 {selectedFilter?.label || "Recent Projects"}
-                <ChevronDown className="h-3 w-3" />
+                <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${showFilterDropdown ? 'rotate-180' : ''}`} />
               </button>
 
               {showFilterDropdown && (
-                <div className="absolute top-full left-0 z-50 mt-1 min-w-32 rounded-md border border-zinc-800 bg-zinc-900 shadow-lg">
-                  {filterOptions.map((option) => (
+                <div className="absolute top-full left-0 z-50 mt-2 min-w-40 rounded-xl border border-zinc-700/50 bg-zinc-900/95 backdrop-blur-sm shadow-xl">
+                  {filterOptions.map((option, index) => (
                     <button
                       key={option.label}
                       onClick={() => {
                         setSelectedFilter(option);
                         setShowFilterDropdown(false);
                       }}
-                      className={`w-full px-3 py-2 text-left text-xs transition-colors first:rounded-t-md last:rounded-b-md hover:bg-zinc-800 ${
+                      className={`w-full px-4 py-3 text-left text-sm transition-all duration-200 ${
+                        index === 0 ? 'rounded-t-xl' : ''
+                      } ${
+                        index === filterOptions.length - 1 ? 'rounded-b-xl' : ''
+                      } hover:bg-zinc-800/60 ${
                         selectedFilter?.label === option.label
-                          ? "bg-zinc-800 text-zinc-200"
-                          : "text-zinc-400"
+                          ? "bg-zinc-800 text-white"
+                          : "text-zinc-300 hover:text-white"
                       }`}
                     >
                       {option.label}
@@ -141,16 +156,19 @@ export default function SidebarComponent() {
               )}
             </div>
           </div>
+
+          {/* Projects List */}
           <SidebarGroupContent className="min-h-0 flex-1">
             <div className="group relative h-full">
-              <div className="scrollbar-hide hover:scrollbar-show h-full overflow-y-auto transition-all duration-200">
-                <SidebarMenu className="space-y-1 pr-2">
+              <div className="h-full overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
+                <SidebarMenu className="space-y-2 px-1">
                   {projects.isLoading ? (
                     Array.from({ length: 5 }).map((_, index) => (
                       <SidebarMenuItem key={`skeleton-${index}`}>
-                        <div className="flex items-center gap-3 px-3 py-2">
+                        <div className="flex items-center gap-3 px-3 py-3 rounded-lg">
+                          <div className="w-2 h-2 rounded-full bg-zinc-700 animate-pulse"></div>
                           <div className="flex-1">
-                            <Skeleton className="h-4 w-4/5 rounded-md" />
+                            <Skeleton className="h-4 w-4/5 rounded-md bg-zinc-800" />
                           </div>
                         </div>
                       </SidebarMenuItem>
@@ -160,29 +178,33 @@ export default function SidebarComponent() {
                       <SidebarMenuItem key={project.id}>
                         <SidebarMenuButton
                           asChild
-                          className="rounded-lg p-1 transition-all duration-200"
+                          className="rounded-lg transition-all duration-200"
                         >
-                          <div className="group flex cursor-pointer items-center gap-3">
+                          <button
+                            onClick={() => navigate(`/project/${project.id}`)}
+                            className="group flex w-full cursor-pointer items-center gap-3 px-3 py-3 text-left rounded-lg hover:bg-zinc-800/60 transition-all duration-200"
+                          >
+                            <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
                             <div className="min-w-0 flex-1">
-                              <Button
-                                onClick={() => {
-                                  navigate(`/project/${project.id}`);
-                                }}
-                                variant="ghost"
-                                className="truncate p-2 text-sm font-medium text-zinc-200 transition-colors"
-                              >
+                              <span className="text-sm font-medium text-zinc-200 group-hover:text-white transition-colors duration-200 truncate block">
                                 {project.title}
-                              </Button>
+                              </span>
+                              <div className="text-xs text-zinc-500 group-hover:text-zinc-400 transition-colors duration-200">
+                                {project.updatedAt ? new Date(project.updatedAt).toLocaleDateString() : 'Recent'}
+                              </div>
                             </div>
-                          </div>
+                          </button>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     ))
                   ) : (
-                    <div className="px-3 py-4 text-center">
+                    <div className="px-3 py-8 text-center">
+                      <Archive className="w-8 h-8 text-zinc-600 mx-auto mb-3" />
+                      <p className="text-sm text-zinc-400 mb-1">
+                        No projects yet
+                      </p>
                       <p className="text-xs text-zinc-500">
-                        No projects found (
-                        {selectedFilter?.label?.toLowerCase() || "recent"})
+                        {selectedFilter?.label?.toLowerCase() || "recently"}
                       </p>
                     </div>
                   )}
@@ -192,7 +214,12 @@ export default function SidebarComponent() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarSeparator className="mx-4 my-4 flex-shrink-0 bg-zinc-800/30" />
+        {/* Footer */}
+        <div className="px-4 pt-4 border-t border-zinc-800/50">
+          <div className="text-xs text-zinc-500 text-center">
+            Built with ❤️ by swizdotdev
+          </div>
+        </div>
       </SidebarContent>
     </Sidebar>
   );

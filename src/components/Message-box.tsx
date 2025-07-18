@@ -4,6 +4,10 @@ import { Button } from "./ui/button";
 import type { Attachment } from "ai";
 import { UploadButton } from "~/utils/uploadthing";
 import Image from "next/image";
+import { Paperclip } from "lucide-react";
+
+
+
 
 export default function MessageBox({
     input, status, handleInputChange, handleSubmit
@@ -39,25 +43,23 @@ export default function MessageBox({
   };
 
   return (
-        <form onSubmit={event => {
+    <form onSubmit={event => {
       handleSubmit(event , {
         experimental_attachments: attachments,
       })
     }} className="relative max-w-3xl mx-auto">
 
       <div className={cn(
-        "relative w-full rounded-2xl bg-zinc-800 transition-all duration-300 ease-in-out border",
-        isFocused ? "border-white/30" : "border-zinc-700 hover:border-zinc-600/50",
-        "backdrop-blur-sm"
+        "relative w-full rounded-3xl bg-gradient-to-br from-zinc-800/90 to-zinc-900/90 transition-all duration-300 ease-in-out border backdrop-blur-md shadow-2xl"
       )}>
         {/* Attachments inside message box */}
         {attachments.length > 0 && (
-          <div className="p-4 pb-2 border-b border-zinc-700/50">
-            <div className="flex flex-wrap gap-2">
+          <div className="p-4 pb-3 border-b border-zinc-600/30">
+            <div className="flex flex-wrap gap-3">
               {attachments.map((attachment, index) => (
-                <div key={index} className="relative group flex items-center bg-zinc-750 rounded-xl p-2 border border-zinc-600/50 max-w-[200px]">
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <div className="relative w-8 h-8 rounded-lg overflow-hidden bg-zinc-700 flex-shrink-0">
+                <div key={index} className="relative group flex items-center bg-zinc-750/60 rounded-2xl p-3 border border-zinc-600/40 max-w-[220px] hover:bg-zinc-700/60 transition-all duration-200">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="relative w-10 h-10 rounded-md overflow-hidden bg-zinc-700/50 flex-shrink-0 ring-1 ring-zinc-600/30">
                       {attachment.contentType?.startsWith('image/') ? (
                         <Image
                           src={attachment.url}
@@ -67,22 +69,22 @@ export default function MessageBox({
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <svg className="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-5 h-5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                           </svg>
                         </div>
                       )}
                     </div>
-                    <span className="text-xs text-zinc-300 truncate">
+                    <span className="text-sm text-zinc-200 truncate font-medium">
                       {attachment.name || 'Unnamed file'}
                     </span>
                   </div>
                   <button
                     type="button"
                     onClick={() => removeAttachment(index)}
-                    className="ml-2 w-5 h-5 bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white rounded-full flex items-center justify-center transition-all duration-200 flex-shrink-0"
+                    className="ml-2 w-6 h-6 bg-red-500/20 hover:bg-red-500/80 text-red-300 hover:text-white rounded-full flex items-center justify-center transition-all duration-200 flex-shrink-0 hover:scale-110"
                   >
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
@@ -99,16 +101,16 @@ export default function MessageBox({
           onBlur={() => setIsFocused(false)}
           placeholder="Tell swiz what you want to do..."
           className={cn(
-            "w-full min-h-[96px] max-h-[200px] p-6 pr-20 rounded-2xl bg-transparent text-white placeholder:text-zinc-400",
-            "text-lg resize-none overflow-hidden leading-relaxed",
+            "w-full min-h-[100px] max-h-[200px] p-6 pr-28 rounded-3xl bg-transparent text-white placeholder:text-zinc-400",
+            "text-lg resize-none overflow-hidden leading-relaxed font-medium",
             "focus:outline-none transition-all duration-200",
-            "scrollbar-thin scrollbar-thumb-zinc-600 scrollbar-track-transparent",
-            attachments.length > 0 ? "rounded-t-none pt-4" : ""
+            "scrollbar-thin scrollbar-thumb-zinc-500/50 scrollbar-track-transparent hover:scrollbar-thumb-zinc-400/60",
+            attachments.length > 0 ? "rounded-t-none pt-5" : ""
           )}
           ref={textareaRef}
         />
         
-        <div className="absolute left-3 bottom-3">
+                <div className="absolute left-4 bottom-4">
           <UploadButton
             endpoint="imageUploader"
             onClientUploadComplete={(res) => {
@@ -125,18 +127,16 @@ export default function MessageBox({
             }}
             appearance={{
               button: cn(
-                "w-8 h-8 bg-zinc-900 hover:bg-zinc-600 text-zinc-300 hover:text-white rounded-md",
-                " transition-all duration-200",
-                "flex items-center justify-center text-sm font-medium",
-                "focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:ring-offset-2 focus:ring-offset-zinc-800"
+                "w-8 h-8 bg-transparent hover:bg-zinc-800/50 text-zinc-400 hover:text-white rounded-lg",
+                "transition-all duration-200 hover:scale-105 active:scale-95",
+                "flex items-center justify-center border-none",
+                "focus:outline-none"
               ),
               allowedContent: "hidden"
             }}
             content={{
               button: (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                </svg>
+                <Paperclip className="w-5 h-5" />
               )
             }}
           />
@@ -146,16 +146,16 @@ export default function MessageBox({
           type="submit"
           disabled={status !== "ready" || !input.trim()}
           className={cn(
-            "absolute right-3 bottom-3 w-8 h-8 bg-white hover:bg-white/90 text-black rounded-full",
-            "border-none flex items-center justify-center transition-all duration-200",
-            "disabled:opacity-40 disabled:cursor-not-allowed select-none focus:outline-none",
-            "hover:scale-105 active:scale-95",
-            status !== "ready" || !input.trim() ? "" : "hover:bg-gray-100"
+            "absolute right-4 bottom-4 w-10 h-10 bg-gradient-to-r from-white to-gray-100 hover:from-gray-100 hover:to-gray-200 text-zinc-800 rounded-full",
+            "border-none flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl",
+            "disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 select-none focus:outline-none",
+            "hover:scale-105 active:scale-95 focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-zinc-800",
+            status !== "ready" || !input.trim() ? "from-zinc-200 to-zinc-300 hover:from-zinc-200 hover:to-zinc-300" : ""
           )}
         >
           <svg 
-            width="12" 
-            height="12" 
+            width="14" 
+            height="14" 
             viewBox="0 0 24 24" 
             fill="none" 
             stroke="currentColor" 
