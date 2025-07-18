@@ -23,7 +23,8 @@ export default function Chat({
       message: body.messages.at(-1),
       id,
     }),
-    sendExtraMessageFields: true,
+    experimental_throttle: 100,
+    maxSteps: 10,
   });
 
   const handleInitialSubmit = async (e: React.FormEvent<HTMLFormElement>, options: { experimental_attachments: Attachment[] }) => {

@@ -14,6 +14,9 @@ importers:
       '@ai-sdk/groq':
         specifier: ^1.2.9
         version: 1.2.9(zod@3.25.76)
+      '@ai-sdk/openai':
+        specifier: ^1.3.23
+        version: 1.3.23(zod@3.25.76)
       '@ai-sdk/react':
         specifier: ^1.2.12
         version: 1.2.12(react@19.1.0)(zod@3.25.76)
@@ -179,6 +182,12 @@ packages:
 
   '@ai-sdk/openai-compatible@0.2.15':
     resolution: {integrity: sha512-868uTi5/gx0OlK8x2OT6G/q/WKATVStM4XEXMMLOo9EQTaoNDtSndhLU+4N4kuxbMS7IFaVSJcMr7mKFwV5vvQ==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.0.0
+
+  '@ai-sdk/openai@1.3.23':
+    resolution: {integrity: sha512-86U7rFp8yacUAOE/Jz8WbGcwMCqWvjK33wk5DXkfnAOEn3mx2r7tNSJdjukQFZbAK97VMXGPPHxF+aEARDXRXQ==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.0.0
@@ -3252,6 +3261,12 @@ snapshots:
       zod: 3.25.76
 
   '@ai-sdk/openai-compatible@0.2.15(zod@3.25.76)':
+    dependencies:
+      '@ai-sdk/provider': 1.1.3
+      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.76)
+      zod: 3.25.76
+
+  '@ai-sdk/openai@1.3.23(zod@3.25.76)':
     dependencies:
       '@ai-sdk/provider': 1.1.3
       '@ai-sdk/provider-utils': 2.2.8(zod@3.25.76)

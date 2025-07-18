@@ -6,6 +6,7 @@ import {
   appendClientMessage,
   appendResponseMessages,
 } from "ai";
+import { openai } from '@ai-sdk/openai';
 import { google } from "@ai-sdk/google";
 import { z } from "zod";
 import { Sandbox } from "@e2b/code-interpreter";
@@ -19,6 +20,7 @@ import {
   saveProject,
 } from "~/server/db/queries";
 import { generateTitleFromUserMessage } from "~/lib/generate-title";
+import { scrapeWebsite } from "~/lib/web/web-scraper";
 
 export async function POST(req: Request) {
   const { message, id }: { message: UIMessage; id: string } = await req.json();
@@ -40,6 +42,7 @@ export async function POST(req: Request) {
   }
 
   const previousMessages = await getMessagesByProjectId({ id });
+  console.log(previousMessages, "previousMessages");
 
   const messages = appendClientMessage({
     // @ts-expect-error: todo add type conversion from DBMessage[] to UIMessage[]
@@ -70,7 +73,7 @@ export async function POST(req: Request) {
 
   const result = streamText({
     messages,
-    model: google("gemini-2.5-flash"),
+    model: openai("o4-mini"),
     system: PROMPT,
     toolCallStreaming: true,
     maxSteps: 10,
@@ -205,7 +208,7 @@ export async function POST(req: Request) {
               return result.stdout;
             }
           } catch (error) {
-            return `Error reading file: ${error}`;
+            return `Error reading file: ${error} ${relative_file_path} ${start_line_one_indexed} ${end_line_one_indexed}`;
           }
         },
       }),
@@ -280,13 +283,12 @@ export async function POST(req: Request) {
         description:
           "Run linter on the project",
         parameters: z.object({
-          project_directory: z.string(),
         }),
-        execute: async ({ project_directory }) => {
-          try {
+          execute: async () => {
+            try {
             const sandbox = await getSandbox(sandboxId);
             const result = await sandbox.commands.run(
-              `cd ${project_directory} && npm run lint`,
+              `npm run lint`,
             );
             return result.stdout;
           } catch (error) {
@@ -329,8 +331,40 @@ export async function POST(req: Request) {
           include_screenshot: z.boolean(),
         }),
         execute: async ({ url, theme, viewport, include_screenshot }) => {
-          // Todo : Implement web scraping functionality
-          return `Web scraping ${url} in ${theme} mode, ${viewport} viewport - Implementation needed`;
+          console.log("Web scraping request received on agent route");
+          try {
+            const data = await scrapeWebsite({ url, theme, viewport, include_screenshot });
+      
+            console.log(data, "data");
+            if (!data.success) {
+              return {
+                error: data.error || 'Failed to scrape website',
+                url,
+                theme,
+                viewport
+              };
+            }
+    
+            return {
+              success: true,
+              url: data.data.url,
+              title: data.data.title,
+              screenshot: data.data.screenshot,
+              viewport: data.data.viewport,
+              theme: data.data.theme,
+              sessionInfo: data.data.sessionInfo,
+              scrapedAt: new Date().toISOString()
+            };
+      
+          } catch (error) {
+            console.error('Tool execution error:', error);
+            return {
+              error: `Failed to scrape ${url}: ${error}`,
+              url,
+              theme,
+              viewport
+            };
+          }
         },
       }),
     },

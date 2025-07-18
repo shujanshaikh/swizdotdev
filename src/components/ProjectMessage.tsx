@@ -4,6 +4,7 @@ import {
   EyeIcon,
   FileCode2,
   FolderIcon,
+  Globe,
   SearchIcon,
   TerminalIcon,
   TrashIcon,
@@ -223,6 +224,52 @@ const ToolExecution = ({
           </div>
         </div>
       );
+    }
+
+    if(toolName === "web_scrape"){
+      const url = (args?.url as string) || "url";
+      const theme = (args?.theme as string) || "theme";
+      const viewport = (args?.viewport as string) || "viewport";
+      const include_screenshot = args?.include_screenshot as boolean;
+
+      // Parse the result to get the screenshot data
+      let screenshotData = null;
+      if (result) {
+        try {
+          const parsedResult = JSON.parse(result);
+          if (parsedResult.success && parsedResult.screenshot) {
+            screenshotData = parsedResult.screenshot;
+          }
+        } catch (e) {
+          console.error("Failed to parse web_scrape result:", e);
+        }
+      }
+      
+
+      return <div className="flex flex-col gap-2 text-gray-300">
+        <div className="flex items-center gap-2">
+          <Globe className="h-4 w-4" />
+          <span className="ml-2">Web scraping</span>
+          <span className="ml-1 text-blue-400">{url}</span>
+          <span className="ml-1 text-gray-500">({theme}, {viewport})</span>
+        </div>
+        {include_screenshot && screenshotData && (
+          <div className="mt-2 ml-6">
+            <Image 
+              src={screenshotData.startsWith('data:') ? screenshotData : `data:image/png;base64,${screenshotData}`}
+              alt="Web scraping screenshot" 
+              width={400} 
+              height={400} 
+              className="rounded-lg border border-gray-600 shadow-lg max-w-full h-auto"
+            />
+          </div>
+        )}
+        {include_screenshot && !screenshotData && result && (
+          <div className="mt-2 ml-6 text-gray-500 text-sm">
+            Screenshot was requested but not available in the result
+          </div>
+        )}
+      </div>;
     }
 
     return (
