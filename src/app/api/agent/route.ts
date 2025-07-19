@@ -73,7 +73,7 @@ export async function POST(req: Request) {
 
   const result = streamText({
     messages,
-    model: openai("o4-mini"),
+    model: google("gemini-2.0-flash"),
     system: PROMPT,
     toolCallStreaming: true,
     maxSteps: 10,

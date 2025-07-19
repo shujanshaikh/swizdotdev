@@ -66,7 +66,7 @@ export default function ProjectView() {
     <div className="h-screen">
       <ResizablePanelGroup direction="horizontal" className="h-screen">
         <ResizablePanel maxSize={40} minSize={20} defaultSize={30}>
-          <div className="flex h-full flex-col bg-zinc-900">
+          <div className="flex h-full flex-col bg-zinc-900 ">
             <div className="flex-1 min-h-0">
               <ProjectMessageView messages={messages} status={status}/>
             </div>
