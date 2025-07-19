@@ -21,6 +21,7 @@ import {
 } from "~/server/db/queries";
 import { generateTitleFromUserMessage } from "~/lib/generate-title";
 import { scrapeWebsite } from "~/lib/web/web-scraper";
+import { groq } from "@ai-sdk/groq";
 
 export async function POST(req: Request) {
   const { message, id }: { message: UIMessage; id: string } = await req.json();
@@ -51,7 +52,7 @@ export async function POST(req: Request) {
   });
 
 
-  const sandbox = await Sandbox.create("zite-npm");
+  const sandbox = await Sandbox.create("zite");
   const sandboxId = sandbox.sandboxId;
 
   await saveMessages({
@@ -73,7 +74,7 @@ export async function POST(req: Request) {
 
   const result = streamText({
     messages,
-    model: google("gemini-2.0-flash"),
+    model: google("gemini-2.5-flash"),
     system: PROMPT,
     toolCallStreaming: true,
     maxSteps: 10,
