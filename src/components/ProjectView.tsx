@@ -36,7 +36,7 @@ export default function ProjectView() {
 
   const initialMessages = dbMessages ? convertToUIMessages(dbMessages) : [];
 
-  const { input, status, handleInputChange, handleSubmit, messages } = useChat({
+  const { input, status, handleInputChange, handleSubmit, messages , error , reload } = useChat({
     id,
     initialMessages,
     generateId : () => crypto.randomUUID(),
@@ -68,7 +68,7 @@ export default function ProjectView() {
         <ResizablePanel maxSize={40} minSize={20} defaultSize={30}>
           <div className="flex h-full flex-col bg-zinc-900 ">
             <div className="flex-1 min-h-0">
-              <ProjectMessageView messages={messages} status={status}/>
+              <ProjectMessageView messages={messages} status={status} error={error} reload={reload}/>
             </div>
             <div className="flex-shrink-0 p-4 border-t border-zinc-700/50">
               <MessageBox

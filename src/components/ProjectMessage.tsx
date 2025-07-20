@@ -10,8 +10,10 @@ import {
   SearchIcon,
   TerminalIcon,
   TrashIcon,
+  RefreshCcwIcon,
 } from "lucide-react";
 import Image from "next/image";
+import { Button } from "./ui/button";
 
 const ToolExecution = ({
   toolName,
@@ -127,14 +129,29 @@ const ToolExecution = ({
             <div className="flex items-center gap-2">
               <FileCode2 className="h-4 w-4 text-white" />
               <span className="text-md text-gray-400">Edited file:</span>
-              <span className="text-md text-blue-400">{fileName}</span>
+              <span className="text-md text-gray-400">{fileName}</span>
+              {result.includes("creating") && (
+                <div className="flex items-center gap-1">
+                  <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-gray-400" />
+                  <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-gray-400 delay-100" />
+                  <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-gray-400 delay-200" />
+                </div>
+              )}
             </div>
-            <details className="ml-6 rounded-3xl border border-white/20 p-2">
-              <summary className="cursor-pointer hover:text-gray-100">
-                View edit details
-              </summary>
-              <div className="mt-2 text-sm text-gray-400">{result}</div>
-            </details>
+            <div className="ml-6 rounded-lg border border-gray-500/20 bg-gray-500/5 p-3">
+              <div className="flex items-center gap-2">
+                <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+                <span className="text-sm text-gray-400">File edited successfully</span>
+              </div>
+              <details className="mt-2">
+                <summary className="cursor-pointer text-sm text-gray-400 hover:text-gray-100">
+                  View edit details
+                </summary>
+                <div className="mt-2 rounded bg-zinc-800/50 p-2 text-sm text-gray-400">
+                  {result}
+                </div>
+              </details>
+            </div>
           </div>
         );
       }
@@ -388,9 +405,13 @@ const ToolExecution = ({
 export default function ProjectMessageView({
   messages,
   status,
+  error,
+  reload,
 }: {
   messages: Array<UIMessage>;
   status: "submitted" | "streaming" | "ready" | "error";
+  error: undefined | Error;
+  reload: () => void;
 }) {
   return (
     <div className="scrollbar-hide h-full w-full overflow-y-auto">
@@ -513,8 +534,12 @@ export default function ProjectMessageView({
                         <div className="h-2 w-2 animate-pulse rounded-full bg-red-400 delay-200" />
                       </div>
                       <span className="text-sm text-red-400">
-                        Error occurred
+                        {error?.message}
                       </span>
+                      <Button variant="outline" size="sm" onClick={reload} className="flex items-center gap-2">
+                         <RefreshCcwIcon className="w-4 h-4" />
+                         <span className="text-sm">Reload</span>
+                      </Button>
                     </div>
                   </div>
                 </div>

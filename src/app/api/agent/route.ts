@@ -21,7 +21,6 @@ import {
 } from "~/server/db/queries";
 import { generateTitleFromUserMessage } from "~/lib/generate-title";
 import { scrapeWebsite } from "~/lib/web/web-scraper";
-import { groq } from "@ai-sdk/groq";
 
 export async function POST(req: Request) {
   const { message, id }: { message: UIMessage; id: string } = await req.json();
@@ -74,15 +73,15 @@ export async function POST(req: Request) {
 
   const result = streamText({
     messages,
-    model: google("gemini-2.5-flash"),
+    model: google("gemini-2.0-flash"),
     system: PROMPT,
     toolCallStreaming: true,
-    maxSteps: 10,
-    toolChoice: "required",
+    maxSteps: 3,
     experimental_transform: smoothStream({
       delayInMs: 10,
       chunking: "word",
     }),
+    //toolChoice: "required",
     tools: {
       bash: tool({
         description:
@@ -246,7 +245,7 @@ export async function POST(req: Request) {
             await sandbox.files.write(relative_file_path, code_edit);
             return `File ${relative_file_path} edited successfully. Instructions: ${instructions} ${code_edit}`;
           } catch (error) {
-            return `Error editing file: ${error} ${relative_file_path} ${instructions} ${code_edit}`;
+            return `Error editing file: ${error} ${relative_file_path} ${code_edit}`;
           }
         },
       }),
@@ -353,8 +352,6 @@ export async function POST(req: Request) {
               screenshot: data.data.screenshot,
               viewport: data.data.viewport,
               theme: data.data.theme,
-              sessionInfo: data.data.sessionInfo,
-              scrapedAt: new Date().toISOString()
             };
       
           } catch (error) {

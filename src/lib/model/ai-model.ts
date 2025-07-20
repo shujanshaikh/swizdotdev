@@ -7,6 +7,7 @@ export interface AIProvider {
   name: string;
   category: string;
   description: string;
+  provider: "google" | "anthropic" | "openai";
 }
 
 export const MODELS: AIProvider[] = [
@@ -15,42 +16,49 @@ export const MODELS: AIProvider[] = [
     name: "Gemini 2.5 flash",
     category: "Basic",
     description: "Basic model , Cheaper",
+    provider: "google",
   },
   {
     id: "gemini-2.0-flash",
     name: "Gemini 2.0 flash",
     category: "Basic",
     description: "Basic model , Cheaper",
+    provider: "google",
   },
   {
     id: "claude-4-sonnet-20250514",
     name: "Claude 4 Sonnet",
     category: "Agentic",
     description: "Antropic latest model , for daily use",
+    provider: "anthropic",
   },
   {
     id: "claude-3-5-sonnet-20240620",
     name: "Claude 3.5 Sonnet",
     category: "Agentic",
     description: "Antropic latest model , for daily use",
+    provider: "anthropic",
   },
   {
     id: "claude-3-7-sonnet-20250219",
     name: "Claude 3.5 Sonnet",
     category: "Agentic",
     description: "Antropic latest model , for daily use",
+    provider: "anthropic",
   },
   {
     id: "gpt-4.1",
     name: "GPT-4.1",
     category: "Basic",
     description: "OpenAI latest model , Cheaper",
+    provider: "openai",
   },
   {
     id: "4o-mini",
     name: "4o Mini",
     category: "Slightly Better",
     description: "OpenAI latest model , Cheaper",
+    provider: "openai",
   },
 ] as const;
 
