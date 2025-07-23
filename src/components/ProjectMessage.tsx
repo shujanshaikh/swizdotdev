@@ -33,6 +33,7 @@ const ToolExecution = ({
             <span className="text-sm font-medium">Bash</span>
             <code className="rounded bg-zinc-700/50 px-2 py-0.5 font-mono text-sm text-blue-400">
               {args?.command as string}
+              {result}
             </code>
           </div>
         </div>
@@ -274,6 +275,23 @@ const ToolExecution = ({
       );
     }
 
+
+    if(toolName === "task_agent") {
+      if(result) {
+        return (
+        <div className="rounded-xl p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex flex-col">
+                {args?.prompt as string}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+      }
+    }
+
     if (toolName === "delete_file") {
       const fileName = (args?.relative_file_path as string) || "file";
       return (
@@ -320,6 +338,7 @@ const ToolExecution = ({
         }
       }
 
+      
       return (
         <div className="rounded-xl border border-white/20 bg-zinc-800/30 p-4 shadow-lg">
           <div className="flex items-center justify-between">

@@ -49,15 +49,15 @@ export async function POST(req: Request) {
     messages: previousMessages,
     message,
   });
+  console.log(message.id)
 
-
-  const sandbox = await Sandbox.create("zite");
+  const sandbox = await Sandbox.create("zite-npm");
   const sandboxId = sandbox.sandboxId;
 
   await saveMessages({
     messages: [
       {
-        id: message.id,
+        id: message.id ?? crypto.randomUUID(),
         projectId: id,
         model: "gemini-2.5-flash",
         role: 'user',
@@ -73,19 +73,21 @@ export async function POST(req: Request) {
 
   const result = streamText({
     messages,
-    model: google("gemini-2.0-flash"),
+    model: openai("gpt-3.5-turbo" , {
+      structuredOutputs: true,
+    }),
     system: PROMPT,
     toolCallStreaming: true,
-    maxSteps: 3,
+     maxSteps: 10,
     experimental_transform: smoothStream({
       delayInMs: 10,
       chunking: "word",
     }),
-    //toolChoice: "required",
+    toolChoice: "required",
     tools: {
       bash: tool({
         description:
-          "Run a terminal command",
+          "Run a terminal command. Each command runs in a new shell.\nIMPORTANT: Do not use this tool to edit files. Use the `edit_file` tool instead.",
         parameters: z.object({
           command: z.string(),
         }),
@@ -104,6 +106,38 @@ export async function POST(req: Request) {
             return result.stdout;
           } catch (error) {
             return `Command failed to execute: ${command}\nOutput: ${buffer.stdout}\nError: ${buffer.stderr}\nError: ${error}`;
+          }
+        },
+      }),
+        
+      task_agent: tool({
+        description: "Launches a highly capable task agent in the USER's workspace. Usage notes:\n1. When the agent is done, it will return a report of its actions. This report is also visible to USER, so you don't have to repeat any overlapping information.\n2. Each agent invocation is stateless and doesn't have access to your chat history with USER. You will not be able to send additional messages to the agent, nor will the agent be able to communicate with you outside of its final report. Therefore, your prompt should contain a highly detailed task description for the agent to perform autonomously and you should specify exactly what information the agent should return back to you in its final and only message to you.\n3. The agent's outputs should generally be trusted.",
+        parameters: z.object({
+          prompt: z.string().describe("The task for the agent to perform."),
+          integrations: z.array(z.string()).describe("Choose the external services the agent should interact with."),
+          relative_file_paths: z.array(z.string()).describe("Relative paths to files that are relevant to the task."),
+        }),
+        execute: async ({ prompt, integrations, relative_file_paths }) => {
+          try {
+            const sandbox = await getSandbox(sandboxId);
+            
+            // Build the command with the new parameters
+            let command = `task_agent "${prompt}"`;
+            
+            // Add integrations if provided
+            if (integrations && integrations.length > 0) {
+              command += ` --integrations "${integrations.join(',')}"`;
+            }
+            
+            // Add file paths if provided
+            if (relative_file_paths && relative_file_paths.length > 0) {
+              command += ` --files "${relative_file_paths.join(',')}"`;
+            }
+            
+            const result = await sandbox.commands.run(command);
+            return result.stdout;
+          } catch (error) {
+            return `Task agent execution failed: ${error}`;
           }
         },
       }),
@@ -232,7 +266,7 @@ export async function POST(req: Request) {
 
       edit_file: tool({
         description:
-          "Use this tool to make large edits or refactorings to an existing file or create a new file.",
+          "Use this tool to make large edits or refactorings to an existing file or create a new file.\nSpecify the `relative_file_path` argument first.\n`code_edit` will be read by a less intelligent model, which will quickly apply the edit.\n\nMake it clear what the edit is while minimizing the unchanged code you write.\nWhen writing the edit, specify each edit in sequence using the special comment `// ... existing code ... <description of existing code>` to represent unchanged code in between edited lines.\n\nFor example:\n```\n// ... existing code ... <original import statements>\n<first edit here>\n// ... existing code ... <`LoginButton` component>\n<second edit here>\n// ... existing code ... <the rest of the file>\n```\nALWAYS include the `// ... existing code ... <description of existing code>` comment for each edit to indicate the code that should not be changed.\n\nDO NOT omit spans of pre-existing code without using the `// ... existing code ... <description of existing code>` comment to indicate its absence.\n\nOnly use emojis if the user explicitly requests it. Avoid adding emojis to files unless asked.",
         parameters: z.object({
           relative_file_path: z.string(),
           instructions: z.string(),
@@ -252,7 +286,7 @@ export async function POST(req: Request) {
 
       string_replace: tool({
         description:
-          "Performs exact string replacements in files. Use this tool to make small, specific edits to a file.",
+          "Performs exact string replacements in files.\nUse this tool to make small, specific edits to a file. For example, to edit some text, a couple of lines of code, etc. Use edit_file for larger edits.\n\nEnsure you preserve the exact indentation (tabs/spaces) as it appears AFTER the line number prefix added by the read_file tool.\nOnly use this tool if you are sure that the old_string is unique in the file, otherwise use the edit_file tool.\n\nThe edit will FAIL if `old_string` is not unique in the file. Either provide a larger string with more surrounding context to make it unique or use `replace_all` to change every instance of `old_string`.\n\nUse `replace_all` for replacing and renaming strings across the file. This parameter is useful if you want to rename a variable for instance.\n\nOnly use emojis if the user explicitly requests it. Avoid adding emojis to files unless asked.",
         parameters: z.object({
           relative_file_path: z.string(),
           old_string: z.string(),
@@ -281,14 +315,16 @@ export async function POST(req: Request) {
 
       run_linter: tool({
         description:
-          "Run linter on the project",
+          "Before running this tool, make sure a lint script exists in the project's package.json file and all packages have been installed. This tool will return the linter result and, when available, runtime errors and dev server logs from the last time the preview was refreshed.",
         parameters: z.object({
+          relative_file_path: z.string(),
+          package_manager: z.enum(["npm", "yarn", "pnpm"]),
         }),
-          execute: async () => {
+          execute: async ({relative_file_path, package_manager}) => {
             try {
             const sandbox = await getSandbox(sandboxId);
             const result = await sandbox.commands.run(
-              `npm run lint`,
+              `${package_manager} run lint ${relative_file_path}`,
             );
             return result.stdout;
           } catch (error) {
@@ -311,7 +347,7 @@ export async function POST(req: Request) {
       }),
 
       web_search: tool({
-        description: "Search the web for real-time text and image responses.",
+        description: "Search the web for real-time text and image responses. For example, you can get up-to-date information that might not be available in your training data, verify current facts, or find images that you can use in your project. You will see the text and images in the response. You can use the images by using the links in the <img> tag. Use this tool to find images you can use in your project. For example, if you need a logo, use this tool to find a logo.",
         parameters: z.object({
           search_term: z.string(),
           type: z.enum(["text", "images"]),
@@ -323,7 +359,7 @@ export async function POST(req: Request) {
       }),
 
       web_scrape: tool({
-        description: "Scrape a website to see its design and content.",
+        description: "Scrape a website to see its design and content. Use this tool to get a website's title, description, content, and screenshot (if requested). Use this tool whenever USER gives you a documentation URL to read or asks you to clone a website. When using this tool, say \"I'll visit {url}...\" or \"I'll read {url}...\" and never say \"I'll scrape\".",
         parameters: z.object({
           url: z.string(),
           theme: z.enum(["light", "dark"]),
@@ -368,13 +404,14 @@ export async function POST(req: Request) {
     },
     onFinish: async ({ response }) => {
       const sandboxUrl = `https://${sandbox.getHost(3000)}`;
-      console.log(sandboxUrl);
+      console.log(sandboxUrl, "sandboxUrl");
 
       const assistantId = getTrailingMessageId({
         messages: response.messages.filter(
           (message) => message.role === "assistant",
         ),
       });
+      console.log(assistantId, "assistantId");
 
       if (!assistantId) {
         throw new Error("No assistant message found!");
@@ -384,7 +421,7 @@ export async function POST(req: Request) {
         messages: [message],
         responseMessages: response.messages,
       });
-
+      console.log(assistantMessage?.id, "assistantMessage");
       await saveMessages({
         messages: [
           {

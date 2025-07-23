@@ -24,7 +24,7 @@ export default function Chat({
       id,
     }),
     experimental_throttle: 100,
-    maxSteps: 10,
+    //maxSteps: 10,
   });
 
   const handleInitialSubmit = async (e: React.FormEvent<HTMLFormElement>, options: { experimental_attachments: Attachment[] }) => {
@@ -34,7 +34,7 @@ export default function Chat({
     handleSubmit(e, options);
     
    
-      navigate(`/project/${id}`);
+    navigate(`/project/${id}`);
   };
   
   return (

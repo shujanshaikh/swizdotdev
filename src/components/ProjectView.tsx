@@ -13,6 +13,7 @@ import { useChat } from "@ai-sdk/react";
 import { api } from "~/trpc/react";
 import type { Attachment, UIMessage } from "ai";
 import type { DBMessage } from "~/server/db/schema";
+import Editor from "./code-editor/Editor";
 
 export default function ProjectView() {
   const { id } = useParams();
@@ -95,6 +96,9 @@ export default function ProjectView() {
             </TabsList>
             <TabsContent value="app">
               <PreviewUrl sandboxUrl={sandboxUrl!} />
+            </TabsContent>
+            <TabsContent value="editor">
+              <Editor />
             </TabsContent>
           </Tabs>
         </ResizablePanel>
