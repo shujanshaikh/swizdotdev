@@ -84,3 +84,15 @@ export async function getMessagesByProjectId({ id }: { id: string }) {
     throw new Error("Failed to get messages by project id" + error);
   }
 }
+
+
+export const getSanboxId = async (projectId: string) => {
+  const result = await db
+    .select({ sandboxId: message.sandboxId })
+    .from(message)
+    .where(eq(message.projectId, projectId))
+    .orderBy(desc(message.createdAt))
+    .limit(1);
+  
+  return result[0]?.sandboxId || null;
+};

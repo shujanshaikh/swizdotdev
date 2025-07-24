@@ -6,7 +6,7 @@ import {
   appendClientMessage,
   appendResponseMessages,
 } from "ai";
-import { openai } from '@ai-sdk/openai';
+import { openai } from "@ai-sdk/openai";
 import { google } from "@ai-sdk/google";
 import { z } from "zod";
 import { Sandbox } from "@e2b/code-interpreter";
@@ -49,9 +49,9 @@ export async function POST(req: Request) {
     messages: previousMessages,
     message,
   });
-  console.log(message.id)
+  console.log(message.id);
 
-  const sandbox = await Sandbox.create("zite-npm");
+  const sandbox = await Sandbox.create("swiz");
   const sandboxId = sandbox.sandboxId;
 
   await saveMessages({
@@ -60,25 +60,23 @@ export async function POST(req: Request) {
         id: message.id ?? crypto.randomUUID(),
         projectId: id,
         model: "gemini-2.5-flash",
-        role: 'user',
+        role: "user",
         parts: message.parts,
         attachments: message.experimental_attachments ?? [],
-        createdAt: new Date(), 
+        createdAt: new Date(),
         updatedAt: new Date(),
         sandboxUrl: "",
+        sandboxId: "sandboxId",
       },
     ],
   });
 
-
   const result = streamText({
     messages,
-    model: openai("gpt-3.5-turbo" , {
-      structuredOutputs: true,
-    }),
+    model: google("gemini-2.5-flash"),
     system: PROMPT,
     toolCallStreaming: true,
-     maxSteps: 10,
+    maxSteps: 15,
     experimental_transform: smoothStream({
       delayInMs: 10,
       chunking: "word",
@@ -109,31 +107,38 @@ export async function POST(req: Request) {
           }
         },
       }),
-        
+
       task_agent: tool({
-        description: "Launches a highly capable task agent in the USER's workspace. Usage notes:\n1. When the agent is done, it will return a report of its actions. This report is also visible to USER, so you don't have to repeat any overlapping information.\n2. Each agent invocation is stateless and doesn't have access to your chat history with USER. You will not be able to send additional messages to the agent, nor will the agent be able to communicate with you outside of its final report. Therefore, your prompt should contain a highly detailed task description for the agent to perform autonomously and you should specify exactly what information the agent should return back to you in its final and only message to you.\n3. The agent's outputs should generally be trusted.",
+        description:
+          "Launches a highly capable task agent in the USER's workspace. Usage notes:\n1. When the agent is done, it will return a report of its actions. This report is also visible to USER, so you don't have to repeat any overlapping information.\n2. Each agent invocation is stateless and doesn't have access to your chat history with USER. You will not be able to send additional messages to the agent, nor will the agent be able to communicate with you outside of its final report. Therefore, your prompt should contain a highly detailed task description for the agent to perform autonomously and you should specify exactly what information the agent should return back to you in its final and only message to you.\n3. The agent's outputs should generally be trusted.",
         parameters: z.object({
           prompt: z.string().describe("The task for the agent to perform."),
-          integrations: z.array(z.string()).describe("Choose the external services the agent should interact with."),
-          relative_file_paths: z.array(z.string()).describe("Relative paths to files that are relevant to the task."),
+          integrations: z
+            .array(z.string())
+            .describe(
+              "Choose the external services the agent should interact with.",
+            ),
+          relative_file_paths: z
+            .array(z.string())
+            .describe("Relative paths to files that are relevant to the task."),
         }),
         execute: async ({ prompt, integrations, relative_file_paths }) => {
           try {
             const sandbox = await getSandbox(sandboxId);
-            
+
             // Build the command with the new parameters
             let command = `task_agent "${prompt}"`;
-            
+
             // Add integrations if provided
             if (integrations && integrations.length > 0) {
-              command += ` --integrations "${integrations.join(',')}"`;
+              command += ` --integrations "${integrations.join(",")}"`;
             }
-            
+
             // Add file paths if provided
             if (relative_file_paths && relative_file_paths.length > 0) {
-              command += ` --files "${relative_file_paths.join(',')}"`;
+              command += ` --files "${relative_file_paths.join(",")}"`;
             }
-            
+
             const result = await sandbox.commands.run(command);
             return result.stdout;
           } catch (error) {
@@ -317,24 +322,25 @@ export async function POST(req: Request) {
         description:
           "Before running this tool, make sure a lint script exists in the project's package.json file and all packages have been installed. This tool will return the linter result and, when available, runtime errors and dev server logs from the last time the preview was refreshed.",
         parameters: z.object({
-          relative_file_path: z.string(),
-          package_manager: z.enum(["npm", "yarn", "pnpm"]),
+          relative_file_path: z.string().optional(),
+          package_manager: z.enum(["npm", "bun"]),
         }),
-          execute: async ({relative_file_path, package_manager}) => {
-            try {
+        execute: async ({ package_manager }) => {
+          try {
             const sandbox = await getSandbox(sandboxId);
             const result = await sandbox.commands.run(
-              `${package_manager} run lint ${relative_file_path}`,
+              `${package_manager} run lint`,
             );
             return result.stdout;
           } catch (error) {
-            return `Linter error: ${error}`;
+            return `Linter setup error: ${error}`;
           }
         },
       }),
 
       suggestions: tool({
-        description: "Suggest 1-5 next steps to implement with the USER. Suggest only once and only if the user has not provided a solution.",
+        description:
+          "Suggest 1-5 next steps to implement with the USER. Suggest only once and only if the user has not provided a solution.",
         parameters: z.object({
           suggestions: z.array(z.string()),
         }),
@@ -347,7 +353,8 @@ export async function POST(req: Request) {
       }),
 
       web_search: tool({
-        description: "Search the web for real-time text and image responses. For example, you can get up-to-date information that might not be available in your training data, verify current facts, or find images that you can use in your project. You will see the text and images in the response. You can use the images by using the links in the <img> tag. Use this tool to find images you can use in your project. For example, if you need a logo, use this tool to find a logo.",
+        description:
+          "Search the web for real-time text and image responses. For example, you can get up-to-date information that might not be available in your training data, verify current facts, or find images that you can use in your project. You will see the text and images in the response. You can use the images by using the links in the <img> tag. Use this tool to find images you can use in your project. For example, if you need a logo, use this tool to find a logo.",
         parameters: z.object({
           search_term: z.string(),
           type: z.enum(["text", "images"]),
@@ -359,7 +366,8 @@ export async function POST(req: Request) {
       }),
 
       web_scrape: tool({
-        description: "Scrape a website to see its design and content. Use this tool to get a website's title, description, content, and screenshot (if requested). Use this tool whenever USER gives you a documentation URL to read or asks you to clone a website. When using this tool, say \"I'll visit {url}...\" or \"I'll read {url}...\" and never say \"I'll scrape\".",
+        description:
+          'Scrape a website to see its design and content. Use this tool to get a website\'s title, description, content, and screenshot (if requested). Use this tool whenever USER gives you a documentation URL to read or asks you to clone a website. When using this tool, say "I\'ll visit {url}..." or "I\'ll read {url}..." and never say "I\'ll scrape".',
         parameters: z.object({
           url: z.string(),
           theme: z.enum(["light", "dark"]),
@@ -369,18 +377,23 @@ export async function POST(req: Request) {
         execute: async ({ url, theme, viewport, include_screenshot }) => {
           console.log("Web scraping request received on agent route");
           try {
-            const data = await scrapeWebsite({ url, theme, viewport, include_screenshot });
-      
+            const data = await scrapeWebsite({
+              url,
+              theme,
+              viewport,
+              include_screenshot,
+            });
+
             console.log(data, "data");
             if (!data.success) {
               return {
-                error: data.error || 'Failed to scrape website',
+                error: data.error || "Failed to scrape website",
                 url,
                 theme,
-                viewport
+                viewport,
               };
             }
-    
+
             return {
               success: true,
               url: data.data.url,
@@ -389,14 +402,13 @@ export async function POST(req: Request) {
               viewport: data.data.viewport,
               theme: data.data.theme,
             };
-      
           } catch (error) {
-            console.error('Tool execution error:', error);
+            console.error("Tool execution error:", error);
             return {
               error: `Failed to scrape ${url}: ${error}`,
               url,
               theme,
-              viewport
+              viewport,
             };
           }
         },
@@ -404,6 +416,21 @@ export async function POST(req: Request) {
     },
     onFinish: async ({ response }) => {
       const sandboxUrl = `https://${sandbox.getHost(3000)}`;
+
+      setTimeout(
+        async () => {
+          try {
+            await sandbox.pause();
+            console.log(
+              `Sandbox ${sandbox.sandboxId} auto-paused after 3 minutes`,
+            );
+          } catch (error) {
+            console.error("Failed to auto-pause sandbox:", error);
+          }
+        },
+        3 * 60 * 1000,
+      );
+
       console.log(sandboxUrl, "sandboxUrl");
 
       const assistantId = getTrailingMessageId({
@@ -432,6 +459,7 @@ export async function POST(req: Request) {
             parts: assistantMessage?.parts ?? [],
             attachments: assistantMessage?.experimental_attachments ?? [],
             sandboxUrl: sandboxUrl,
+            sandboxId: sandbox.sandboxId, // Store the actual sandbox ID, not the paused result
             createdAt: new Date(),
             updatedAt: new Date(),
           },

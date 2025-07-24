@@ -190,6 +190,7 @@ const ToolExecution = ({
               <span className="ml-2 text-red-400">
                 {errors} runtime error{errors !== 1 ? "s" : ""}
               </span>
+              {result}
             </div>
           );
         }

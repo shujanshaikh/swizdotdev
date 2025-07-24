@@ -36,6 +36,7 @@ export const message = createTable("message", {
   role: varchar("role").notNull(),
   attachments: jsonb("attachments"),
   sandboxUrl: text("sandbox_url"),
+  sandboxId: text("sandbox_id"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
