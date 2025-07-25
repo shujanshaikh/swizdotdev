@@ -37,15 +37,15 @@ export default function SidebarComponent() {
   const handleProjectClick = async (projectId: string) => {
     try {
       console.log("Resuming sandbox for project:", projectId);
+      navigate(`/project/${projectId}`);
       const result = await resumeSandboxMutation.mutateAsync({ projectId });
 
       if (result.success) {
         console.log("Sandbox resumed successfully:", result.sandboxId);
-        navigate(`/project/${projectId}`);
+        
       } else {
         console.error("Failed to resume sandbox:", result.message);
 
-        navigate(`/project/${projectId}`);
       }
     } catch (error) {
       console.error("Error resuming sandbox:", error);
@@ -85,7 +85,7 @@ export default function SidebarComponent() {
 
         return projectDate && projectDate >= filterDate;
       })
-      .slice(0, 7) || [];
+      .slice(0, 12) || [];
 
   const { toggleSidebar } = useSidebar();
 
@@ -202,7 +202,8 @@ export default function SidebarComponent() {
                           asChild
                           className="rounded-lg transition-all duration-200"
                         >
-                          <button
+                          <Button
+                          variant="ghost"
                             onClick={() => handleProjectClick(project.id)}
                             className="group flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-3 text-left transition-all duration-200 hover:bg-zinc-800/60"
                           >
@@ -219,7 +220,7 @@ export default function SidebarComponent() {
                                   : "Recent"}
                               </div>
                             </div>
-                          </button>
+                          </Button>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     ))

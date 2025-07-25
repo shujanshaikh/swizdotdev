@@ -51,7 +51,7 @@ export async function POST(req: Request) {
   });
   console.log(message.id);
 
-  const sandbox = await Sandbox.create("swiz");
+  const sandbox = await Sandbox.create("swizdotdev");
   const sandboxId = sandbox.sandboxId;
 
   await saveMessages({
@@ -71,23 +71,25 @@ export async function POST(req: Request) {
     ],
   });
 
+  
   const result = streamText({
     messages,
-    model: google("gemini-2.5-flash"),
+    model: openai("gpt-4o-mini"),
     system: PROMPT,
+    maxSteps: 10,
+    maxRetries: 2,
     toolCallStreaming: true,
-    maxSteps: 15,
     experimental_transform: smoothStream({
       delayInMs: 10,
       chunking: "word",
     }),
-    toolChoice: "required",
+    //toolChoice: "required",
     tools: {
       bash: tool({
         description:
-          "Run a terminal command. Each command runs in a new shell.\nIMPORTANT: Do not use this tool to edit files. Use the `edit_file` tool instead.",
+          "Run a terminal command , Do not run npm run dev or any other dev command or nor the build command always use this tool to install the packages",
         parameters: z.object({
-          command: z.string(),
+          command: z.string().describe("The terminal command to execute."),
         }),
         execute: async ({ command }) => {
           const buffer = { stdout: "", stderr: "" };
@@ -110,7 +112,7 @@ export async function POST(req: Request) {
 
       task_agent: tool({
         description:
-          "Launches a highly capable task agent in the USER's workspace. Usage notes:\n1. When the agent is done, it will return a report of its actions. This report is also visible to USER, so you don't have to repeat any overlapping information.\n2. Each agent invocation is stateless and doesn't have access to your chat history with USER. You will not be able to send additional messages to the agent, nor will the agent be able to communicate with you outside of its final report. Therefore, your prompt should contain a highly detailed task description for the agent to perform autonomously and you should specify exactly what information the agent should return back to you in its final and only message to you.\n3. The agent's outputs should generally be trusted.",
+          "Launches a highly capable task agent in the workspace. Usage notes:\n1. When the agent is done, it will return a report of its actions. This report is also visible to USER, so you don't have to repeat any overlapping information.\n2. Each agent invocation is stateless and doesn't have access to your chat history with USER. You will not be able to send additional messages to the agent, nor will the agent be able to communicate with you outside of its final report. Therefore, your prompt should contain a highly detailed task description for the agent to perform autonomously and you should specify exactly what information the agent should return back to you in its final and only message to you.\n3. The agent's outputs should generally be trusted.",
         parameters: z.object({
           prompt: z.string().describe("The task for the agent to perform."),
           integrations: z
@@ -151,7 +153,11 @@ export async function POST(req: Request) {
         description:
           "List the contents of a directory. The quick tool to use for discovery, before using more targeted tools like semantic search or file reading.",
         parameters: z.object({
-          relative_dir_path: z.string(),
+          relative_dir_path: z
+            .string()
+            .describe(
+              "The relative path to the directory to list contents of.",
+            ),
         }),
         execute: async ({ relative_dir_path }) => {
           try {
@@ -170,8 +176,17 @@ export async function POST(req: Request) {
         description:
           "Search for files using glob patterns. Supports patterns like *.ts, **/*.tsx, src/**/*.{js,ts}, etc.",
         parameters: z.object({
-          pattern: z.string(),
-          exclude_pattern: z.string().optional(),
+          pattern: z
+            .string()
+            .describe(
+              "Glob pattern to match files against (e.g., '*.ts', '**/*.tsx', 'src/**/*.{js,ts}')",
+            ),
+          exclude_pattern: z
+            .string()
+            .optional()
+            .describe(
+              "Optional glob pattern to exclude files (e.g., '**/node_modules/**')",
+            ),
         }),
         execute: async ({ pattern, exclude_pattern }) => {
           try {
@@ -192,10 +207,22 @@ export async function POST(req: Request) {
         description:
           "Fast text-based regex search that finds exact pattern matches within files or directories, utilizing the ripgrep command for efficient searching.",
         parameters: z.object({
-          query: z.string(),
-          case_sensitive: z.boolean(),
-          include_pattern: z.string().optional(),
-          exclude_pattern: z.string().optional(),
+          query: z.string().describe("The regex pattern to search for."),
+          case_sensitive: z
+            .boolean()
+            .describe("Whether the search should be case sensitive."),
+          include_pattern: z
+            .string()
+            .optional()
+            .describe(
+              "Glob pattern for files to include (e.g. '.ts' for TypeScript files)",
+            ),
+          exclude_pattern: z
+            .string()
+            .optional()
+            .describe(
+              "Glob pattern for files to exclude (e.g. '.test.ts' for test files).",
+            ),
         }),
         execute: async ({
           query,
@@ -225,10 +252,24 @@ export async function POST(req: Request) {
         description:
           "Read the contents of a file. For text files, the output will be the 1-indexed file contents from start_line_one_indexed to end_line_one_indexed_inclusive.",
         parameters: z.object({
-          relative_file_path: z.string(),
-          should_read_entire_file: z.boolean(),
-          start_line_one_indexed: z.number().optional(),
-          end_line_one_indexed: z.number().optional(),
+          relative_file_path: z
+            .string()
+            .describe("The relative path to the file to read."),
+          should_read_entire_file: z
+            .boolean()
+            .describe("Whether to read the entire file."),
+          start_line_one_indexed: z
+            .number()
+            .optional()
+            .describe(
+              "The one-indexed line number to start reading from (inclusive).",
+            ),
+          end_line_one_indexed: z
+            .number()
+            .optional()
+            .describe(
+              "The one-indexed line number to end reading at (inclusive).",
+            ),
         }),
         execute: async ({
           relative_file_path,
@@ -256,7 +297,9 @@ export async function POST(req: Request) {
         description:
           "Deletes a file at the specified path. The operation will fail gracefully if the file doesn't exist.",
         parameters: z.object({
-          relative_file_path: z.string(),
+          relative_file_path: z
+            .string()
+            .describe("The relative path to the file to delete."),
         }),
         execute: async ({ relative_file_path }) => {
           try {
@@ -273,10 +316,26 @@ export async function POST(req: Request) {
         description:
           "Use this tool to make large edits or refactorings to an existing file or create a new file.\nSpecify the `relative_file_path` argument first.\n`code_edit` will be read by a less intelligent model, which will quickly apply the edit.\n\nMake it clear what the edit is while minimizing the unchanged code you write.\nWhen writing the edit, specify each edit in sequence using the special comment `// ... existing code ... <description of existing code>` to represent unchanged code in between edited lines.\n\nFor example:\n```\n// ... existing code ... <original import statements>\n<first edit here>\n// ... existing code ... <`LoginButton` component>\n<second edit here>\n// ... existing code ... <the rest of the file>\n```\nALWAYS include the `// ... existing code ... <description of existing code>` comment for each edit to indicate the code that should not be changed.\n\nDO NOT omit spans of pre-existing code without using the `// ... existing code ... <description of existing code>` comment to indicate its absence.\n\nOnly use emojis if the user explicitly requests it. Avoid adding emojis to files unless asked.",
         parameters: z.object({
-          relative_file_path: z.string(),
-          instructions: z.string(),
-          code_edit: z.string(),
-          smart_apply: z.boolean(),
+          relative_file_path: z
+            .string()
+            .describe(
+              "The relative path to the file to modify. The tool will create any directories in the path that don't exist",
+            ),
+          instructions: z
+            .string()
+            .describe(
+              "A single sentence instruction describing what you are going to do for the sketched edit. Don't repeat what you have said previously in normal messages. And use it to disambiguate uncertainty in the edit",
+            ),
+          code_edit: z
+            .string()
+            .describe(
+              "Specify ONLY the precise lines of code that you wish to edit. **NEVER specify or write out unchanged code**. Instead, represent all unchanged code using the comment of the language you're editing in - example: `// ...[existing code] <description of existing code> ...`.",
+            ),
+          smart_apply: z
+            .boolean()
+            .describe(
+              "Use a smarter model to apply the code_edit. This is useful if the edit is long, or if the last edit was incorrect and you are trying again. Make sure to include the proper `// ... existing code ...` comments to indicate the code that should not be changed.",
+            ),
         }),
         execute: async ({ relative_file_path, instructions, code_edit }) => {
           try {
@@ -293,10 +352,26 @@ export async function POST(req: Request) {
         description:
           "Performs exact string replacements in files.\nUse this tool to make small, specific edits to a file. For example, to edit some text, a couple of lines of code, etc. Use edit_file for larger edits.\n\nEnsure you preserve the exact indentation (tabs/spaces) as it appears AFTER the line number prefix added by the read_file tool.\nOnly use this tool if you are sure that the old_string is unique in the file, otherwise use the edit_file tool.\n\nThe edit will FAIL if `old_string` is not unique in the file. Either provide a larger string with more surrounding context to make it unique or use `replace_all` to change every instance of `old_string`.\n\nUse `replace_all` for replacing and renaming strings across the file. This parameter is useful if you want to rename a variable for instance.\n\nOnly use emojis if the user explicitly requests it. Avoid adding emojis to files unless asked.",
         parameters: z.object({
-          relative_file_path: z.string(),
-          old_string: z.string(),
-          new_string: z.string(),
-          replace_all: z.boolean(),
+          relative_file_path: z
+            .string()
+            .describe(
+              "The relative path to the file to modify. The tool will create any directories in the path that don't exist",
+            ),
+          old_string: z
+            .string()
+            .describe(
+              "The string to replace. This string must be unique in the file. If it's not, use `replace_all` to change every instance of `old_string`.",
+            ),
+          new_string: z
+            .string()
+            .describe(
+              "The string to replace `old_string` with. This string must be unique in the file. If it's not, use `replace_all` to change every instance of `old_string`.",
+            ),
+          replace_all: z
+            .boolean()
+            .describe(
+              "Whether to replace all instances of `old_string` in the file. If true, the tool will replace all instances of `old_string` in the file. If false, the tool will replace only the first instance of `old_string` in the file.",
+            ),
         }),
         execute: async ({
           relative_file_path,
@@ -318,31 +393,15 @@ export async function POST(req: Request) {
         },
       }),
 
-      run_linter: tool({
-        description:
-          "Before running this tool, make sure a lint script exists in the project's package.json file and all packages have been installed. This tool will return the linter result and, when available, runtime errors and dev server logs from the last time the preview was refreshed.",
-        parameters: z.object({
-          relative_file_path: z.string().optional(),
-          package_manager: z.enum(["npm", "bun"]),
-        }),
-        execute: async ({ package_manager }) => {
-          try {
-            const sandbox = await getSandbox(sandboxId);
-            const result = await sandbox.commands.run(
-              `${package_manager} run lint`,
-            );
-            return result.stdout;
-          } catch (error) {
-            return `Linter setup error: ${error}`;
-          }
-        },
-      }),
-
       suggestions: tool({
         description:
           "Suggest 1-5 next steps to implement with the USER. Suggest only once and only if the user has not provided a solution.",
         parameters: z.object({
-          suggestions: z.array(z.string()),
+          suggestions: z
+            .array(z.string())
+            .describe(
+              "List of 1-5 suggested next steps. No '-', bullet points, or other formatting",
+            ),
         }),
         execute: async ({ suggestions }) => {
           return {
@@ -356,8 +415,16 @@ export async function POST(req: Request) {
         description:
           "Search the web for real-time text and image responses. For example, you can get up-to-date information that might not be available in your training data, verify current facts, or find images that you can use in your project. You will see the text and images in the response. You can use the images by using the links in the <img> tag. Use this tool to find images you can use in your project. For example, if you need a logo, use this tool to find a logo.",
         parameters: z.object({
-          search_term: z.string(),
-          type: z.enum(["text", "images"]),
+          search_term: z
+            .string()
+            .describe(
+              "The search term to look up on the web. Be specific and include relevant keywords for better results. For technical queries, include version numbers or dates if relevant.",
+            ),
+          type: z
+            .enum(["text", "images"])
+            .describe(
+              "The type of search to perform. If `text`, the tool will search the web for text. If `images`, the tool will search the web for images.",
+            ),
         }),
         execute: async ({ search_term, type }) => {
           const search = await webSearch(search_term, type);
@@ -369,10 +436,20 @@ export async function POST(req: Request) {
         description:
           'Scrape a website to see its design and content. Use this tool to get a website\'s title, description, content, and screenshot (if requested). Use this tool whenever USER gives you a documentation URL to read or asks you to clone a website. When using this tool, say "I\'ll visit {url}..." or "I\'ll read {url}..." and never say "I\'ll scrape".',
         parameters: z.object({
-          url: z.string(),
-          theme: z.enum(["light", "dark"]),
-          viewport: z.enum(["mobile", "tablet", "desktop"]),
-          include_screenshot: z.boolean(),
+          url: z.string().describe("The URL of the website to scrape."),
+          theme: z
+            .enum(["light", "dark"])
+            .describe(
+              "The theme of the website to scrape. If `light`, the tool will scrape the website in light mode. If `dark`, the tool will scrape the website in dark mode.",
+            ),
+          viewport: z
+            .enum(["mobile", "tablet", "desktop"])
+            .describe("The viewport to scrape the website in."),
+          include_screenshot: z
+            .boolean()
+            .describe(
+              "Whether to see a screenshot of the website. Set to false when reading documentation.",
+            ),
         }),
         execute: async ({ url, theme, viewport, include_screenshot }) => {
           console.log("Web scraping request received on agent route");
@@ -459,7 +536,7 @@ export async function POST(req: Request) {
             parts: assistantMessage?.parts ?? [],
             attachments: assistantMessage?.experimental_attachments ?? [],
             sandboxUrl: sandboxUrl,
-            sandboxId: sandbox.sandboxId, // Store the actual sandbox ID, not the paused result
+            sandboxId: sandbox.sandboxId,
             createdAt: new Date(),
             updatedAt: new Date(),
           },

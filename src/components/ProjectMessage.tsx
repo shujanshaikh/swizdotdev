@@ -40,21 +40,29 @@ const ToolExecution = ({
       );
     }
 
-    if(toolName === "string_replace") {
+    if (toolName === "string_replace") {
       return (
-        <div className="flex flex-col gap-2 text-gray-300 hover:border-zinc-500 rounded-lg p-3 bg-zinc-900/50">
+        <div className="flex flex-col gap-2 rounded-lg bg-zinc-900/50 p-3 text-gray-300 hover:border-zinc-500">
           <div className="flex items-center gap-2">
             <FileCode2 className="h-4 w-4 text-gray-400" />
-            <h2 className="text-md font-medium text-gray-400">String replace:</h2>
-            <span className="font-bold text-blue-400">{args?.relative_file_path as string}</span>
-            <span className="text-gray-400">({args?.old_string as string} -&gt; {args?.new_string as string})</span>
+            <h2 className="text-md font-medium text-gray-400">
+              String replace:
+            </h2>
+            <span className="font-bold text-blue-400">
+              {args?.relative_file_path as string}
+            </span>
+            <span className="text-gray-400">
+              ({args?.old_string as string} -&gt; {args?.new_string as string})
+            </span>
           </div>
           <details className="ml-6">
             <summary className="cursor-pointer text-sm text-gray-400 hover:text-gray-100">
               View file contents
             </summary>
             <div className="mt-2 rounded border border-zinc-700/50 bg-zinc-800/30 p-3">
-              <pre className="text-sm text-gray-300 whitespace-pre-wrap">{result}</pre>
+              <pre className="text-sm whitespace-pre-wrap text-gray-300">
+                {result}
+              </pre>
             </div>
           </details>
         </div>
@@ -104,7 +112,7 @@ const ToolExecution = ({
     if (toolName === "read_file") {
       const fileName = (args?.relative_file_path as string) || "file";
       return (
-        <div className="flex flex-col gap-2 text-gray-300 hover:border-zinc-500 rounded-lg p-3 bg-zinc-900/50">
+        <div className="flex flex-col gap-2 rounded-lg bg-zinc-900/50 p-3 text-gray-300 hover:border-zinc-500">
           <div className="flex items-center gap-2">
             <EyeIcon className="h-4 w-4 text-gray-400" />
             <h2 className="text-md font-medium text-gray-400">Read file:</h2>
@@ -115,7 +123,9 @@ const ToolExecution = ({
               View file contents
             </summary>
             <div className="mt-2 rounded border border-zinc-700/50 bg-zinc-800/30 p-3">
-              <pre className="text-sm text-gray-300 whitespace-pre-wrap">{result}</pre>
+              <pre className="text-sm whitespace-pre-wrap text-gray-300">
+                {result}
+              </pre>
             </div>
           </details>
         </div>
@@ -142,7 +152,9 @@ const ToolExecution = ({
             <div className="ml-6 rounded-lg border border-gray-500/20 bg-gray-500/5 p-3">
               <div className="flex items-center gap-2">
                 <CheckCircleIcon className="h-4 w-4 text-gray-400" />
-                <span className="text-sm text-gray-400">File edited successfully</span>
+                <span className="text-sm text-gray-400">
+                  File edited successfully
+                </span>
               </div>
               <details className="mt-2">
                 <summary className="cursor-pointer text-sm text-gray-400 hover:text-gray-100">
@@ -190,7 +202,7 @@ const ToolExecution = ({
               <span className="ml-2 text-red-400">
                 {errors} runtime error{errors !== 1 ? "s" : ""}
               </span>
-              {result}
+              <pre>{result}</pre>
             </div>
           );
         }
@@ -276,20 +288,17 @@ const ToolExecution = ({
       );
     }
 
-
-    if(toolName === "task_agent") {
-      if(result) {
+    if (toolName === "task_agent") {
+      if (result) {
         return (
-        <div className="rounded-xl p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex flex-col">
-                {args?.prompt as string}
+          <div className="rounded-xl p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex flex-col">{args?.prompt as string}</div>
               </div>
             </div>
           </div>
-        </div>
-      );
+        );
       }
     }
 
@@ -339,7 +348,6 @@ const ToolExecution = ({
         }
       }
 
-      
       return (
         <div className="rounded-xl border border-white/20 bg-zinc-800/30 p-4 shadow-lg">
           <div className="flex items-center justify-between">
@@ -556,9 +564,14 @@ export default function ProjectMessageView({
                       <span className="text-sm text-red-400">
                         {error?.message}
                       </span>
-                      <Button variant="outline" size="sm" onClick={reload} className="flex items-center gap-2">
-                         <RefreshCcwIcon className="w-4 h-4" />
-                         <span className="text-sm">Reload</span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={reload}
+                        className="flex items-center gap-2"
+                      >
+                        <RefreshCcwIcon className="h-4 w-4" />
+                        <span className="text-sm">Reload</span>
                       </Button>
                     </div>
                   </div>
