@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { Button } from "./ui/button";
+import Editor from "./code-editor/Editor";
+import CodeEditor from "./code-editor/Code-editor";
 
 const ToolExecution = ({
   toolName,
@@ -134,6 +136,7 @@ const ToolExecution = ({
 
     if (toolName === "edit_file" && result) {
       const fileName = (args?.relative_file_path as string) || "file";
+
       if (result.includes("edited successfully")) {
         return (
           <div className="flex flex-col gap-2 text-gray-300">
@@ -141,6 +144,7 @@ const ToolExecution = ({
               <FileCode2 className="h-4 w-4 text-white" />
               <span className="text-md text-gray-400">Edited file:</span>
               <span className="text-md text-gray-400">{fileName}</span>
+
               {result.includes("creating") && (
                 <div className="flex items-center gap-1">
                   <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-gray-400" />
@@ -418,13 +422,6 @@ const ToolExecution = ({
         </div>
       );
     }
-
-    return (
-      <div className="text-gray-300">
-        <span className="text-gray-400">⚙</span>
-        <span className="ml-2">{toolName}</span>
-      </div>
-    );
   };
 
   return <div className="my-4 text-sm">{getToolDisplay()}</div>;
@@ -562,7 +559,9 @@ export default function ProjectMessageView({
                         <div className="h-2 w-2 animate-pulse rounded-full bg-red-400 delay-200" />
                       </div>
                       <span className="text-sm text-red-400">
-                        {error?.message}
+                        {error?.message || 
+                         (typeof error === 'string' ? error : 
+                          error ? JSON.stringify(error, null, 2) : 'Unknown error')}
                       </span>
                       <Button
                         variant="outline"

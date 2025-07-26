@@ -1,19 +1,59 @@
-import { ResizableHandle,
-    ResizablePanel,
-    ResizablePanelGroup, } from "../ui/resizable";
+import { useState, useEffect } from "react";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "../ui/resizable";
+import CodeEditor from "./Code-editor";
+import CodeSidebar from "./Code-Sidebar";
+import { type ToolCallFile } from "~/lib/types";
 
 
-export default function Editor() {
+
+interface EditorProps {
+  code_edit: string;
+  relative_file_path: string;
+  onFileChange?: (filePath: string, content: string) => void;
+  editedFiles?: ToolCallFile[];
+}
+
+export default function Editor({
+  code_edit,
+  relative_file_path,
+  onFileChange,
+  editedFiles = [],
+}: EditorProps) {
+  const [currentFile, setCurrentFile] = useState(relative_file_path);
+  const [currentContent, setCurrentContent] = useState(code_edit);
+
+  useEffect(() => {
+    setCurrentContent(code_edit);
+    setCurrentFile(relative_file_path);
+  }, [code_edit, relative_file_path]);
+
+  const handleFileSelect = (filePath: string) => {
+    const fileData = editedFiles.find(file => file.relative_file_path === filePath);
+    const content = fileData?.code_edit || `// File: ${filePath}\n// Content not available`;
+    
+    setCurrentFile(filePath);
+    setCurrentContent(content);
+    onFileChange?.(filePath, content);
+  };
+
   return (
     <ResizablePanelGroup direction="horizontal" className="h-full w-full">
-      <ResizablePanel>
+      <ResizablePanel defaultSize={20} minSize={15} maxSize={30}>
         <div className="flex h-full w-full flex-col">
-            <h1>Editor</h1>
-          <ResizableHandle withHandle={false} />
+          <CodeSidebar 
+            relative_file_path={currentFile} 
+            onFileSelect={handleFileSelect}
+            editedFiles={editedFiles}
+          />
         </div>
       </ResizablePanel>
-      <ResizablePanel>
-        <h1>Preview</h1>
+      <ResizableHandle withHandle={false} />
+      <ResizablePanel defaultSize={80} minSize={70} maxSize={85}>
+        <CodeEditor code_edit={currentContent} />
       </ResizablePanel>
     </ResizablePanelGroup>
   );

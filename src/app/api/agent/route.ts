@@ -7,7 +7,6 @@ import {
   appendResponseMessages,
 } from "ai";
 import { openai } from "@ai-sdk/openai";
-import { google } from "@ai-sdk/google";
 import { z } from "zod";
 import { Sandbox } from "@e2b/code-interpreter";
 import { PROMPT } from "~/lib/prompt";
@@ -21,6 +20,7 @@ import {
 } from "~/server/db/queries";
 import { generateTitleFromUserMessage } from "~/lib/generate-title";
 import { scrapeWebsite } from "~/lib/web/web-scraper";
+import { google } from "@ai-sdk/google";
 
 export async function POST(req: Request) {
   const { message, id }: { message: UIMessage; id: string } = await req.json();
@@ -74,7 +74,10 @@ export async function POST(req: Request) {
   
   const result = streamText({
     messages,
-    model: openai("gpt-4o-mini"),
+    model: google("gemini-2.5-flash", {
+      structuredOutputs: true,
+    }),
+    temperature: 0.1,
     system: PROMPT,
     maxSteps: 10,
     maxRetries: 2,
@@ -83,7 +86,7 @@ export async function POST(req: Request) {
       delayInMs: 10,
       chunking: "word",
     }),
-    //toolChoice: "required",
+    toolChoice: "required",
     tools: {
       bash: tool({
         description:
@@ -341,7 +344,11 @@ export async function POST(req: Request) {
           try {
             const sandbox = await getSandbox(sandboxId);
             await sandbox.files.write(relative_file_path, code_edit);
-            return `File ${relative_file_path} edited successfully. Instructions: ${instructions} ${code_edit}`;
+            return {
+              relative_file_path,
+              code_edit,
+              instructions,
+            };
           } catch (error) {
             return `Error editing file: ${error} ${relative_file_path} ${code_edit}`;
           }
@@ -515,7 +522,6 @@ export async function POST(req: Request) {
           (message) => message.role === "assistant",
         ),
       });
-      console.log(assistantId, "assistantId");
 
       if (!assistantId) {
         throw new Error("No assistant message found!");
@@ -525,7 +531,7 @@ export async function POST(req: Request) {
         messages: [message],
         responseMessages: response.messages,
       });
-      console.log(assistantMessage?.id, "assistantMessage");
+
       await saveMessages({
         messages: [
           {
@@ -536,7 +542,7 @@ export async function POST(req: Request) {
             parts: assistantMessage?.parts ?? [],
             attachments: assistantMessage?.experimental_attachments ?? [],
             sandboxUrl: sandboxUrl,
-            sandboxId: sandbox.sandboxId,
+            sandboxId: sandboxId,
             createdAt: new Date(),
             updatedAt: new Date(),
           },
