@@ -14,8 +14,6 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { Button } from "./ui/button";
-import Editor from "./code-editor/Editor";
-import CodeEditor from "./code-editor/Code-editor";
 
 const ToolExecution = ({
   toolName,
@@ -339,7 +337,6 @@ const ToolExecution = ({
       const viewport = (args?.viewport as string) || "viewport";
       const include_screenshot = args?.include_screenshot as boolean;
 
-      // Parse the result to get the screenshot data
       let screenshotData = null;
       if (result) {
         try {
@@ -439,8 +436,9 @@ export default function ProjectMessageView({
   reload: () => void;
 }) {
   return (
-    <div className="scrollbar-hide h-full w-full overflow-y-auto">
-      <div className="mx-auto max-w-4xl space-y-6 p-6">
+    <div className="flex h-full flex-col overflow-hidden">
+      <div className="flex-1 overflow-y-auto scrollbar-hide">
+        <div className="mx-auto max-w-4xl space-y-6 p-6">
         {messages.length === 0 ? (
           <div className="flex h-96 flex-col items-center justify-center text-center">
             <div className="mb-4 text-6xl opacity-50">💬</div>
@@ -579,6 +577,7 @@ export default function ProjectMessageView({
             )}
           </>
         )}
+        </div>
       </div>
     </div>
   );

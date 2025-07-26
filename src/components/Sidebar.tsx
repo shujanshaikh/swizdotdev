@@ -1,15 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { PanelLeftClose, ChevronDown, Clock, Archive } from "lucide-react";
+import { ChevronDown, Clock, Archive, Plus, PanelLeft } from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
 
 import {
   Sidebar,
   SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
   useSidebar,
 } from "~/components/ui/sidebar";
 import { api } from "~/trpc/react";
@@ -27,7 +22,7 @@ export default function SidebarComponent() {
     { label: "Last 7 days", days: 7 },
     { label: "Last 30 days", days: 30 },
     { label: "Last 90 days", days: 90 },
-    { label: "All time", days: null },
+    { label: "All projects", days: null },
   ];
 
   const [selectedFilter, setSelectedFilter] = useState(filterOptions[0]);
@@ -69,23 +64,24 @@ export default function SidebarComponent() {
     };
   }, []);
 
-  const recentProjects =
-    projects.data
-      ?.filter((project) => {
-        if (selectedFilter?.days === null) return true;
+  const filteredProjects = projects.data?.filter((project) => {
+    if (selectedFilter?.days === null) return true;
 
-        const filterDate = new Date();
-        filterDate.setDate(filterDate.getDate() - (selectedFilter?.days || 7));
+    const filterDate = new Date();
+    filterDate.setDate(filterDate.getDate() - (selectedFilter?.days || 7));
 
-        const projectDate = project.updatedAt
-          ? new Date(project.updatedAt)
-          : project.createdAt
-            ? new Date(project.createdAt)
-            : null;
+    const projectDate = project.updatedAt
+      ? new Date(project.updatedAt)
+      : project.createdAt
+        ? new Date(project.createdAt)
+        : null;
 
-        return projectDate && projectDate >= filterDate;
-      })
-      .slice(0, 12) || [];
+    return projectDate && projectDate >= filterDate;
+  }) || [];
+
+  const displayProjects = selectedFilter?.days === null 
+    ? filteredProjects 
+    : filteredProjects.slice(0, 12);
 
   const { toggleSidebar } = useSidebar();
 
@@ -93,82 +89,70 @@ export default function SidebarComponent() {
     <Sidebar
       side="left"
       variant="sidebar"
-      collapsible="none"
-      className="overflow-hidden border-r border-zinc-800/30 bg-gradient-to-b from-zinc-900 to-zinc-950"
+      collapsible="offcanvas"
+      className="border-r-0 bg-zinc-900"
     >
-      <SidebarContent className="flex flex-col overflow-hidden bg-transparent py-4">
-        {/* Header */}
-        <div className="mb-2 flex w-full items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 blur-sm"></div>
-              <div className="relative rounded-xl border border-zinc-700/50 bg-gradient-to-br from-zinc-800 to-zinc-900 p-2">
-                <Image
-                  src="/logo.svg"
-                  alt="Swiz"
-                  width={20}
-                  height={20}
-                  className="flex-shrink-0"
-                />
-              </div>
+      <SidebarContent className="flex flex-col bg-transparent">
+        <div className="flex items-center justify-between p-8 pb-6">
+          <div className="flex items-center gap-2">
+            <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-zinc-700 to-zinc-800 shadow-sm">
+              <Image
+                src="/logo.svg"
+                alt="Swiz"
+                width={18}
+                height={18}
+                className="opacity-90"
+              />
             </div>
             <div>
-              <span className="text-2xl font-semibold tracking-tight text-white">
+              <h1 className="text-xl font-semibold tracking-tight text-white">
                 swizdotdev
-              </span>
+              </h1>
             </div>
           </div>
           <button
             onClick={toggleSidebar}
-            className="rounded-lg p-2 text-zinc-400 transition-all duration-200 hover:bg-zinc-800/60 hover:text-zinc-200"
+            className="rounded-md p-1.5 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200"
           >
-            <PanelLeftClose className="h-4 w-4" />
+            <PanelLeft className="h-5 w-5" />
           </button>
         </div>
 
-        {/* New Project Button */}
-        <div className="mb-6 px-4">
+        <div className="px-8 pb-8">
           <Button
             onClick={() => navigate("/")}
-            className="w-full rounded-xl border border-zinc-600/50 bg-gradient-to-r from-zinc-800 to-zinc-700 py-3 font-medium text-white transition-all duration-200 hover:scale-[1.02] hover:from-zinc-700 hover:to-zinc-600 hover:shadow-lg hover:shadow-zinc-900/20"
+            className="w-full rounded-lg bg-zinc-800 py-2.5 text-sm font-medium text-zinc-100 hover:bg-zinc-700 hover:text-white"
           >
+            <Plus className="mr-2 h-4 w-4" />
             New Project
           </Button>
         </div>
 
-        {/* Projects Section */}
-        <SidebarGroup className="min-h-0 flex-1 px-4">
-          {/* Filter Header */}
-          <div className="mb-4">
+        <div className="flex min-h-0 flex-1 flex-col">
+          <div className="px-8 pb-4">
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-                className="group flex items-center gap-2 text-xs font-semibold tracking-wider text-zinc-300 uppercase transition-all duration-200 hover:text-white"
+                className="flex items-center gap-2 text-sm text-zinc-400 hover:text-zinc-200"
               >
-                <Clock className="h-3 w-3" />
-                {selectedFilter?.label || "Recent Projects"}
-                <ChevronDown
-                  className={`h-3 w-3 transition-transform duration-200 ${showFilterDropdown ? "rotate-180" : ""}`}
-                />
+                <Clock className="h-4 w-4" />
+                {selectedFilter?.label}
+                <ChevronDown className={`h-3 w-3 transition-transform ${showFilterDropdown ? "rotate-180" : ""}`} />
               </button>
 
               {showFilterDropdown && (
-                <div className="absolute top-full left-0 z-50 mt-2 min-w-40 rounded-xl border border-zinc-700/50 bg-zinc-900/95 shadow-xl backdrop-blur-sm">
-                  {filterOptions.map((option, index) => (
+                <div className="absolute left-0 top-full z-50 mt-2 w-40 rounded-lg border border-zinc-700 bg-zinc-800 shadow-lg">
+                  {filterOptions.map((option) => (
                     <button
                       key={option.label}
                       onClick={() => {
                         setSelectedFilter(option);
                         setShowFilterDropdown(false);
                       }}
-                      className={`w-full px-4 py-3 text-left text-sm transition-all duration-200 ${
-                        index === 0 ? "rounded-t-xl" : ""
-                      } ${
-                        index === filterOptions.length - 1 ? "rounded-b-xl" : ""
-                      } hover:bg-zinc-800/60 ${
+                      className={`w-full px-3 py-2 text-left text-sm first:rounded-t-lg last:rounded-b-lg ${
                         selectedFilter?.label === option.label
-                          ? "bg-zinc-800 text-white"
-                          : "text-zinc-300 hover:text-white"
+                          ? "bg-zinc-700 text-white"
+                          : "text-zinc-300 hover:bg-zinc-700/50 hover:text-white"
                       }`}
                     >
                       {option.label}
@@ -179,72 +163,44 @@ export default function SidebarComponent() {
             </div>
           </div>
 
-          {/* Projects List */}
-          <SidebarGroupContent className="min-h-0 flex-1">
-            <div className="group relative h-full">
-              <div className="scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent h-full overflow-x-hidden overflow-y-auto">
-                <SidebarMenu className="space-y-2 px-1">
-                  {projects.isLoading ? (
-                    Array.from({ length: 5 }).map((_, index) => (
-                      <SidebarMenuItem key={`skeleton-${index}`}>
-                        <div className="flex items-center gap-3 rounded-lg px-3 py-3">
-                          <div className="h-2 w-2 animate-pulse rounded-full bg-zinc-700"></div>
-                          <div className="flex-1">
-                            <Skeleton className="h-4 w-4/5 rounded-md bg-zinc-800" />
-                          </div>
-                        </div>
-                      </SidebarMenuItem>
-                    ))
-                  ) : recentProjects.length > 0 ? (
-                    recentProjects.map((project) => (
-                      <SidebarMenuItem key={project.id}>
-                        <SidebarMenuButton
-                          asChild
-                          className="rounded-lg transition-all duration-200"
-                        >
-                          <Button
-                          variant="ghost"
-                            onClick={() => handleProjectClick(project.id)}
-                            className="group flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-3 text-left transition-all duration-200 hover:bg-zinc-800/60"
-                          >
-                            <div className="h-2 w-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 opacity-60 transition-opacity duration-200 group-hover:opacity-100"></div>
-                            <div className="min-w-0 flex-1">
-                              <span className="block truncate text-sm font-medium text-zinc-200 transition-colors duration-200 group-hover:text-white">
-                                {project.title}
-                              </span>
-                              <div className="text-xs text-zinc-500 transition-colors duration-200 group-hover:text-zinc-400">
-                                {project.updatedAt
-                                  ? new Date(
-                                      project.updatedAt,
-                                    ).toLocaleDateString()
-                                  : "Recent"}
-                              </div>
-                            </div>
-                          </Button>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    ))
-                  ) : (
-                    <div className="px-3 py-8 text-center">
-                      <Archive className="mx-auto mb-3 h-8 w-8 text-zinc-600" />
-                      <p className="mb-1 text-sm text-zinc-400">
-                        No projects yet
-                      </p>
-                      <p className="text-xs text-zinc-500">
-                        {selectedFilter?.label?.toLowerCase() || "recently"}
-                      </p>
+          <div className="min-h-0 flex-1 px-8">
+            <div className="h-full overflow-y-auto scrollbar-hide">
+              <div className="space-y-1 pb-8">
+                {projects.isLoading ? (
+                  Array.from({ length: 6 }).map((_, index) => (
+                    <div key={index} className="rounded-lg p-2.5">
+                      <Skeleton className="h-4 w-2/3 bg-zinc-700" />
                     </div>
-                  )}
-                </SidebarMenu>
+                  ))
+                ) : displayProjects.length > 0 ? (
+                  displayProjects.map((project) => (
+                    <button
+                      key={project.id}
+                      onClick={() => handleProjectClick(project.id)}
+                      className="group w-full rounded-lg p-2.5 text-left transition-all duration-200 hover:bg-zinc-800"
+                    >
+                      <div className="truncate text-sm font-bold text-zinc-100 group-hover:text-white">
+                        {project.title}
+                      </div>
+                    </button>
+                  ))
+                ) : (
+                  <div className="flex flex-col items-center py-12 text-center">
+                    <Archive className="mb-3 h-8 w-8 text-zinc-600" />
+                    <div className="text-sm text-zinc-400">No projects</div>
+                    <div className="text-xs text-zinc-500">
+                      {selectedFilter?.days === null ? "Get started" : "Try a different filter"}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
-          </SidebarGroupContent>
-        </SidebarGroup>
+          </div>
+        </div>
 
-        {/* Footer */}
-        <div className="border-t border-zinc-800/50 px-4 pt-4">
+        <div className="border-t border-zinc-800 p-6 pt-4">
           <div className="text-center text-xs text-zinc-500">
-            Built with ❤️ by swizdotdev
+            Made by swizdotdev
           </div>
         </div>
       </SidebarContent>

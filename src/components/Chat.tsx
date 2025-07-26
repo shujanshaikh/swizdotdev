@@ -1,11 +1,12 @@
 import { useChat } from "@ai-sdk/react";
 import type { UIMessage, Attachment } from "ai";
 import MessageBox from "./Message-box";
-import { SidebarProvider } from "./ui/sidebar";
+import { SidebarProvider, useSidebar } from "./ui/sidebar";
 import SidebarComponent from "./Sidebar";
 import { useNavigate } from "react-router-dom";
+import { PanelLeft } from "lucide-react";
 
-export default function Chat({
+function ChatContent({
   id,
   initialMessages,
 }: {
@@ -13,6 +14,7 @@ export default function Chat({
   initialMessages: Array<UIMessage>;
 }) {
   const navigate = useNavigate();
+  const { open, toggleSidebar } = useSidebar();
   
   const { input, status, handleInputChange, handleSubmit } = useChat({
     id,
@@ -38,30 +40,56 @@ export default function Chat({
   };
   
   return (
-    <SidebarProvider defaultOpen={true}>
-      <div className="flex min-h-screen w-full">
-        <SidebarComponent/>
-        <div className="flex-1 min-h-screen bg-gradient-to-b from-black to-white/20 flex items-start justify-center pt-45 p-4 select-none">
-          <div className="w-full max-w-4xl text-center space-y-6">
-            <div className="space-y-4">
-              <h1 className="text-3xl md:text-6xl font-semibold text-white select-none">
-                Make anything
-              </h1>
-              <p className="text-lg text-gray-400 select-none">
-                Build fullstack web apps by prompting
-              </p>
-            </div>
-            
-            <div className="mt-12">
-              <MessageBox 
-                input={input}
-                status={status}
-                handleInputChange={handleInputChange}
-                handleSubmit={handleInitialSubmit}
-              />
-            </div>
+    <div className="flex h-full flex-1 flex-col bg-gradient-to-b from-zinc-950 to-zinc-900">
+      {/* Toggle button when sidebar is closed */}
+      {!open && (
+        <div className="absolute left-4 top-4 z-50">
+          <button
+            onClick={toggleSidebar}
+            className="rounded-lg bg-zinc-800 p-2 text-zinc-300 shadow-lg transition-colors hover:bg-zinc-700 hover:text-white"
+          >
+            <PanelLeft className="h-5 w-5" />
+          </button>
+        </div>
+      )}
+      
+      <div className="flex flex-1 items-center justify-center p-8">
+        <div className="w-full max-w-4xl space-y-8 text-center">
+          <div className="space-y-4">
+            <h1 className="text-4xl font-bold text-white md:text-6xl">
+              Make anything
+            </h1>
+            <p className="text-lg text-zinc-400">
+              Build fullstack web apps by prompting
+            </p>
+          </div>
+          
+          <div className="mt-12">
+            <MessageBox 
+              input={input}
+              status={status}
+              handleInputChange={handleInputChange}
+              handleSubmit={handleInitialSubmit}
+            />
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+export default function Chat({
+  id,
+  initialMessages,
+}: {
+  id: string,
+  initialMessages: Array<UIMessage>;
+}) {
+  return (
+    <SidebarProvider defaultOpen={true}>
+      <div className="flex h-screen w-full">
+        <SidebarComponent/>
+        <ChatContent id={id} initialMessages={initialMessages} />
       </div>
     </SidebarProvider>
   );

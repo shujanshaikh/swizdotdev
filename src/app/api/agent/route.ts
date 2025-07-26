@@ -22,6 +22,8 @@ import { generateTitleFromUserMessage } from "~/lib/generate-title";
 import { scrapeWebsite } from "~/lib/web/web-scraper";
 import { google } from "@ai-sdk/google";
 
+
+
 export async function POST(req: Request) {
   const { message, id }: { message: UIMessage; id: string } = await req.json();
   console.log(message, "message");
@@ -71,7 +73,6 @@ export async function POST(req: Request) {
     ],
   });
 
-  
   const result = streamText({
     messages,
     model: google("gemini-2.5-flash", {
