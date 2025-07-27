@@ -22,7 +22,7 @@ import { generateTitleFromUserMessage } from "~/lib/generate-title";
 import { scrapeWebsite } from "~/lib/web/web-scraper";
 import { google } from "@ai-sdk/google";
 
-
+export const maxDuration = 60;
 
 export async function POST(req: Request) {
   const { message, id }: { message: UIMessage; id: string } = await req.json();
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
   });
   console.log(message.id);
 
-  const sandbox = await Sandbox.create("swizdotdev");
+  const sandbox = await Sandbox.create("zite-npm");
   const sandboxId = sandbox.sandboxId;
 
   await saveMessages({
@@ -71,6 +71,11 @@ export async function POST(req: Request) {
         sandboxId: "sandboxId",
       },
     ],
+    versionings : {
+      sandboxId : "",
+      sandboxUrl : "",
+      versioningTitle :""
+    }
   });
 
   const result = streamText({
@@ -469,7 +474,7 @@ export async function POST(req: Request) {
               include_screenshot,
             });
 
-            console.log(data, "data");
+            //console.log(data, "data");
             if (!data.success) {
               return {
                 error: data.error || "Failed to scrape website",
@@ -548,6 +553,11 @@ export async function POST(req: Request) {
             updatedAt: new Date(),
           },
         ],
+        versionings : {
+          sandboxId : sandboxId ,
+          sandboxUrl : sandboxUrl,
+          versioningTitle : "New Sandbox"
+        }
       });
     },
   });

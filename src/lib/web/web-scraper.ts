@@ -3,7 +3,7 @@ export async function scrapeWebsite({ url, theme, viewport, include_screenshot }
     theme: 'light' | 'dark';
     viewport: 'mobile' | 'tablet' | 'desktop';
     include_screenshot: boolean;
-  }) {
+}) {
     const WORKER_URL = 'http://localhost:8787';
     
     const response = await fetch(`${WORKER_URL}/web-scraper`, {
@@ -15,7 +15,7 @@ export async function scrapeWebsite({ url, theme, viewport, include_screenshot }
         url,
         theme,
         viewport,
-        include_screenshot
+        include_screenshot,
       })
     });
   

@@ -1,6 +1,6 @@
 import type { UIMessage } from "ai";
 import { db } from "../db/index";
-import { message, project, type DBMessage } from "./schema";
+import { message, project, versioning, type DBMessage, type Versioning } from "./schema";
 import { asc, desc, eq } from "drizzle-orm";
 
 export const createProject = async ({ title }: { title: string }) => {
@@ -65,11 +65,30 @@ export async function  saveProject({
   }
 };
 
-export async function saveMessages({ messages }: { messages: Array<DBMessage> }) {
+export async function saveMessages({ 
+  messages, 
+  versionings 
+}: { 
+  messages: Array<DBMessage>, 
+  versionings: Omit<Versioning, 'id' | 'messageId' | 'createdAt' | 'updatedAt'>
+}) {
   try {
-    return await db.insert(message).values(messages);
+    const savedMessages = await db.insert(message).values(messages).returning();
+    
+    if (versionings && savedMessages.length > 0) {
+      const versioningRecords = savedMessages.map((savedMessage) => ({
+        messageId: savedMessage.id,
+        sandboxUrl: versionings.sandboxUrl,
+        sandboxId: versionings.sandboxId,
+        versioningTitle: versionings.versioningTitle,
+      }));
+      console.log(versioningRecords)
+      await db.insert(versioning).values(versioningRecords);
+    }
+    
+    return savedMessages;
   } catch (error) {
-    throw new Error("Failed to save messages" + error);
+    throw new Error("Failed to save messages and versioning: " + error);
   }
 }
 
@@ -96,3 +115,4 @@ export const getSanboxId = async (projectId: string) => {
   
   return result[0]?.sandboxId || null;
 };
+

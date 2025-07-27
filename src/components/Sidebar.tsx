@@ -200,7 +200,7 @@ export default function SidebarComponent() {
 
         <div className="border-t border-zinc-800 p-6 pt-4">
           <div className="text-center text-xs text-zinc-500">
-            Made by swizdotdev
+            Made by @shujanshaikh
           </div>
         </div>
       </SidebarContent>

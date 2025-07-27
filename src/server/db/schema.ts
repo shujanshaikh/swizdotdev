@@ -49,3 +49,23 @@ export const messageRelations = relations(message, ({ one }) => ({
     references: [project.id],
   }),
 }));
+
+
+export const versioning = createTable("versioning", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  messageId: uuid("message_id").references(() => message.id),
+  sandboxUrl: text("sandbox_url"),
+  sandboxId: text("sandbox_id"),
+  versioningTitle : text("title"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export type Versioning = InferSelectModel<typeof versioning>;
+
+export const versioningRealtion = relations(versioning , ({one}) => ({
+  message : one(message , {
+    fields : [versioning.messageId],
+    references : [message.id]
+  })
+}))
