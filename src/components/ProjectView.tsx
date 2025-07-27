@@ -16,6 +16,7 @@ import type { DBMessage } from "~/server/db/schema";
 import Editor from "./code-editor/Editor";
 import { getLatestEditFileData } from "~/lib/code-message/latest-edits";
 import { getAllEditedFiles } from "~/lib/code-message/all-edited";
+import { useAi } from "~/hooks/use-ai";
 
 export default function ProjectView() {
   const { id } = useParams();
@@ -48,17 +49,9 @@ export default function ProjectView() {
     messages,
     error,
     reload,
-  } = useChat({
+  } = useAi({
     id,
     initialMessages,
-    generateId: () => crypto.randomUUID(),
-    api: "/api/agent",
-    experimental_prepareRequestBody: (body) => ({
-      message: body.messages.at(-1),
-      id,
-    }),
-    experimental_throttle: 100,
-    sendExtraMessageFields: true,
   });
 
   const { data: sandboxUrl } = api.message.getSandboxUrl.useQuery(

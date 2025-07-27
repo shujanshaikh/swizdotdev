@@ -437,146 +437,148 @@ export default function ProjectMessageView({
 }) {
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <div className="flex-1 overflow-y-auto scrollbar-hide">
+      <div className="scrollbar-hide flex-1 overflow-y-auto">
         <div className="mx-auto max-w-4xl space-y-6 p-6">
-        {messages.length === 0 ? (
-          <div className="flex h-96 flex-col items-center justify-center text-center">
-            <div className="mb-4 text-6xl opacity-50">💬</div>
-            <div className="text-lg text-gray-400">No messages yet</div>
-            <div className="text-sm text-gray-500">
-              Start a conversation to see your chat history!
+          {messages.length === 0 ? (
+            <div className="flex h-96 flex-col items-center justify-center text-center">
+              <div className="text-lg text-gray-400">No messages yet</div>
+              <div className="text-sm text-gray-500">
+                Start a conversation to see your chat history!
+              </div>
             </div>
-          </div>
-        ) : (
-          <>
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-              >
+          ) : (
+            <>
+              {messages.map((message) => (
                 <div
-                  className={`${message.role === "user" ? "ml-auto max-w-[75%]" : "w-full"}`}
+                  key={message.id}
+                  className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
                 >
-                  {message.role === "user" ? (
-                    <div className="rounded-2xl bg-zinc-800 px-5 py-4 text-white">
-                      {message.parts.map((part, partIndex) => (
-                        <div key={partIndex}>
-                          {part.type === "text" && (
-                            <div className="text-md leading-relaxed whitespace-pre-wrap">
-                              {part.text}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                      {message.experimental_attachments
-                        ?.filter((attachment) =>
-                          attachment.contentType?.startsWith("image/"),
-                        )
-                        .map((attachment, index) => (
-                          <Image
-                            key={`${message.id}-${index}`}
-                            src={attachment.url}
-                            alt={attachment.name || "Image attachment"}
-                            width={400}
-                            height={400}
-                            className="mt-4 h-auto w-full max-w-[400px] cursor-pointer rounded-lg shadow-lg transition-opacity hover:opacity-90"
-                            onClick={() =>
-                              window.open(attachment.url, "_blank")
-                            }
-                            priority
-                          />
+                  <div
+                    className={`${message.role === "user" ? "ml-auto max-w-[75%]" : "w-full"}`}
+                  >
+                    {message.role === "user" ? (
+                      <div className="rounded-2xl bg-zinc-800 px-5 py-4 text-white">
+                        {message.parts.map((part, partIndex) => (
+                          <div key={partIndex}>
+                            {part.type === "text" && (
+                              <div className="text-md leading-relaxed whitespace-pre-wrap">
+                                {part.text}
+                              </div>
+                            )}
+                          </div>
                         ))}
-                    </div>
-                  ) : (
-                    <div className="w-full space-y-3 py-4">
-                      {message.parts.map((part, partIndex) => {
-                        if (part.type === "text") {
-                          return (
-                            <div
-                              key={partIndex}
-                              className="text-[15px] leading-relaxed whitespace-pre-wrap text-gray-200"
-                            >
-                              {part.text}
-                            </div>
-                          );
-                        }
-
-                        if (part.type === "tool-invocation") {
-                          const callId = part.toolInvocation.toolCallId;
-                          const toolName = part.toolInvocation.toolName;
-                          const state = part.toolInvocation.state;
-                          const args = part.toolInvocation.args;
-
-                          let result: string | undefined;
-                          if (
-                            state === "result" &&
-                            "result" in part.toolInvocation
-                          ) {
-                            result =
-                              typeof part.toolInvocation.result === "string"
-                                ? part.toolInvocation.result
-                                : JSON.stringify(part.toolInvocation.result);
+                        {message.experimental_attachments
+                          ?.filter((attachment) =>
+                            attachment.contentType?.startsWith("image/"),
+                          )
+                          .map((attachment, index) => (
+                            <Image
+                              key={`${message.id}-${index}`}
+                              src={attachment.url}
+                              alt={attachment.name || "Image attachment"}
+                              width={400}
+                              height={400}
+                              className="mt-4 h-auto w-full max-w-[400px] cursor-pointer rounded-lg shadow-lg transition-opacity hover:opacity-90"
+                              onClick={() =>
+                                window.open(attachment.url, "_blank")
+                              }
+                              priority
+                            />
+                          ))}
+                      </div>
+                    ) : (
+                      <div className="w-full space-y-3 py-4">
+                        {message.parts.map((part, partIndex) => {
+                          if (part.type === "text") {
+                            return (
+                              <div
+                                key={partIndex}
+                                className="text-[15px] leading-relaxed whitespace-pre-wrap text-gray-200"
+                              >
+                                {part.text}
+                              </div>
+                            );
                           }
 
-                          return (
-                            <ToolExecution
-                              key={callId}
-                              toolName={toolName}
-                              args={args}
-                              result={result}
-                            />
-                          );
-                        }
+                          if (part.type === "tool-invocation") {
+                            const callId = part.toolInvocation.toolCallId;
+                            const toolName = part.toolInvocation.toolName;
+                            const state = part.toolInvocation.state;
+                            const args = part.toolInvocation.args;
 
-                        return null;
-                      })}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
+                            let result: string | undefined;
+                            if (
+                              state === "result" &&
+                              "result" in part.toolInvocation
+                            ) {
+                              result =
+                                typeof part.toolInvocation.result === "string"
+                                  ? part.toolInvocation.result
+                                  : JSON.stringify(part.toolInvocation.result);
+                            }
 
-            {status === "submitted" && (
-              <div className="flex justify-start">
-                <div className="flex items-center gap-2 py-4">
-                  <div className="h-2 w-2 animate-pulse rounded-full bg-gray-400" />
-                  <div className="h-2 w-2 animate-pulse rounded-full bg-gray-400 delay-100" />
-                  <div className="h-2 w-2 animate-pulse rounded-full bg-gray-400 delay-200" />
-                </div>
-              </div>
-            )}
+                            return (
+                              <ToolExecution
+                                key={callId}
+                                toolName={toolName}
+                                args={args}
+                                result={result}
+                              />
+                            );
+                          }
 
-            {status === "error" && (
-              <div className="flex justify-start">
-                <div className="w-full">
-                  <div className="w-full space-y-3 py-4">
-                    <div className="flex items-center gap-2 rounded-lg bg-red-900/20 px-4 py-3">
-                      <div className="flex items-center gap-1">
-                        <div className="h-2 w-2 animate-pulse rounded-full bg-red-400" />
-                        <div className="h-2 w-2 animate-pulse rounded-full bg-red-400 delay-100" />
-                        <div className="h-2 w-2 animate-pulse rounded-full bg-red-400 delay-200" />
+                          return null;
+                        })}
                       </div>
-                      <span className="text-sm text-red-400">
-                        {error?.message || 
-                         (typeof error === 'string' ? error : 
-                          error ? JSON.stringify(error, null, 2) : 'Unknown error')}
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={reload}
-                        className="flex items-center gap-2"
-                      >
-                        <RefreshCcwIcon className="h-4 w-4" />
-                        <span className="text-sm">Reload</span>
-                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              {status === "submitted" && (
+                <div className="flex justify-start">
+                  <div className="flex items-center gap-2 py-4">
+                    <div className="h-2 w-2 animate-pulse rounded-full bg-gray-400" />
+                    <div className="h-2 w-2 animate-pulse rounded-full bg-gray-400 delay-100" />
+                    <div className="h-2 w-2 animate-pulse rounded-full bg-gray-400 delay-200" />
+                  </div>
+                </div>
+              )}
+
+              {status === "error" && (
+                <div className="flex justify-start">
+                  <div className="w-full">
+                    <div className="w-full space-y-3 py-4">
+                      <div className="flex items-center gap-2 rounded-lg bg-red-900/20 px-4 py-3">
+                        <div className="flex items-center gap-1">
+                          <div className="h-2 w-2 animate-pulse rounded-full bg-red-400" />
+                          <div className="h-2 w-2 animate-pulse rounded-full bg-red-400 delay-100" />
+                          <div className="h-2 w-2 animate-pulse rounded-full bg-red-400 delay-200" />
+                        </div>
+                        <span className="text-sm text-red-400">
+                          {error?.message ||
+                            (typeof error === "string"
+                              ? error
+                              : error
+                                ? JSON.stringify(error, null, 2)
+                                : "Unknown error")}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={reload}
+                          className="flex items-center gap-2"
+                        >
+                          <RefreshCcwIcon className="h-4 w-4" />
+                          <span className="text-sm">Reload</span>
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </>
-        )}
+              )}
+            </>
+          )}
         </div>
       </div>
     </div>

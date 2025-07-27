@@ -53,7 +53,7 @@ export async function POST(req: Request) {
   });
   console.log(message.id);
 
-  const sandbox = await Sandbox.create("zite-npm");
+  const sandbox = await Sandbox.create("swizdotdev");
   const sandboxId = sandbox.sandboxId;
 
   await saveMessages({
@@ -80,8 +80,8 @@ export async function POST(req: Request) {
 
   const result = streamText({
     messages,
-    model: google("gemini-2.5-flash", {
-      structuredOutputs: true,
+    model: google("gemini-2.5-flash" , {
+      structuredOutputs : true
     }),
     temperature: 0.1,
     system: PROMPT,
