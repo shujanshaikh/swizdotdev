@@ -8,6 +8,7 @@ import {
 } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
+
 import { Sandbox } from "@e2b/code-interpreter";
 import { PROMPT } from "~/lib/prompt";
 import { getSandbox, getTrailingMessageId } from "~/lib/utils";
@@ -80,9 +81,7 @@ export async function POST(req: Request) {
 
   const result = streamText({
     messages,
-    model: google("gemini-2.5-flash" , {
-      structuredOutputs : true
-    }),
+    model: google("gemini-2.5-flash"),
     temperature: 0.1,
     system: PROMPT,
     maxSteps: 10,
@@ -313,7 +312,7 @@ export async function POST(req: Request) {
         execute: async ({ relative_file_path }) => {
           try {
             await getSandbox(sandboxId);
-            await sandbox.commands.run(`rm -f ${relative_file_path}`);
+            await sandbox.files.remove(relative_file_path);
             return `File ${relative_file_path} deleted successfully`;
           } catch (error) {
             return `Error deleting file: ${error}`;
@@ -322,41 +321,26 @@ export async function POST(req: Request) {
       }),
 
       edit_file: tool({
-        description:
-          "Use this tool to make large edits or refactorings to an existing file or create a new file.\nSpecify the `relative_file_path` argument first.\n`code_edit` will be read by a less intelligent model, which will quickly apply the edit.\n\nMake it clear what the edit is while minimizing the unchanged code you write.\nWhen writing the edit, specify each edit in sequence using the special comment `// ... existing code ... <description of existing code>` to represent unchanged code in between edited lines.\n\nFor example:\n```\n// ... existing code ... <original import statements>\n<first edit here>\n// ... existing code ... <`LoginButton` component>\n<second edit here>\n// ... existing code ... <the rest of the file>\n```\nALWAYS include the `// ... existing code ... <description of existing code>` comment for each edit to indicate the code that should not be changed.\n\nDO NOT omit spans of pre-existing code without using the `// ... existing code ... <description of existing code>` comment to indicate its absence.\n\nOnly use emojis if the user explicitly requests it. Avoid adding emojis to files unless asked.",
+        description: "Use this tool to write or edit a file at the specified path.",
         parameters: z.object({
           relative_file_path: z
             .string()
             .describe(
-              "The relative path to the file to modify. The tool will create any directories in the path that don't exist",
-            ),
-          instructions: z
-            .string()
-            .describe(
-              "A single sentence instruction describing what you are going to do for the sketched edit. Don't repeat what you have said previously in normal messages. And use it to disambiguate uncertainty in the edit",
+              "The relative path to the file to modify. The tool will create any directories in the path that don't exist"
             ),
           code_edit: z
             .string()
             .describe(
-              "Specify ONLY the precise lines of code that you wish to edit. **NEVER specify or write out unchanged code**. Instead, represent all unchanged code using the comment of the language you're editing in - example: `// ...[existing code] <description of existing code> ...`.",
-            ),
-          smart_apply: z
-            .boolean()
-            .describe(
-              "Use a smarter model to apply the code_edit. This is useful if the edit is long, or if the last edit was incorrect and you are trying again. Make sure to include the proper `// ... existing code ...` comments to indicate the code that should not be changed.",
-            ),
+              "The content to write to the file"
+            )
         }),
-        execute: async ({ relative_file_path, instructions, code_edit }) => {
+        execute: async ({ relative_file_path, code_edit }) => {
           try {
             const sandbox = await getSandbox(sandboxId);
             await sandbox.files.write(relative_file_path, code_edit);
-            return {
-              relative_file_path,
-              code_edit,
-              instructions,
-            };
+            return `Successfully wrote to ${relative_file_path} `;
           } catch (error) {
-            return `Error editing file: ${error} ${relative_file_path} ${code_edit}`;
+            return `Error editing file: ${error}`;
           }
         },
       }),

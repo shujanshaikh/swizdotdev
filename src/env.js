@@ -11,7 +11,6 @@ export const env = createEnv({
     GOOGLE_GENERATIVE_AI_API_KEY: z.string(),
     E2B_API_KEY: z.string(),
     EXA_API_KEY: z.string(),
-    VERCEL_API_KEY: z.string(),
     UPLOADTHING_TOKEN: z.string(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
@@ -37,7 +36,6 @@ export const env = createEnv({
     GOOGLE_GENERATIVE_AI_API_KEY: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
     E2B_API_KEY: process.env.E2B_API_KEY,
     EXA_API_KEY: process.env.EXA_API_KEY,
-    VERCEL_API_KEY: process.env.VERCEL_API_KEY,
     UPLOADTHING_TOKEN: process.env.UPLOADTHING_TOKEN,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
