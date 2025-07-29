@@ -32,11 +32,12 @@ export default function SidebarComponent() {
   const handleProjectClick = async (projectId: string) => {
     try {
       console.log("Resuming sandbox for project:", projectId);
-      navigate(`/project/${projectId}`);
+     
       const result = await resumeSandboxMutation.mutateAsync({ projectId });
 
       if (result.success) {
         console.log("Sandbox resumed successfully:", result.sandboxId);
+        navigate(`/project/${projectId}`);
         
       } else {
         console.error("Failed to resume sandbox:", result.message);
