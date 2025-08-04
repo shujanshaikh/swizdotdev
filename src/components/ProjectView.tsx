@@ -9,7 +9,6 @@ import ProjectMessageView from "./ProjectMessage";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import PreviewUrl from "./PreviewUrl";
 import { AppWindowMac, Code2Icon } from "lucide-react";
-import { useChat } from "@ai-sdk/react";
 import { api } from "~/trpc/react";
 import type { Attachment, UIMessage } from "ai";
 import type { DBMessage } from "~/server/db/schema";

@@ -29,6 +29,7 @@
     "@anthropic-ai/sdk": "^0.56.0",
     "@e2b/code-interpreter": "1.2.0-beta.4",
     "@monaco-editor/react": "^4.7.0",
+    "@openrouter/ai-sdk-provider": "^0.7.3",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-separator": "^1.1.7",

@@ -22,8 +22,13 @@ import {
 import { generateTitleFromUserMessage } from "~/lib/generate-title";
 import { scrapeWebsite } from "~/lib/web/web-scraper";
 import { google } from "@ai-sdk/google";
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 
 export const maxDuration = 60;
+
+const openrouter = createOpenRouter({
+  apiKey: process.env.OPENROUTER_API_KEY,
+});
 
 export async function POST(req: Request) {
   const { message, id }: { message: UIMessage; id: string } = await req.json();
@@ -31,17 +36,25 @@ export async function POST(req: Request) {
 
   const project = await getProjectById({ id });
 
+  let sandboxId = "";
   if (!project) {
     const title = await generateTitleFromUserMessage({
       message,
     });
-
+    const sandbox = await Sandbox.create("swizdotdev");
+    sandboxId = sandbox.sandboxId;
+    
     await saveProject({
       id: id,
       title,
+      sandboxId,
+      sandboxUrl: `https://${sandbox.getHost(3000)}`,
     });
   } else {
     console.log("project already exists");
+    console.log(project.sandboxId, "project");
+    sandboxId = project.sandboxId!;
+    await Sandbox.connect(sandboxId);
   }
 
   const previousMessages = await getMessagesByProjectId({ id });
@@ -54,8 +67,7 @@ export async function POST(req: Request) {
   });
   console.log(message.id);
 
-  const sandbox = await Sandbox.create("swizdotdev");
-  const sandboxId = sandbox.sandboxId;
+ 
 
   await saveMessages({
     messages: [
@@ -81,7 +93,7 @@ export async function POST(req: Request) {
 
   const result = streamText({
     messages,
-    model: google("gemini-2.5-flash"),
+    model: openrouter.chat("openrouter/horizon-beta"),
     temperature: 0.1,
     system: PROMPT,
     maxSteps: 10,
@@ -91,7 +103,7 @@ export async function POST(req: Request) {
       delayInMs: 10,
       chunking: "word",
     }),
-    toolChoice: "required",
+    //toolChoice: "required",
     tools: {
       bash: tool({
         description:
@@ -311,7 +323,7 @@ export async function POST(req: Request) {
         }),
         execute: async ({ relative_file_path }) => {
           try {
-            await getSandbox(sandboxId);
+            const sandbox = await getSandbox(sandboxId);
             await sandbox.files.remove(relative_file_path);
             return `File ${relative_file_path} deleted successfully`;
           } catch (error) {
@@ -489,8 +501,9 @@ export async function POST(req: Request) {
       }),
     },
     onFinish: async ({ response }) => {
+      const sandbox = await getSandbox(sandboxId);
       const sandboxUrl = `https://${sandbox.getHost(3000)}`;
-
+      
       setTimeout(
         async () => {
           try {
@@ -502,7 +515,7 @@ export async function POST(req: Request) {
             console.error("Failed to auto-pause sandbox:", error);
           }
         },
-        3 * 60 * 1000,
+        12 * 60 * 1000,
       );
 
       console.log(sandboxUrl, "sandboxUrl");

@@ -50,15 +50,21 @@ export async function getProjectById({ id }: { id: string }) {
 export async function  saveProject({
   id,
   title,
+  sandboxId,
+  sandboxUrl,
 }: {
   id: string;
   title: string;
+  sandboxId: string;
+  sandboxUrl: string;
 }) {
   try {
     return await db.insert(project).values({
       id,
       createdAt: new Date(),
       title,
+      sandboxId,
+      sandboxUrl
     });
   } catch (error) {
     console.log(error);

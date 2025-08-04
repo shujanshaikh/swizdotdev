@@ -22,6 +22,8 @@ export const createTable = pgTableCreator((name) => `swiz_${name}`);
 export const project = createTable("project", {
   id: uuid("id").primaryKey().defaultRandom(),
   title: text("title").notNull(),
+  sandboxId: text("sandbox_id"),
+  sandboxUrl: text("sandbox_url"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
