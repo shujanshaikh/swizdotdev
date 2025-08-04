@@ -3,6 +3,7 @@ import Editor from "@monaco-editor/react";
 import { Loader2 } from "lucide-react";
 import type { Monaco } from "@monaco-editor/react";
 import type * as monacoEditor from "monaco-editor";
+import { Button } from "../ui/button";
 
 interface CodeEditorProps {
   code_edit: string;
@@ -10,6 +11,7 @@ interface CodeEditorProps {
 
 export default function CodeEditor({ code_edit }: CodeEditorProps) {
   const [editorContent, setEditorContent] = useState("");
+  const [copied, setCopied] = useState(false);
   const isMountedRef = useRef(true);
 
   useEffect(() => {

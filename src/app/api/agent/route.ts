@@ -515,7 +515,7 @@ export async function POST(req: Request) {
             console.error("Failed to auto-pause sandbox:", error);
           }
         },
-        12 * 60 * 1000,
+        3 * 60 * 1000,
       );
 
       console.log(sandboxUrl, "sandboxUrl");

@@ -41,29 +41,20 @@ export const messageRouter = createTRPCRouter({
     resumeSandbox: publicProcedure.input(z.object({
       projectId: z.string(),
     })).mutation(async ({ input }) => {
-      try {
-        const sandboxId = await getSanboxId(input.projectId);
-        if (!sandboxId) {
-          return {
-            success: false,
-            sandboxId: null,
-            message: "No sandbox found for this project. Please start a conversation first."
-          };
-        }
-        const resumedSandbox = await Sandbox.resume(sandboxId);
-        console.log('Sandbox resumed', resumedSandbox.sandboxId);
-        return {
-          success: true,
-          sandboxId: resumedSandbox.sandboxId,
-          message: "Sandbox resumed successfully"
-        };
-      } catch (error) {
-        console.error('Failed to resume sandbox:', error);
+      const sandboxId = await getSanboxId(input.projectId);
+      if (!sandboxId) {
         return {
           success: false,
           sandboxId: null,
-          message: `Failed to resume sandbox: ${error instanceof Error ? error.message : 'Unknown error'}`
+          message: "No sandbox found for this project. Please start a conversation first."
         };
       }
+      const resumedSandbox = await Sandbox.resume(sandboxId);
+      console.log('Sandbox resumed', resumedSandbox.sandboxId);
+      return {
+        success: true,
+        sandboxId: resumedSandbox.sandboxId,
+        message: "Sandbox resumed successfully"
+      };
     }),
 });

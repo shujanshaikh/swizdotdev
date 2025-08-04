@@ -113,12 +113,12 @@ export async function getMessagesByProjectId({ id }: { id: string }) {
 
 export const getSanboxId = async (projectId: string) => {
   const result = await db
-    .select({ sandboxId: message.sandboxId })
-    .from(message)
-    .where(eq(message.projectId, projectId))
-    .orderBy(desc(message.createdAt))
+    .select({ sandboxId: project.sandboxId })
+    .from(project)
+    .where(eq(project.id, projectId))
+    .orderBy(desc(project.updatedAt))
     .limit(1);
-  
+
   return result[0]?.sandboxId || null;
 };
 
