@@ -9,7 +9,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export async function getSandbox(sandboxId: string) {
   const sandbox = await Sandbox.connect(sandboxId , {
-    requestTimeoutMs: 15 * 60 * 1000, // 15 minutes
+      requestTimeoutMs: 1200000, // 20 minutes
   });
   return sandbox;
 }

@@ -6,7 +6,6 @@ import {
   appendClientMessage,
   appendResponseMessages,
 } from "ai";
-import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
 
 import { Sandbox } from "@e2b/code-interpreter";
@@ -21,7 +20,6 @@ import {
 } from "~/server/db/queries";
 import { generateTitleFromUserMessage } from "~/lib/generate-title";
 import { scrapeWebsite } from "~/lib/web/web-scraper";
-import { google } from "@ai-sdk/google";
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 
 export const maxDuration = 60;
@@ -80,15 +78,8 @@ export async function POST(req: Request) {
         attachments: message.experimental_attachments ?? [],
         createdAt: new Date(),
         updatedAt: new Date(),
-        sandboxUrl: "",
-        sandboxId: "sandboxId",
       },
-    ],
-    versionings : {
-      sandboxId : "",
-      sandboxUrl : "",
-      versioningTitle :""
-    }
+    ]
   });
 
   const result = streamText({
@@ -100,7 +91,7 @@ export async function POST(req: Request) {
     maxRetries: 2,
     toolCallStreaming: true,
     experimental_transform: smoothStream({
-      delayInMs: 10,
+      delayInMs: 20,
       chunking: "word",
     }),
     //toolChoice: "required",
@@ -515,7 +506,7 @@ export async function POST(req: Request) {
             console.error("Failed to auto-pause sandbox:", error);
           }
         },
-        3 * 60 * 1000,
+        12 * 60 * 1000,
       );
 
       console.log(sandboxUrl, "sandboxUrl");
@@ -544,17 +535,10 @@ export async function POST(req: Request) {
             role: assistantMessage!.role,
             parts: assistantMessage?.parts ?? [],
             attachments: assistantMessage?.experimental_attachments ?? [],
-            sandboxUrl: sandboxUrl,
-            sandboxId: sandboxId,
             createdAt: new Date(),
             updatedAt: new Date(),
           },
-        ],
-        versionings : {
-          sandboxId : sandboxId ,
-          sandboxUrl : sandboxUrl,
-          versioningTitle : "New Sandbox"
-        }
+        ]
       });
     },
   });

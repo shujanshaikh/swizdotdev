@@ -1,7 +1,11 @@
 import { useEffect, useState, useRef } from "react";
 import { Button } from "./ui/button"
+import { api } from "~/trpc/react";
 
-export default function PreviewUrl({ sandboxUrl }: { sandboxUrl: string }) {
+export default function PreviewUrl({ projectId }: { projectId: string }) {
+    const { data: sandboxUrl } = api.project.getSandboxUrl.useQuery({ projectId } , {
+        enabled: !!projectId
+    });
     const [url, setUrl] = useState(sandboxUrl || "");
     const iframeRef = useRef<HTMLIFrameElement>(null);
     

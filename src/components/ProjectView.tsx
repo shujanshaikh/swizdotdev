@@ -52,12 +52,6 @@ export default function ProjectView() {
     id,
     initialMessages,
   });
-
-  const { data: sandboxUrl } = api.message.getSandboxUrl.useQuery(
-    { messageId: dbMessages?.at(-1)?.id ?? "" },
-    { enabled: !!dbMessages?.at(-1)?.id },
-  );
-
   const editFileData = getLatestEditFileData(messages);
   const allEditedFiles = getAllEditedFiles(messages);
 
@@ -106,7 +100,7 @@ export default function ProjectView() {
               </TabsTrigger>
             </TabsList>
             <TabsContent value="app">
-              <PreviewUrl sandboxUrl={sandboxUrl!} />
+              <PreviewUrl projectId={id!} />
             </TabsContent>
             <TabsContent value="editor">
               <Editor
