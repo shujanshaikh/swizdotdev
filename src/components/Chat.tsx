@@ -1,9 +1,8 @@
 import type { UIMessage, Attachment } from "ai";
 import MessageBox from "./Message-box";
-import { SidebarProvider, useSidebar } from "./ui/sidebar";
+import { SidebarProvider, SidebarInset } from "./ui/sidebar";
 import SidebarComponent from "./Sidebar";
 import { useNavigate } from "react-router-dom";
-import { PanelLeft } from "lucide-react";
 import { useAi } from "~/hooks/use-ai";
 
 function ChatContent({
@@ -14,7 +13,6 @@ function ChatContent({
   initialMessages: Array<UIMessage>;
 }) {
   const navigate = useNavigate();
-  const { open, toggleSidebar } = useSidebar();
 
   const { input, status, handleInputChange, handleSubmit } = useAi({
     id,
@@ -34,31 +32,28 @@ function ChatContent({
   };
 
   return (
-    <div className="flex h-full flex-1 flex-col bg-gradient-to-b from-zinc-950 to-zinc-900">
-      {/* Toggle button when sidebar is closed */}
-      {!open && (
-        <div className="absolute top-4 left-4 z-50">
-          <button
-            onClick={toggleSidebar}
-            className="rounded-lg bg-zinc-800 p-2 text-zinc-300 shadow-lg transition-colors hover:bg-zinc-700 hover:text-white"
-          >
-            <PanelLeft className="h-5 w-5" />
-          </button>
-        </div>
-      )}
+    <SidebarInset className="relative flex h-full flex-1 flex-col overflow-hidden">
+      {/* Subtle layered background */}
+      <div className="pointer-events-none absolute inset-0 -z-20 bg-gradient-to-b from-zinc-950 via-zinc-950/95 to-zinc-900" />
 
-      <div className="flex flex-1 items-center justify-center p-8">
-        <div className="w-full max-w-4xl space-y-8 text-center">
-          <div className="space-y-4">
-            <h1 className="text-4xl font-bold text-white md:text-6xl">
+      {/* Ambient soft auras */}
+      <div className="pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(70%_50%_at_50%_-10%,black,transparent)]">
+        <div className="absolute left-1/4 top-0 h-[26rem] w-[26rem] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.12),transparent_60%)] blur-md" />
+        <div className="absolute right-0 top-1/3 h-[22rem] w-[22rem] translate-x-1/4 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(34,197,94,0.10),transparent_60%)] blur" />
+      </div>
+
+      <div className="flex flex-1 items-center justify-center p-6 md:p-10">
+        <div className="w-full max-w-4xl translate-y-[-6vh] space-y-8 text-center md:translate-y-[-8vh]">
+          <div className="space-y-3 md:space-y-4">
+            <h1 className="bg-gradient-to-b from-white to-zinc-300/80 bg-clip-text text-4xl font-semibold text-transparent md:text-6xl">
               Make anything
             </h1>
-            <p className="text-lg text-zinc-400">
+            <p className="text-base text-zinc-400 md:text-lg">
               Build fullstack web apps by prompting
             </p>
           </div>
 
-          <div className="mt-12">
+          <div className="mt-6 md:mt-10">
             <MessageBox
               input={input}
               status={status}
@@ -68,7 +63,7 @@ function ChatContent({
           </div>
         </div>
       </div>
-    </div>
+    </SidebarInset>
   );
 }
 

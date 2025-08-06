@@ -494,19 +494,20 @@ export async function POST(req: Request) {
     onFinish: async ({ response }) => {
       const sandbox = await getSandbox(sandboxId);
       const sandboxUrl = `https://${sandbox.getHost(3000)}`;
+      console.log(sandboxId, "sandboxId");
       
       setTimeout(
         async () => {
           try {
             await sandbox.pause();
             console.log(
-              `Sandbox ${sandbox.sandboxId} auto-paused after 3 minutes`,
+              `Sandbox ${sandbox.sandboxId} auto-paused after 10 minutes`,
             );
           } catch (error) {
             console.error("Failed to auto-pause sandbox:", error);
           }
         },
-        12 * 60 * 1000,
+        10 * 60 * 1000, // 10 minutes
       );
 
       console.log(sandboxUrl, "sandboxUrl");

@@ -51,24 +51,25 @@ export default function MessageBox({
           experimental_attachments: attachments,
         });
       }}
-      className="relative mx-auto max-w-3xl"
+      className="relative mx-auto max-w-3xl px-3"
     >
       <div
         className={cn(
-          "relative w-full rounded-3xl border bg-gradient-to-br from-zinc-800/90 to-zinc-900/90 shadow-2xl backdrop-blur-md transition-all duration-300 ease-in-out",
+          "relative w-full overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-xl backdrop-blur-xl",
+          "transition-all duration-300 ease-in-out",
         )}
       >
         {/* Attachments inside message box */}
         {attachments.length > 0 && (
-          <div className="border-b border-zinc-600/30 p-4 pb-3">
-            <div className="flex flex-wrap gap-3">
+          <div className="border-b border-white/10 p-3">
+            <div className="flex flex-wrap gap-2.5">
               {attachments.map((attachment, index) => (
                 <div
                   key={index}
-                  className="group bg-zinc-750/60 relative flex max-w-[220px] items-center rounded-2xl border border-zinc-600/40 p-3 transition-all duration-200 hover:bg-zinc-700/60"
+                  className="group/att relative flex max-w-[220px] items-center gap-2 rounded-xl bg-white/5 px-2.5 py-2 ring-1 ring-white/10 transition-colors duration-200 hover:bg-white/10"
                 >
-                  <div className="flex min-w-0 flex-1 items-center gap-3">
-                    <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-md bg-zinc-700/50 ring-1 ring-zinc-600/30">
+                  <div className="flex min-w-0 flex-1 items-center gap-2.5">
+                    <div className="relative h-9 w-9 flex-shrink-0 overflow-hidden rounded-lg bg-white/10 ring-1 ring-white/10">
                       {attachment.contentType?.startsWith("image/") ? (
                         <Image
                           src={attachment.url}
@@ -79,7 +80,7 @@ export default function MessageBox({
                       ) : (
                         <div className="flex h-full w-full items-center justify-center">
                           <svg
-                            className="h-5 w-5 text-zinc-400"
+                            className="h-5 w-5 text-zinc-300/80"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -94,14 +95,14 @@ export default function MessageBox({
                         </div>
                       )}
                     </div>
-                    <span className="truncate text-sm font-medium text-zinc-200">
+                    <span className="truncate text-sm font-medium text-zinc-100/90">
                       {attachment.name || "Unnamed file"}
                     </span>
                   </div>
                   <button
                     type="button"
                     onClick={() => removeAttachment(index)}
-                    className="ml-2 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-red-500/20 text-red-300 transition-all duration-200 hover:scale-110 hover:bg-red-500/80 hover:text-white"
+                    className="ml-1.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-red-500/15 text-red-300 transition-all duration-200 hover:bg-red-500/70 hover:text-white"
                   >
                     <svg
                       className="h-3.5 w-3.5"
@@ -128,16 +129,17 @@ export default function MessageBox({
           onChange={handleTextareaChange}
           placeholder="Tell swiz what you want to build..."
           className={cn(
-            "max-h-[200px] min-h-[100px] w-full rounded-3xl bg-transparent p-6 pr-28 text-white placeholder:text-zinc-400",
-            "resize-none overflow-hidden text-lg leading-relaxed font-medium",
+            "max-h-[260px] min-h-[130px] w-full bg-transparent px-5 py-6 pr-24 text-white placeholder:text-white/50",
+            "rounded-2xl",
+            "resize-none overflow-hidden text-base leading-relaxed",
             "transition-all duration-200 focus:outline-none",
-            "scrollbar-thin scrollbar-thumb-zinc-500/50 scrollbar-track-transparent hover:scrollbar-thumb-zinc-400/60",
-            attachments.length > 0 ? "rounded-t-none pt-5" : "",
+            "scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent hover:scrollbar-thumb-white/30",
+            attachments.length > 0 ? "rounded-t-none pt-4" : "",
           )}
           ref={textareaRef}
         />
 
-        <div className="absolute bottom-4 left-4">
+        <div className="absolute bottom-3 left-3">
           <UploadButton
             endpoint="imageUploader"
             onClientUploadComplete={(res) => {
@@ -154,8 +156,8 @@ export default function MessageBox({
             }}
             appearance={{
               button: cn(
-                "w-8 h-8 bg-transparent hover:bg-zinc-800/50 text-zinc-400 hover:text-white rounded-lg",
-                "transition-all duration-200 hover:scale-105 active:scale-95",
+                "h-9 w-9 rounded-xl bg-white/5 text-white/80 ring-1 ring-white/10",
+                "transition-all duration-200 hover:bg-white/10 hover:text-white",
                 "flex items-center justify-center border-none",
                 "focus:outline-none",
               ),
@@ -171,13 +173,12 @@ export default function MessageBox({
           type="submit"
           disabled={status !== "ready" || !input.trim()}
           className={cn(
-            "absolute right-4 bottom-4 h-10 w-10 rounded-full bg-gradient-to-r from-white to-gray-100 text-zinc-800 hover:from-gray-100 hover:to-gray-200",
-            "flex items-center justify-center border-none shadow-lg transition-all duration-200 hover:shadow-xl",
-            "select-none focus:outline-none disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100",
-            "hover:scale-105 focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-zinc-800 active:scale-95",
-            status !== "ready" || !input.trim()
-              ? "from-zinc-200 to-zinc-300 hover:from-zinc-200 hover:to-zinc-300"
-              : "",
+            "absolute bottom-3 right-3 h-10 w-10 rounded-xl",
+            "bg-white/90 text-zinc-900 shadow-md ring-1 ring-black/5",
+            "hover:bg-white hover:shadow-lg",
+            "flex items-center justify-center border-none transition-all duration-200",
+            "select-none focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+            "hover:scale-[1.03] active:scale-95",
           )}
         >
           <svg

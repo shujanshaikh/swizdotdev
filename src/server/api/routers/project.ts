@@ -24,7 +24,7 @@ export const projectRouter = createTRPCRouter({
     const projectData = await ctx.db.query.project.findFirst({
       where: eq(project.id, input.projectId),
     });
-    return projectData?.sandboxUrl;
+    return projectData?.sandboxUrl ?? null;
   }),
 
 });
