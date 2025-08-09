@@ -27,9 +27,22 @@ export default function Editor({
   const [currentContent, setCurrentContent] = useState(code_edit);
 
   useEffect(() => {
-    setCurrentContent(code_edit);
-    setCurrentFile(relative_file_path);
-  }, [code_edit, relative_file_path]);
+    if (relative_file_path && code_edit) {
+      setCurrentFile(relative_file_path);
+      setCurrentContent(code_edit);
+      return;
+    }
+
+    if (!relative_file_path && editedFiles.length > 0) {
+      const last = editedFiles[editedFiles.length - 1]!;
+      setCurrentFile(last?.relative_file_path ?? "");
+      setCurrentContent(last?.code_edit ?? "");
+      return;
+    }
+
+    setCurrentFile("");
+    setCurrentContent("");
+  }, [code_edit, relative_file_path, editedFiles]);
 
   const handleFileSelect = (filePath: string) => {
     const fileData = editedFiles.find(file => file.relative_file_path === filePath);

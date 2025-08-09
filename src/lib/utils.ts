@@ -1,17 +1,12 @@
-import { Sandbox } from "@e2b/code-interpreter";
-import type { CoreAssistantMessage, CoreToolMessage } from "ai";
+import type { CoreAssistantMessage, CoreToolMessage, UIMessagePart } from "ai";
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import type { ChatMessage, ChatTools, CustomUIDataTypes } from "./types";
+import type { DBMessage } from "~/server/db/schema";
+import { formatISO } from 'date-fns';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
-}
-
-export async function getSandbox(sandboxId: string) {
-  const sandbox = await Sandbox.connect(sandboxId , {
-      requestTimeoutMs: 1200000, // 20 minutes
-  });
-  return sandbox;
 }
 
 type ResponseMessageWithoutId = CoreToolMessage | CoreAssistantMessage;
@@ -27,4 +22,23 @@ export function getTrailingMessageId({
   if (!trailingMessage) return null;
 
   return trailingMessage.id;
+}
+
+export function convertToUIMessages(messages: DBMessage[]): ChatMessage[] {
+  return messages.map((message) => ({
+    id: message.id,
+    role: message.role as 'user' | 'assistant' | 'system',
+    parts: message.parts as UIMessagePart<CustomUIDataTypes, ChatTools>[],
+    metadata: {
+      createdAt: formatISO(message.createdAt),
+    },
+  }));
+}
+
+export function generateUUID(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
 }

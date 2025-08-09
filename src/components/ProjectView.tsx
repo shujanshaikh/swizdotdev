@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+"use client"
 import {
   ResizableHandle,
   ResizablePanel,
@@ -9,61 +9,68 @@ import ProjectMessageView from "./ProjectMessage";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import PreviewUrl from "./PreviewUrl";
 import { AppWindowMac, Code2Icon } from "lucide-react";
-import { api } from "~/trpc/react";
-import type { Attachment, UIMessage } from "ai";
-import type { DBMessage } from "~/server/db/schema";
+
+
 import Editor from "./code-editor/Editor";
 import { getLatestEditFileData } from "~/lib/code-message/latest-edits";
 import { getAllEditedFiles } from "~/lib/code-message/all-edited";
 import { useAi } from "~/hooks/use-ai";
+import type { ChatMessage } from "~/lib/types";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
-export default function ProjectView() {
-  const { id } = useParams();
-
-  function convertToUIMessages(messages: Array<DBMessage>): Array<UIMessage> {
-    return messages.map((message) => ({
-      id: message.id,
-      parts: message.parts as UIMessage["parts"],
-      role: message.role as UIMessage["role"],
-      content: "",
-      createdAt: message.createdAt,
-      experimental_attachments:
-        (message.attachments as Array<Attachment>) ?? [],
-    }));
-  }
-
-  const { data: dbMessages, isLoading } =
-    api.message.getMessagesByProjectId.useQuery(
-      { projectId: id! },
-      { enabled: !!id },
-    );
-
-  const initialMessages = dbMessages ? convertToUIMessages(dbMessages) : [];
-
+export default function ProjectView({
+  initialMessages,
+  id,
+  isLoading
+}: {
+  initialMessages: ChatMessage[];
+  id: string;
+  isLoading: boolean;
+}) {
+  console.log(initialMessages, "initialMessages")
+ 
   const {
     input,
     status,
-    handleInputChange,
     handleSubmit,
     messages,
     error,
-    reload,
+    regenerate,
+    setMessages,
+    setInput,
+    sendMessage,
   } = useAi({
     id,
     initialMessages,
   });
+  const searchParams = useSearchParams();
+  const query = searchParams.get("query");
+  const [hasAppendedQuery, setHasAppendedQuery] = useState(false);
+
+  useEffect(() => {
+    if (query && !hasAppendedQuery) {
+      sendMessage({
+        role: "user" as const,
+        parts: [{ type: "text", text: query }],
+      });
+      setHasAppendedQuery(true);
+      window.history.replaceState({}, "", `/project/${id}`);
+    }
+  }, [query, hasAppendedQuery, id, sendMessage]);
   const editFileData = getLatestEditFileData(messages);
   const allEditedFiles = getAllEditedFiles(messages);
 
-  if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-zinc-900">
-        <div className="text-white">Loading messages...</div>
-      </div>
-    );
-  }
+    if(isLoading){
+      return (
+        <div className="flex h-full w-full items-center justify-center">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-zinc-700 border-t-white"></div>
+        </div>
+      )
+    }
 
   return (
+   
     <div className="h-screen">
       <ResizablePanelGroup direction="horizontal" className="h-screen">
         <ResizablePanel maxSize={40} minSize={20} defaultSize={30}>
@@ -73,15 +80,17 @@ export default function ProjectView() {
                 messages={messages}
                 status={status}
                 error={error}
-                reload={reload}
+                regenerate={regenerate}
               />
             </div>
             <div className="flex-shrink-0 border-t border-zinc-700/50 p-4">
               <MessageBox
                 input={input}
                 status={status}
-                handleInputChange={handleInputChange}
                 handleSubmit={handleSubmit}
+                setMessages={setMessages}
+                messages={messages}
+                setInput={setInput}
               />
             </div>
           </div>

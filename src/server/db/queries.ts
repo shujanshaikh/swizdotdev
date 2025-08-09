@@ -1,3 +1,4 @@
+import "server-only";
 import type { UIMessage } from "ai";
 import { db } from "../db/index";
 import { message, project, type DBMessage } from "./schema";
@@ -77,8 +78,15 @@ export async function saveMessages({
   messages: Array<DBMessage>, 
 }) {
   try {
-    const savedMessages = await db.insert(message).values(messages).returning();
-    
+    const savedMessages = await db
+      .insert(message)
+      .values(messages)
+      .returning();
+    console.log(
+      `Inserted ${savedMessages.length} message(s)`,
+      savedMessages.map((m) => m.id),
+      "savedMessages",
+    );
     return savedMessages;
   } catch (error) {
     throw new Error("Failed to save messages: " + error);

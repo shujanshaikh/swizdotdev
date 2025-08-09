@@ -11,14 +11,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  rewrites: async () => {
-    return [
-      {
-        source: '/((?!api/).*)',
-        destination: '/static',
-      },
-    ];
-  },
 };
 
 export default nextConfig;

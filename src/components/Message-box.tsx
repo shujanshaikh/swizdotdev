@@ -1,29 +1,41 @@
+"use client"
 import { useEffect, useRef, useState } from "react";
 import { cn } from "~/lib/utils";
 import { Button } from "./ui/button";
-import type { Attachment } from "ai";
+//import type { Attachment } from "ai";
 import { UploadButton } from "~/utils/uploadthing";
 import Image from "next/image";
 import { Paperclip } from "lucide-react";
+import type { ChatMessage } from "~/lib/types";
+import type { UseChatHelpers } from "@ai-sdk/react";
+import type { FileUIPart } from "ai";
 
 export default function MessageBox({
   input,
   status,
-  handleInputChange,
   handleSubmit,
+  setMessages,
+  messages,
+  setInput,
 }: {
   input: string;
   status: string;
-  handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   handleSubmit: (
     e: React.FormEvent<HTMLFormElement>,
-    options: {
-      experimental_attachments: Attachment[];
-    },
   ) => void;
+  setMessages: UseChatHelpers<ChatMessage>['setMessages'];
+  messages: ChatMessage[];
+  setInput: (input: string) => void;
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [attachments, setAttachments] = useState<FileUIPart[]>([]);
+  
+
+  const attachmentsFromMessage = messages.filter(
+    (message) => message.parts.some(p => p.type === 'file'),
+  );
+
+  const attachmentsfile = attachmentsFromMessage.map(message => message.parts.filter(p => p.type === 'file'));
 
   // Auto-resize functionality
   useEffect(() => {
@@ -35,9 +47,9 @@ export default function MessageBox({
   }, [input]);
 
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    handleInputChange(e);
     e.target.style.height = "auto";
     e.target.style.height = `${Math.min(e.target.scrollHeight, 200)}px`;
+    setInput(e.target.value);
   };
 
   const removeAttachment = (index: number) => {
@@ -47,9 +59,7 @@ export default function MessageBox({
   return (
     <form
       onSubmit={(event) => {
-        handleSubmit(event, {
-          experimental_attachments: attachments,
-        });
+        handleSubmit(event);
       }}
       className="relative mx-auto max-w-3xl px-3"
     >
@@ -70,10 +80,10 @@ export default function MessageBox({
                 >
                   <div className="flex min-w-0 flex-1 items-center gap-2.5">
                     <div className="relative h-9 w-9 flex-shrink-0 overflow-hidden rounded-lg bg-white/10 ring-1 ring-white/10">
-                      {attachment.contentType?.startsWith("image/") ? (
+                      {attachment.mediaType?.startsWith("image/") ? (
                         <Image
                           src={attachment.url}
-                          alt={attachment.name || "attachment"}
+                          alt={attachment.filename || "attachment"}
                           fill
                           className="object-cover"
                         />
@@ -96,7 +106,7 @@ export default function MessageBox({
                       )}
                     </div>
                     <span className="truncate text-sm font-medium text-zinc-100/90">
-                      {attachment.name || "Unnamed file"}
+                      {attachment.filename || "Unnamed file"}
                     </span>
                   </div>
                   <button
@@ -149,7 +159,7 @@ export default function MessageBox({
                 url: file.ufsUrl,
                 contentType: file.type,
               }));
-              setAttachments((prev) => [...prev, ...newAttachments]);
+              setAttachments((prev) => [...prev, ...newAttachments as unknown as FileUIPart[]]);
             }}
             onUploadError={(error: Error) => {
               console.log(error);

@@ -1,8 +1,6 @@
 import z from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
-import { message } from "~/server/db/schema";
-import { eq } from "drizzle-orm";
-import { getSanboxId } from "~/server/db/queries";
+import { getMessagesByProjectId, getSanboxId } from "~/server/db/queries";
 import { Sandbox } from "@e2b/code-interpreter";
 export const messageRouter = createTRPCRouter({
   getMessages: publicProcedure.query(async ({ ctx }) => {
@@ -16,10 +14,7 @@ export const messageRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-    const messages = await ctx.db.query.message.findMany({
-        where: eq(message.projectId, input.projectId),
-      });
-      return messages;
+      return getMessagesByProjectId({ id: input.projectId });
     }),
 
   

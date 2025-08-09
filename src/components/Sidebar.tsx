@@ -1,3 +1,4 @@
+"use client"
 import { useState, useEffect, useRef } from "react";
 import { ChevronDown, Clock, Archive, Plus } from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
@@ -9,14 +10,14 @@ import {
 } from "~/components/ui/sidebar";
 import { api } from "~/trpc/react";
 import { Button } from "./ui/button";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 export default function SidebarComponent() {
   const projects = api.project.getProjects.useQuery();
   const resumeSandboxMutation = api.message.resumeSandbox.useMutation();
 
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const filterOptions = [
     { label: "Last 7 days", days: 7 },
@@ -37,7 +38,7 @@ export default function SidebarComponent() {
 
       if (result.success) {
         console.log("Sandbox resumed successfully:", result.sandboxId);
-        navigate(`/project/${projectId}`);
+        router.push(`/project/${projectId}`);
         
       } else {
         console.error("Failed to resume sandbox:", result.message);
@@ -45,7 +46,7 @@ export default function SidebarComponent() {
       }
     } catch (error) {
       console.error("Error resuming sandbox:", error);
-      navigate(`/project/${projectId}`);
+      router.push(`/project/${projectId}`);
     }
   };
 
@@ -122,7 +123,7 @@ export default function SidebarComponent() {
 
         <div className="px-8 pb-8">
           <Button
-            onClick={() => navigate("/")}
+            onClick={() => router.push("/")}
             className="group w-full rounded-xl bg-gradient-to-br from-zinc-800/80 to-zinc-900/80 py-2.5 text-sm font-medium text-zinc-100 shadow-sm ring-1 ring-white/10 transition-all hover:from-zinc-700/80 hover:to-zinc-800/80 hover:text-white"
           >
             <Plus className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />

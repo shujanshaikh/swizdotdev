@@ -1,35 +1,36 @@
-import type { UIMessage, Attachment } from "ai";
+"use client";
 import MessageBox from "./Message-box";
 import { SidebarProvider, SidebarInset } from "./ui/sidebar";
 import SidebarComponent from "./Sidebar";
-import { useNavigate } from "react-router-dom";
 import { useAi } from "~/hooks/use-ai";
+import type { ChatMessage } from "~/lib/types";
 
 function ChatContent({
   id,
   initialMessages,
 }: {
   id: string;
-  initialMessages: Array<UIMessage>;
+  initialMessages: ChatMessage[];
 }) {
-  const navigate = useNavigate();
-
-  const { input, status, handleInputChange, handleSubmit } = useAi({
-    id,
-    initialMessages,
-  });
+  const { input, status, setInput, messages, setMessages } =
+    useAi({
+      id,
+      initialMessages,
+    });
 
   const handleInitialSubmit = async (
     e: React.FormEvent<HTMLFormElement>,
-    options: { experimental_attachments: Attachment[] },
+    //options: { experimental_attachments: Attachment[] },
   ) => {
+
+
     e.preventDefault();
     if (!input.trim() || status === "streaming") return;
-
-    handleSubmit(e, options);
-
-    navigate(`/project/${id}`);
+    const q = encodeURIComponent(input.trim());
+    window.location.replace(`/project/${id}?query=${q}`);
   };
+
+
 
   return (
     <SidebarInset className="relative flex h-full flex-1 flex-col overflow-hidden">
@@ -38,8 +39,8 @@ function ChatContent({
 
       {/* Ambient soft auras */}
       <div className="pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(70%_50%_at_50%_-10%,black,transparent)]">
-        <div className="absolute left-1/4 top-0 h-[26rem] w-[26rem] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.12),transparent_60%)] blur-md" />
-        <div className="absolute right-0 top-1/3 h-[22rem] w-[22rem] translate-x-1/4 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(34,197,94,0.10),transparent_60%)] blur" />
+        <div className="absolute top-0 left-1/4 h-[26rem] w-[26rem] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.12),transparent_60%)] blur-md" />
+        <div className="absolute top-1/3 right-0 h-[22rem] w-[22rem] translate-x-1/4 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(34,197,94,0.10),transparent_60%)] blur" />
       </div>
 
       <div className="flex flex-1 items-center justify-center p-6 md:p-10">
@@ -57,8 +58,10 @@ function ChatContent({
             <MessageBox
               input={input}
               status={status}
-              handleInputChange={handleInputChange}
+              setMessages={setMessages}
               handleSubmit={handleInitialSubmit}
+              messages={messages}
+              setInput={setInput}
             />
           </div>
         </div>
@@ -72,7 +75,7 @@ export default function Chat({
   initialMessages,
 }: {
   id: string;
-  initialMessages: Array<UIMessage>;
+  initialMessages: ChatMessage[];
 }) {
   return (
     <SidebarProvider defaultOpen={true}>

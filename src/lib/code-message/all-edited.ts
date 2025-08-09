@@ -1,67 +1,47 @@
-import type { UIMessage } from "ai";
-import type { ToolCallFile } from "../types";
+import type { ChatMessage, ToolCallFile } from "../types";
 
-export const getAllEditedFiles = (messages : Array<UIMessage>): ToolCallFile[] => {
-    const editedFiles: ToolCallFile[] = [];
-    for (const message of messages) {
-      if (message.role === "assistant") {
-        for (const part of message.parts) {
-          if (
-            part.type === "tool-invocation" &&
-            part.toolInvocation.toolName === "edit_file"
-          ) {
-            const args = part.toolInvocation.args;
-            const state = part.toolInvocation.state;
+export const getAllEditedFiles = (messages: ChatMessage[]): ToolCallFile[] => {
+  const editedFiles: ToolCallFile[] = [];
 
-            let fileData: {
-              relative_file_path?: string;
-              code_edit?: string;
-              instructions?: string;
-            } = {};
+  for (const message of messages) {
+    if (message.role !== "assistant") continue;
+    for (const part of message.parts ?? []) {
+      if (part.type !== "tool-edit_file") continue;
 
-            if (args?.relative_file_path && args?.code_edit) {
-              fileData = {
-                relative_file_path: args.relative_file_path as string,
-                code_edit: args.code_edit as string,
-                instructions: (args.instructions as string) || "",
-              };
-            } else if (state === "result" && "result" in part.toolInvocation) {
-              const result = part.toolInvocation.result as Record<
-                string,
-                unknown
-              >;
-              if (result && typeof result === "object") {
-                fileData = {
-                  relative_file_path: result.relative_file_path as string,
-                  code_edit: result.code_edit as string,
-                  instructions: (result.instructions as string) || "",
-                };
-              }
-            }
+    
+      const input = (part as unknown as { input?: { relative_file_path?: string; code_edit?: string } }).input;
+      let relative_file_path = input?.relative_file_path;
+      const code_edit = input?.code_edit ?? "";
 
-            if (fileData.relative_file_path && fileData.code_edit) {
-              const existingIndex = editedFiles.findIndex(
-                (f) => f.relative_file_path === fileData.relative_file_path,
-              );
-
-              if (existingIndex >= 0) {
-                editedFiles[existingIndex] = {
-                  relative_file_path: fileData.relative_file_path,
-                  code_edit: fileData.code_edit,
-                  instructions: fileData.instructions || "",
-                };
-              } else {
-                editedFiles.push({
-                  relative_file_path: fileData.relative_file_path,
-                  code_edit: fileData.code_edit,
-                  instructions: fileData.instructions || "",
-                });
-              }
-            }
+      if (!relative_file_path) {
+        const output = (part as unknown as { output?: unknown }).output;
+        if (typeof output === "string") {
+          const match = output.match(/Successfully wrote to\s+(.+?)\s*$/i);
+          if (match) {
+            relative_file_path = match[1];
           }
         }
       }
-    }
 
-    return editedFiles;
-  };
+      if (!relative_file_path) continue;
+
+      const existingIndex = editedFiles.findIndex(
+        (f) => f.relative_file_path === relative_file_path,
+      );
+
+      const next: ToolCallFile = {
+        relative_file_path,
+        code_edit,
+        instructions: "",
+      };
+
+      if (existingIndex >= 0) {
+        editedFiles[existingIndex] = next;
+      } else {
+        editedFiles.push(next);
+      }
+    }
+  }
+
+  return editedFiles;
+};
