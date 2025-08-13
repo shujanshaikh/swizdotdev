@@ -1,9 +1,10 @@
 "use client";
 import MessageBox from "./Message-box";
-import { SidebarProvider, SidebarInset } from "./ui/sidebar";
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "./ui/sidebar";
 import SidebarComponent from "./Sidebar";
 import { useAi } from "~/hooks/use-ai";
 import type { ChatMessage } from "~/lib/types";
+import { useIsMobile } from "~/hooks/use-mobile";
 
 function ChatContent({
   id,
@@ -33,24 +34,29 @@ function ChatContent({
 
 
   return (
-    <SidebarInset className="relative flex h-full flex-1 flex-col overflow-hidden">
-      {/* Subtle layered background */}
-      <div className="pointer-events-none absolute inset-0 -z-20 bg-gradient-to-b from-zinc-950 via-zinc-950/95 to-zinc-900" />
+    <SidebarInset className="relative flex h-full flex-1 flex-col overflow-hidden bg-transparent">
+      <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-900" />
 
-      {/* Ambient soft auras */}
-      <div className="pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(70%_50%_at_50%_-10%,black,transparent)]">
-        <div className="absolute top-0 left-1/4 h-[26rem] w-[26rem] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.12),transparent_60%)] blur-md" />
-        <div className="absolute top-1/3 right-0 h-[22rem] w-[22rem] translate-x-1/4 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(34,197,94,0.10),transparent_60%)] blur" />
+      <div className="pointer-events-none absolute inset-0 z-0 [mask-image:radial-gradient(70%_50%_at_50%_-10%,black,transparent)]">
+        <div className="absolute top-0 left-1/4 h-[28rem] w-[28rem] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.25),transparent_60%)] blur-2xl" />
+        <div className="absolute top-1/3 right-0 h-[24rem] w-[24rem] translate-x-1/4 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(34,197,94,0.20),transparent_60%)] blur-2xl" />
       </div>
 
-      <div className="flex flex-1 items-center justify-center p-6 md:p-10">
+
+      <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:22px_22px]" />
+
+      <div className="relative z-10 flex flex-1 items-center justify-center p-6 md:p-10">
+        {/* Mobile sidebar trigger */}
+        <div className="absolute left-4 top-4 md:hidden">
+          <SidebarTrigger className="rounded-xl border border-white/10 bg-zinc-900/70 backdrop-blur hover:bg-zinc-800/70" />
+        </div>
         <div className="w-full max-w-4xl translate-y-[-6vh] space-y-8 text-center md:translate-y-[-8vh]">
           <div className="space-y-3 md:space-y-4">
-            <h1 className="bg-gradient-to-b from-white to-zinc-300/80 bg-clip-text text-4xl font-semibold text-transparent md:text-6xl">
+            <h1 className="bg-gradient-to-b from-white via-zinc-200 to-zinc-400 bg-clip-text text-4xl font-semibold tracking-tight text-transparent md:text-6xl">
               Make anything
             </h1>
-            <p className="text-base text-zinc-400 md:text-lg">
-              Build fullstack web apps by prompting
+            <p className="mx-auto max-w-2xl text-base leading-relaxed text-zinc-400 md:text-lg">
+              Build full‑stack web apps by prompting
             </p>
           </div>
 
@@ -77,8 +83,9 @@ export default function Chat({
   id: string;
   initialMessages: ChatMessage[];
 }) {
+  const isMobile = useIsMobile();
   return (
-    <SidebarProvider defaultOpen={true}>
+    <SidebarProvider defaultOpen={!isMobile}>
       <div className="flex h-screen w-full">
         <SidebarComponent />
         <ChatContent id={id} initialMessages={initialMessages} />

@@ -14,6 +14,7 @@ import {
   saveMessages,
   saveProject,
 } from "~/server/db/queries";
+import { createOpenRouter} from "@openrouter/ai-sdk-provider";
 import { generateTitleFromUserMessage } from "~/lib/generate-title";
 import type { ChatMessage } from "~/lib/types";
 import { edit_file } from "~/lib/ai/tools/edit-files";
@@ -27,7 +28,12 @@ import { webscraper } from "~/lib/ai/tools/web-scrape";
 import { grep } from "~/lib/ai/tools/grep";
 import { read_file } from "~/lib/ai/tools/read-files";
 import { delete_file } from "~/lib/ai/tools/delete-files";
-import { openai } from "@ai-sdk/openai";
+//import { openai } from "@ai-sdk/openai";
+import { google } from "@ai-sdk/google";
+
+// const openrouter = createOpenRouter({
+//   apiKey: 'YOUR_OPENROUTER_API_KEY',
+// });
 
 export async function POST(req: Request) {
   const { message, id }: { message: ChatMessage; id: string } =
@@ -49,13 +55,12 @@ export async function POST(req: Request) {
       sandboxId,
       sandboxUrl: `https://${sandbox.getHost(3000)}`,
     });
-    console.log(`https://${sandbox.getHost(3000)}`, "freom project");
+    console.log(`https://${sandbox.getHost(3000)}`, "from project");
   } else {
     console.log("project already exists , connecting to sandbox");
     sandboxId = project.sandboxId!;
     await Sandbox.connect(sandboxId);
   }
-
   await saveMessages({
     messages: [
       {
@@ -76,7 +81,7 @@ export async function POST(req: Request) {
 
   const result = streamText({
     messages: convertToModelMessages(uiMessages),
-    model: openai("gpt-4.1-mini"),
+    model: google("gemini-2.5-flash"),
     temperature: 0.1,
     system: PROMPT,
     stopWhen: stepCountIs(10),
@@ -102,9 +107,8 @@ export async function POST(req: Request) {
   result.consumeStream();
   return result.toUIMessageStreamResponse({
     onFinish: async ({ messages }) => {
-
       const sandbox = await getSandbox(sandboxId);
-     // const sandboxUrl = `https://${sandbox.getHost(3000)}`;
+      // const sandboxUrl = `https://${sandbox.getHost(3000)}`;
 
       setTimeout(
         async () => {

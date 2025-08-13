@@ -1,13 +1,9 @@
-"use client"
+"use client";
 import { useState, useEffect, useRef } from "react";
 import { ChevronDown, Clock, Archive, Plus } from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
 
-import {
-  Sidebar,
-  SidebarContent,
-  useSidebar,
-} from "~/components/ui/sidebar";
+import { Sidebar, SidebarContent } from "~/components/ui/sidebar";
 import { api } from "~/trpc/react";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
@@ -33,16 +29,14 @@ export default function SidebarComponent() {
   const handleProjectClick = async (projectId: string) => {
     try {
       console.log("Resuming sandbox for project:", projectId);
-     
+
       const result = await resumeSandboxMutation.mutateAsync({ projectId });
 
       if (result.success) {
         console.log("Sandbox resumed successfully:", result.sandboxId);
         router.push(`/project/${projectId}`);
-        
       } else {
         console.error("Failed to resume sandbox:", result.message);
-
       }
     } catch (error) {
       console.error("Error resuming sandbox:", error);
@@ -66,42 +60,44 @@ export default function SidebarComponent() {
     };
   }, []);
 
-  const filteredProjects = projects.data?.filter((project) => {
-    if (selectedFilter?.days === null) return true;
+  const filteredProjects =
+    projects.data?.filter((project) => {
+      if (selectedFilter?.days === null) return true;
 
-    const filterDate = new Date();
-    filterDate.setDate(filterDate.getDate() - (selectedFilter?.days || 7));
+      const filterDate = new Date();
+      filterDate.setDate(filterDate.getDate() - (selectedFilter?.days || 7));
 
-    const projectDate = project.updatedAt
-      ? new Date(project.updatedAt)
-      : project.createdAt
-        ? new Date(project.createdAt)
-        : null;
+      const projectDate = project.updatedAt
+        ? new Date(project.updatedAt)
+        : project.createdAt
+          ? new Date(project.createdAt)
+          : null;
 
-    return projectDate && projectDate >= filterDate;
-  }) || [];
+      return projectDate && projectDate >= filterDate;
+    }) || [];
 
-  const displayProjects = selectedFilter?.days === null 
-    ? filteredProjects 
-    : filteredProjects.slice(0, 12);
+  const displayProjects =
+    selectedFilter?.days === null
+      ? filteredProjects
+      : filteredProjects.slice(0, 12);
 
   return (
     <Sidebar
       side="left"
       variant="sidebar"
-      collapsible="none"
+      collapsible="offcanvas"
       className="relative border-r-0 bg-zinc-950/70 backdrop-blur-xl"
     >
-      {/* Persistent dark backdrop behind sidebar */}
-      <div className="pointer-events-none absolute inset-0 -z-20 bg-black" />
+      <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-900" />
 
-      {/* Ambient gradient aura */}
-      <div className="pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(70%_50%_at_10%_0%,black,transparent)]">
-        <div className="absolute -left-24 -top-24 h-64 w-64 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(88,28,135,0.18),transparent_60%)]" />
-        <div className="absolute -right-20 top-1/3 h-56 w-56 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(14,165,233,0.12),transparent_60%)]" />
+      <div className="pointer-events-none absolute inset-0 z-0 [mask-image:radial-gradient(70%_50%_at_10%_0%,black,transparent)]">
+        <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.22),transparent_60%)] blur-2xl" />
+        <div className="absolute top-1/3 -right-20 h-60 w-60 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(34,197,94,0.18),transparent_60%)] blur-2xl" />
       </div>
 
-      <SidebarContent className="flex flex-col bg-transparent">
+      <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:22px_22px]" />
+
+      <SidebarContent className="relative z-10 flex flex-col bg-transparent">
         <div className="flex items-center justify-between p-8 pb-6">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-zinc-700/60 to-zinc-800/60 shadow-sm ring-1 ring-white/10">
@@ -140,11 +136,13 @@ export default function SidebarComponent() {
               >
                 <Clock className="h-4 w-4" />
                 {selectedFilter?.label}
-                <ChevronDown className={`h-3 w-3 transition-transform ${showFilterDropdown ? "rotate-180" : ""}`} />
+                <ChevronDown
+                  className={`h-3 w-3 transition-transform ${showFilterDropdown ? "rotate-180" : ""}`}
+                />
               </button>
 
               {showFilterDropdown && (
-                <div className="absolute left-0 top-full z-50 mt-2 w-44 overflow-hidden rounded-xl border border-white/10 bg-zinc-900/90 shadow-2xl backdrop-blur-xl">
+                <div className="absolute top-full left-0 z-50 mt-2 w-44 overflow-hidden rounded-xl border border-white/10 bg-zinc-900/90 shadow-2xl backdrop-blur-xl">
                   {filterOptions.map((option) => (
                     <button
                       key={option.label}
@@ -167,7 +165,7 @@ export default function SidebarComponent() {
           </div>
 
           <div className="min-h-0 flex-1 px-8">
-            <div className="h-full overflow-y-auto scrollbar-hide">
+            <div className="scrollbar-hide h-full overflow-y-auto">
               <div className="space-y-1.5 pb-8">
                 {projects.isLoading ? (
                   Array.from({ length: 6 }).map((_, index) => (
@@ -185,7 +183,7 @@ export default function SidebarComponent() {
                       <div className="truncate text-sm font-medium text-zinc-100 group-hover:text-white">
                         {project.title}
                       </div>
-                      <div className="pointer-events-none absolute inset-0 rounded-xl opacity-0 transition-opacity group-hover:opacity-100 [background:radial-gradient(120px_40px_at_10%_10%,rgba(244,244,245,0.06),transparent)]" />
+                      <div className="pointer-events-none absolute inset-0 rounded-xl opacity-0 transition-opacity [background:radial-gradient(120px_40px_at_10%_10%,rgba(244,244,245,0.06),transparent)] group-hover:opacity-100" />
                     </button>
                   ))
                 ) : (
@@ -193,7 +191,9 @@ export default function SidebarComponent() {
                     <Archive className="mb-3 h-8 w-8 text-zinc-600" />
                     <div className="text-sm text-zinc-400">No projects</div>
                     <div className="text-xs text-zinc-500">
-                      {selectedFilter?.days === null ? "Get started" : "Try a different filter"}
+                      {selectedFilter?.days === null
+                        ? "Get started"
+                        : "Try a different filter"}
                     </div>
                   </div>
                 )}

@@ -18,7 +18,7 @@ export default function ProjectMessageView({
   return (
     <div className="flex h-full flex-col overflow-hidden">
       <div className="scrollbar-hide flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-4xl space-y-6 p-6">
+        <div className="mx-auto max-w-4xl space-y-6 p-4 sm:p-6">
           {messages.length === 0 ? (
             <div className="flex h-96 flex-col items-center justify-center text-center">
               <div className="text-lg text-gray-400">No messages yet</div>
@@ -34,14 +34,14 @@ export default function ProjectMessageView({
                   className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`${message.role === "user" ? "ml-auto max-w-[75%]" : "w-full"}`}
+                    className={`${message.role === "user" ? "ml-auto max-w-[90%] sm:max-w-[80%] md:max-w-[75%]" : "w-full"}`}
                   >
                     {message.role === "user" ? (
-                      <div className="rounded-2xl bg-zinc-800 px-5 py-4 text-white">
+                      <div className="rounded-2xl bg-zinc-800 px-4 py-3 text-white sm:px-5 sm:py-4">
                         {message.parts.map((part, partIndex) => (
                           <div key={partIndex}>
                             {part.type === "text" && (
-                              <div className="text-md leading-relaxed whitespace-pre-wrap">
+                              <div className="text-[14px] leading-relaxed whitespace-pre-wrap sm:text-[15px]">
                                 {part.text}
                               </div>
                             )}
@@ -56,7 +56,7 @@ export default function ProjectMessageView({
                               alt={part.filename!}
                               width={400}
                               height={400}
-                              className="mt-4 h-auto w-full max-w-[400px] cursor-pointer rounded-lg shadow-lg transition-opacity hover:opacity-90"
+                              className="mt-4 h-auto w-full max-w-full cursor-pointer rounded-lg shadow-lg transition-opacity hover:opacity-90 sm:max-w-[400px]"
                               onClick={() => window.open(part.url, "_blank")}
                               priority
                             />
@@ -70,7 +70,7 @@ export default function ProjectMessageView({
                             return (
                               <div
                                 key={key}
-                                className="text-[15px] leading-relaxed whitespace-pre-wrap text-gray-200"
+                                className="text-[14px] leading-relaxed whitespace-pre-wrap text-gray-200 sm:text-[15px]"
                               >
                                 {part.text}
                               </div>
@@ -80,7 +80,7 @@ export default function ProjectMessageView({
                           }
                           if(part.type === "reasoning" && part.text?.trim().length > 0) {
                             return (
-                              <div key={key} className="text-[15px] leading-relaxed whitespace-pre-wrap text-gray-200">
+                              <div key={key} className="text-[14px] leading-relaxed whitespace-pre-wrap text-gray-200 sm:text-[15px]">
                                 {part.text}
                               </div>
                             );
@@ -91,7 +91,7 @@ export default function ProjectMessageView({
 
                             if(state === "input-available"){
                               return (
-                                <div key={toolCallId} className="text-[15px] leading-relaxed whitespace-pre-wrap text-gray-200">
+                                <div key={toolCallId} className="text-[14px] leading-relaxed whitespace-pre-wrap text-gray-200 sm:text-[15px]">
                                   {part.input.command}
                                 </div>
                               )
@@ -111,7 +111,7 @@ export default function ProjectMessageView({
 
                             if(state === "input-available"){
                               return (
-                                <div key={toolCallId} className="text-[15px] leading-relaxed whitespace-pre-wrap text-gray-200">
+                                <div key={toolCallId} className="text-[14px] leading-relaxed whitespace-pre-wrap text-gray-200 sm:text-[15px]">
                                   {part.input.url}
                                 </div>
                               )
@@ -122,7 +122,7 @@ export default function ProjectMessageView({
                               return (
                                 <div key={toolCallId}>
                                   {output.url && (
-                                    <div className="text-[15px] leading-relaxed whitespace-pre-wrap text-gray-200">
+                                    <div className="text-[14px] leading-relaxed whitespace-pre-wrap text-gray-200 sm:text-[15px]">
                                       {output.url}
                                     </div>
                                   )}
@@ -141,7 +141,7 @@ export default function ProjectMessageView({
 
                             if(state === "input-available"){
                               return (
-                                <div key={toolCallId} className="text-[15px] leading-relaxed whitespace-pre-wrap text-gray-200">
+                                <div key={toolCallId} className="text-[14px] leading-relaxed whitespace-pre-wrap text-gray-200 sm:text-[15px]">
                                  Tool: ls {part.input.relative_dir_path}
                                 </div>
                               )
@@ -153,7 +153,7 @@ export default function ProjectMessageView({
 
                             if(state === "input-available"){
                               return (
-                                <div key={toolCallId} className="text-[15px] leading-relaxed whitespace-pre-wrap text-gray-200">
+                                <div key={toolCallId} className="text-[14px] leading-relaxed whitespace-pre-wrap text-gray-200 sm:text-[15px]">
                                   {part.input.pattern}
                                 </div>
                               )
@@ -174,7 +174,7 @@ export default function ProjectMessageView({
 
                             if(state === "input-available"){
                               return (
-                                <div key={toolCallId} className="text-[15px] leading-relaxed whitespace-pre-wrap text-gray-200">
+                                <div key={toolCallId} className="text-[14px] leading-relaxed whitespace-pre-wrap text-gray-200 sm:text-[15px]">
                                   {part.input.code_edit}
                                 </div>
                               )
@@ -197,7 +197,7 @@ export default function ProjectMessageView({
 
                             if(state === "input-available"){
                               return (
-                                <div key={toolCallId} className="text-[15px] leading-relaxed whitespace-pre-wrap text-gray-200">
+                                <div key={toolCallId} className="text-[14px] leading-relaxed whitespace-pre-wrap text-gray-200 sm:text-[15px]">
                                   {part.input.query}
                                 </div>
                               )
@@ -213,12 +213,12 @@ export default function ProjectMessageView({
                             }
                           }
 
-                          if(part.type === "tool-task_agent"){
+                          if(part.type === "tool-task_agent"){ 
                             const { toolCallId, state } = part;
 
                             if(state === "input-available"){
                               return (
-                                <div key={toolCallId} className="text-[15px] leading-relaxed whitespace-pre-wrap text-gray-200">
+                                <div key={toolCallId} className="text-[14px] leading-relaxed whitespace-pre-wrap text-gray-200 sm:text-[15px]">
                                   {part.input.prompt}
                                 </div>
                               )

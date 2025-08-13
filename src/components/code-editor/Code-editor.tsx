@@ -11,9 +11,11 @@ interface CodeEditorProps {
 export default function CodeEditor({ code_edit }: CodeEditorProps) {
   const [editorContent, setEditorContent] = useState("");
   const isMountedRef = useRef(true);
+  const [isTouch, setIsTouch] = useState(false);
 
   useEffect(() => {
     isMountedRef.current = true;
+    setIsTouch(typeof window !== "undefined" && ("ontouchstart" in window || navigator.maxTouchPoints > 0));
     return () => {
       isMountedRef.current = false;
     };
@@ -103,10 +105,19 @@ export default function CodeEditor({ code_edit }: CodeEditorProps) {
         }
         options={{
           minimap: { enabled: false },
-          fontSize: 14,
+          fontSize: isTouch ? 13 : 14,
           fontFamily: "Inter",
           fontWeight: "400",
           fontLigatures: true,
+          cursorBlinking: isTouch ? "solid" : "blink",
+          smoothScrolling: true,
+          mouseWheelZoom: true,
+          wordWrap: "on",
+          automaticLayout: true,
+          scrollbar: {
+            verticalScrollbarSize: isTouch ? 12 : 10,
+            horizontalScrollbarSize: isTouch ? 12 : 10,
+          },
         }}
       />
     </div>

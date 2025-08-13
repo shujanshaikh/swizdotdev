@@ -18,6 +18,7 @@ import { useAi } from "~/hooks/use-ai";
 import type { ChatMessage } from "~/lib/types";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useIsMobile } from "~/hooks/use-mobile";
 
 export default function ProjectView({
   initialMessages,
@@ -60,6 +61,7 @@ export default function ProjectView({
   }, [query, hasAppendedQuery, id, sendMessage]);
   const editFileData = getLatestEditFileData(messages);
   const allEditedFiles = getAllEditedFiles(messages);
+  const isMobile = useIsMobile();
 
     if(isLoading){
       return (
@@ -68,6 +70,52 @@ export default function ProjectView({
         </div>
       )
     }
+
+  if (isMobile) {
+    return (
+      <div className="flex h-screen flex-col">
+        <Tabs defaultValue="chat" className="flex h-full flex-col bg-zinc-900/50">
+          <TabsList className="sticky top-0 z-10 flex gap-2 bg-zinc-900/50 p-2">
+            <TabsTrigger value="chat" className="flex-1 border-none text-white">Chat</TabsTrigger>
+            <TabsTrigger value="app" className="flex-1 border-none text-white">App</TabsTrigger>
+            <TabsTrigger value="editor" className="flex-1 border-none text-white">Editor</TabsTrigger>
+          </TabsList>
+          <TabsContent value="chat" className="flex-1 data-[state=active]:flex data-[state=active]:flex-col min-h-0">
+            <div className="flex h-full flex-col bg-zinc-900">
+              <div className="min-h-0 flex-1">
+                <ProjectMessageView
+                  messages={messages}
+                  status={status}
+                  error={error}
+                  regenerate={regenerate}
+                />
+              </div>
+              <div className="flex-shrink-0 border-t border-zinc-700/50 p-3">
+                <MessageBox
+                  input={input}
+                  status={status}
+                  handleSubmit={handleSubmit}
+                  setMessages={setMessages}
+                  messages={messages}
+                  setInput={setInput}
+                />
+              </div>
+            </div>
+          </TabsContent>
+          <TabsContent value="app" className="flex-1 min-h-0 data-[state=active]:block">
+            <PreviewUrl projectId={id!} />
+          </TabsContent>
+          <TabsContent value="editor" className="flex-1 min-h-0 data-[state=active]:block">
+            <Editor
+              code_edit={editFileData.code_edit}
+              relative_file_path={editFileData.relative_file_path}
+              editedFiles={allEditedFiles}
+            />
+          </TabsContent>
+        </Tabs>
+      </div>
+    );
+  }
 
   return (
    

@@ -4,9 +4,11 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "../ui/resizable";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import CodeEditor from "./Code-editor";
 import CodeSidebar from "./Code-Sidebar";
 import { type ToolCallFile } from "~/lib/types";
+import { useIsMobile } from "~/hooks/use-mobile";
 
 
 
@@ -25,6 +27,7 @@ export default function Editor({
 }: EditorProps) {
   const [currentFile, setCurrentFile] = useState(relative_file_path);
   const [currentContent, setCurrentContent] = useState(code_edit);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (relative_file_path && code_edit) {
@@ -52,6 +55,31 @@ export default function Editor({
     setCurrentContent(content);
     onFileChange?.(filePath, content);
   };
+
+  if (isMobile) {
+    return (
+      <div className="flex h-full w-full flex-col min-h-0">
+        <Tabs defaultValue="editor" className="flex h-full flex-col">
+          <TabsList className="sticky top-0 z-10 flex gap-2 bg-zinc-900/50 p-2">
+            <TabsTrigger value="files" className="flex-1 border-none text-white">Files</TabsTrigger>
+            <TabsTrigger value="editor" className="flex-1 border-none text-white">Editor</TabsTrigger>
+          </TabsList>
+          <TabsContent value="files" className="flex-1 min-h-0 data-[state=active]:block">
+            <div className="h-full w-full">
+              <CodeSidebar
+                relative_file_path={currentFile}
+                onFileSelect={handleFileSelect}
+                editedFiles={editedFiles}
+              />
+            </div>
+          </TabsContent>
+          <TabsContent value="editor" className="flex-1 min-h-0 data-[state=active]:block">
+            <CodeEditor code_edit={currentContent} />
+          </TabsContent>
+        </Tabs>
+      </div>
+    );
+  }
 
   return (
     <ResizablePanelGroup direction="horizontal" className="h-full w-full">

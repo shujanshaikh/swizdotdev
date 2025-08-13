@@ -35,22 +35,22 @@ export default function PreviewUrl({ projectId }: { projectId: string }) {
   // Show loading state when query is loading
   if (isLoading) {
     return (
-      <div className="flex h-full w-full flex-col">
-        <div className="flex items-center gap-3 bg-zinc-900/50 px-4 py-2">
-          <div className="flex items-center gap-1">
+      <div className="flex h-full w-full flex-col min-h-0">
+        <div className="sticky top-0 z-10 flex items-center gap-2 bg-zinc-900/50 px-3 py-2 backdrop-blur supports-[backdrop-filter]:bg-zinc-900/60 sm:gap-3 sm:px-4">
+          <div className="flex items-center gap-1 flex-shrink-0">
             <div className="h-6 w-6 animate-pulse rounded bg-zinc-700"></div>
             <div className="h-6 w-6 animate-pulse rounded bg-zinc-700"></div>
             <div className="h-6 w-6 animate-pulse rounded bg-zinc-700"></div>
           </div>
-          <div className="flex flex-1 items-center rounded-full border border-white bg-zinc-800 px-4 py-1.5">
-            <div className="h-4 w-4 animate-pulse rounded bg-zinc-700 mr-2"></div>
+          <div className="flex flex-1 min-w-0 items-center rounded-full border border-white bg-zinc-800 px-3 py-1 sm:px-4 sm:py-1.5">
+            <div className="mr-2 h-4 w-4 animate-pulse rounded bg-zinc-700"></div>
             <div className="flex-1 h-4 animate-pulse rounded bg-zinc-700"></div>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 flex-shrink-0">
             <div className="h-6 w-6 animate-pulse rounded bg-zinc-700"></div>
           </div>
         </div>
-        <div className="flex-1">
+        <div className="flex-1 min-h-0">
           <div className="flex h-full w-full items-center justify-center bg-zinc-900/20">
             <div className="text-center text-gray-400">
               <div className="mx-auto mb-4 h-16 w-16 animate-spin rounded-full border-4 border-zinc-700 border-t-white"></div>
@@ -66,9 +66,9 @@ export default function PreviewUrl({ projectId }: { projectId: string }) {
   // Show message when no sandbox URL is available
   if (!sandboxUrl) {
     return (
-      <div className="flex h-full w-full flex-col">
-        <div className="flex items-center gap-3 bg-zinc-900/50 px-4 py-2">
-          <div className="flex items-center gap-1">
+      <div className="flex h-full w-full flex-col min-h-0">
+        <div className="sticky top-0 z-10 flex items-center gap-2 bg-zinc-900/50 px-3 py-2 backdrop-blur supports-[backdrop-filter]:bg-zinc-900/60 sm:gap-3 sm:px-4">
+          <div className="flex items-center gap-1 flex-shrink-0">
             <Button
               variant="ghost"
               size="sm"
@@ -131,7 +131,7 @@ export default function PreviewUrl({ projectId }: { projectId: string }) {
             </Button>
           </div>
 
-          <div className="flex flex-1 items-center rounded-full border border-white bg-zinc-800 px-4 py-1.5">
+          <div className="flex flex-1 min-w-0 items-center rounded-full border border-white bg-zinc-800 px-3 py-1 sm:px-4 sm:py-1.5">
             <svg
               className="mr-2 h-4 w-4 text-gray-400"
               fill="none"
@@ -154,7 +154,7 @@ export default function PreviewUrl({ projectId }: { projectId: string }) {
             />
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 flex-shrink-0">
             <Button
               variant="ghost"
               size="sm"
@@ -178,7 +178,7 @@ export default function PreviewUrl({ projectId }: { projectId: string }) {
           </div>
         </div>
 
-        <div className="flex-1">
+        <div className="flex-1 min-h-0">
           <div className="flex h-full w-full items-center justify-center bg-zinc-900/20">
             <div className="text-center text-gray-400">
               <svg
@@ -204,9 +204,9 @@ export default function PreviewUrl({ projectId }: { projectId: string }) {
   }
 
   return (
-    <div className="flex h-full w-full flex-col">
-      <div className="flex items-center gap-3 bg-zinc-900/50 px-4 py-2">
-        <div className="flex items-center gap-1">
+    <div className="flex h-full w-full flex-col min-h-0">
+      <div className="sticky top-0 z-10 flex items-center gap-2 bg-zinc-900/50 px-3 py-2 backdrop-blur supports-[backdrop-filter]:bg-zinc-900/60 sm:gap-3 sm:px-4">
+        <div className="flex items-center gap-1 flex-shrink-0">
           <Button
             variant="ghost"
             size="sm"
@@ -268,7 +268,7 @@ export default function PreviewUrl({ projectId }: { projectId: string }) {
           </Button>
         </div>
 
-        <div className="flex flex-1 items-center rounded-full border border-white bg-zinc-800 px-4 py-1.5">
+        <div className="flex flex-1 min-w-0 items-center rounded-full border border-white bg-zinc-800 px-3 py-1 sm:px-4 sm:py-1.5">
           <svg
             className="mr-2 h-4 w-4 text-gray-400"
             fill="none"
@@ -291,7 +291,7 @@ export default function PreviewUrl({ projectId }: { projectId: string }) {
           />
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 flex-shrink-0">
           <Button
             variant="ghost"
             size="sm"
@@ -317,7 +317,7 @@ export default function PreviewUrl({ projectId }: { projectId: string }) {
         </div>
       </div>
 
-      <div className="flex-1">
+      <div className="flex-1 min-h-0">
         {url ? (
           <iframe
             ref={iframeRef}

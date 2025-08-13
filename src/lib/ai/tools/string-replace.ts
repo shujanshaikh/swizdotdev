@@ -2,13 +2,12 @@ import { tool } from "ai";
 import z from "zod";
 import { getSandbox } from "~/lib/sandbox";
 
-
 interface Params {
-    sandboxId : string
+  sandboxId: string;
 }
 
-export const  string_replace = ({ sandboxId }: Params) =>
-     tool({
+export const string_replace = ({ sandboxId }: Params) =>
+  tool({
     description:
       "Performs exact string replacements in files.\nUse this tool to make small, specific edits to a file. For example, to edit some text, a couple of lines of code, etc. Use edit_file for larger edits.\n\nEnsure you preserve the exact indentation (tabs/spaces) as it appears AFTER the line number prefix added by the read_file tool.\nOnly use this tool if you are sure that the old_string is unique in the file, otherwise use the edit_file tool.\n\nThe edit will FAIL if `old_string` is not unique in the file. Either provide a larger string with more surrounding context to make it unique or use `replace_all` to change every instance of `old_string`.\n\nUse `replace_all` for replacing and renaming strings across the file. This parameter is useful if you want to rename a variable for instance.\n\nOnly use emojis if the user explicitly requests it. Avoid adding emojis to files unless asked.",
     inputSchema: z.object({
@@ -51,4 +50,4 @@ export const  string_replace = ({ sandboxId }: Params) =>
         return `Error replacing string: ${error}`;
       }
     },
-  })
+  });

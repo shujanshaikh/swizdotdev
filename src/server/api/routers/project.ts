@@ -3,8 +3,8 @@ import { eq } from "drizzle-orm";
 import z from "zod";
 import { generateTitleFromUserMessage } from "~/lib/generate-title";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { createProject, getProjectById, getProjects, saveProject } from "~/server/db/queries";
-import { message, project } from "~/server/db/schema";
+import {  getProjectById, getProjects, saveProject } from "~/server/db/queries";
+import { project } from "~/server/db/schema";
 
 export const projectRouter = createTRPCRouter({
   createProject: publicProcedure
