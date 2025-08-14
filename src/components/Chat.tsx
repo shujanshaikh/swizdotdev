@@ -5,6 +5,9 @@ import SidebarComponent from "./Sidebar";
 import { useAi } from "~/hooks/use-ai";
 import type { ChatMessage } from "~/lib/types";
 import { useIsMobile } from "~/hooks/use-mobile";
+import Link from "next/link";
+import { Button } from "./ui/button";
+import { authClient } from "~/lib/auth-client";
 
 function ChatContent({
   id,
@@ -13,6 +16,7 @@ function ChatContent({
   id: string;
   initialMessages: ChatMessage[];
 }) {
+  const { data: session } = authClient.useSession();
   const { input, status, setInput, messages, setMessages } =
     useAi({
       id,
@@ -49,6 +53,16 @@ function ChatContent({
         {/* Mobile sidebar trigger */}
         <div className="absolute left-4 top-4 md:hidden">
           <SidebarTrigger className="rounded-xl border border-white/10 bg-zinc-900/70 backdrop-blur hover:bg-zinc-800/70" />
+        </div>
+        <div className="absolute right-4 top-4 flex items-center gap-2">
+          <Button asChild variant="ghost">
+            {session ? <Link href="/">Welcome {session.user?.name}</Link> : <Link href="/login">Log in</Link>}
+          </Button>
+          {session ? <Button asChild variant="default" onClick={() => authClient.signOut()}>
+            <Link href="/signup">Sign out</Link>
+          </Button> : <Button asChild variant="default">
+            <Link href="/signup">Sign up</Link>
+          </Button>}
         </div>
         <div className="w-full max-w-4xl translate-y-[-6vh] space-y-8 text-center md:translate-y-[-8vh]">
           <div className="space-y-3 md:space-y-4">

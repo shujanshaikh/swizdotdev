@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { ChevronDown, Clock, Archive, Plus } from "lucide-react";
+import { ChevronDown, Clock, Archive, Plus, Link, UserIcon } from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
 
 import { Sidebar, SidebarContent } from "~/components/ui/sidebar";
@@ -8,10 +8,12 @@ import { api } from "~/trpc/react";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { authClient } from "~/lib/auth-client";
 
 export default function SidebarComponent() {
   const projects = api.project.getProjects.useQuery();
   const resumeSandboxMutation = api.message.resumeSandbox.useMutation();
+  const { data: session } = authClient.useSession();
 
   const router = useRouter();
 
@@ -204,7 +206,21 @@ export default function SidebarComponent() {
 
         <div className="border-t border-white/10 p-6 pt-4">
           <div className="text-center text-xs text-zinc-500">
-            Made by @shujanshaikh
+            {session ? (
+              <div className="flex flex-col gap-2">
+                <div>{session.user?.name}</div>
+                <span>{session.user?.email}</span>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2">
+                <Button asChild variant="ghost">
+                  <Link href="/login">Log in</Link>
+                </Button>
+                <Button asChild variant="ghost">
+                  <Link href="/signup">Sign up</Link>
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </SidebarContent>

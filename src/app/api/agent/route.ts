@@ -14,7 +14,6 @@ import {
   saveMessages,
   saveProject,
 } from "~/server/db/queries";
-import { createOpenRouter} from "@openrouter/ai-sdk-provider";
 import { generateTitleFromUserMessage } from "~/lib/generate-title";
 import type { ChatMessage } from "~/lib/types";
 import { edit_file } from "~/lib/ai/tools/edit-files";
@@ -28,16 +27,19 @@ import { webscraper } from "~/lib/ai/tools/web-scrape";
 import { grep } from "~/lib/ai/tools/grep";
 import { read_file } from "~/lib/ai/tools/read-files";
 import { delete_file } from "~/lib/ai/tools/delete-files";
-//import { openai } from "@ai-sdk/openai";
 import { google } from "@ai-sdk/google";
-
-// const openrouter = createOpenRouter({
-//   apiKey: 'YOUR_OPENROUTER_API_KEY',
-// });
+import { getSession } from "~/lib/server";
 
 export async function POST(req: Request) {
   const { message, id }: { message: ChatMessage; id: string } =
     await req.json();
+
+  const session = await getSession();
+  const userId = session?.user.id;
+
+  if (!userId) {
+    return new Response("Unauthorized", { status: 401 });
+  }
 
   const project = await getProjectById({ id });
 
@@ -54,6 +56,7 @@ export async function POST(req: Request) {
       title,
       sandboxId,
       sandboxUrl: `https://${sandbox.getHost(3000)}`,
+      userId,
     });
     console.log(`https://${sandbox.getHost(3000)}`, "from project");
   } else {
@@ -121,7 +124,7 @@ export async function POST(req: Request) {
             console.error("Failed to auto-pause sandbox:", error);
           }
         },
-        3 * 60 * 1000, // 3 minutes
+        12 * 60 * 1000, // 12 minutes
       );
 
       await saveMessages({

@@ -4,15 +4,19 @@ import { db } from "../db/index";
 import { message, project, type DBMessage } from "./schema";
 import { asc, desc, eq } from "drizzle-orm";
 
-export const createProject = async ({ title }: { title: string }) => {
-  const result = await db.insert(project).values({ title }).returning();
+export const createProject = async ({ title, userId }: { title: string; userId: string }) => {
+  const result = await db.insert(project).values({ title, userId }).returning();
 
   return result[0]?.id;
 };
 
-export const getProjects = async () => {
+export const getProjects = async ({ userId }: { userId: string }) => {
   try {
-    const projects = await db.select().from(project).orderBy(desc(project.updatedAt));
+    const projects = await db
+      .select()
+      .from(project)
+      .where(eq(project.userId, userId))
+      .orderBy(desc(project.updatedAt));
     return projects;
   } catch (error) {
     console.error("Failed to fetch projects:", error);
@@ -53,11 +57,13 @@ export async function  saveProject({
   title,
   sandboxId,
   sandboxUrl,
+  userId,
 }: {
   id: string;
   title: string;
   sandboxId: string;
   sandboxUrl: string;
+  userId: string;
 }) {
   try {
     return await db.insert(project).values({
@@ -65,7 +71,8 @@ export async function  saveProject({
       createdAt: new Date(),
       title,
       sandboxId,
-      sandboxUrl
+      sandboxUrl,
+      userId,
     });
   } catch (error) {
     console.log(error);

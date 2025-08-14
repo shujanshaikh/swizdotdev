@@ -144,7 +144,7 @@ export default function ProjectView({
           </div>
         </ResizablePanel>
         <ResizableHandle withHandle={false} />
-        <ResizablePanel className="h-full">
+        <ResizablePanel className="h-full" defaultSize={70}>
           <Tabs defaultValue="app" className="h-full bg-zinc-900/50">
             <TabsList className="justify-center bg-zinc-900/50">
               <TabsTrigger value="app" className="border-none text-white">
