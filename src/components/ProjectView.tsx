@@ -23,7 +23,7 @@ import { useIsMobile } from "~/hooks/use-mobile";
 export default function ProjectView({
   initialMessages,
   id,
-  isLoading
+  isLoading,
 }: {
   initialMessages: ChatMessage[];
   id: string;
@@ -36,6 +36,8 @@ export default function ProjectView({
     status,
     handleSubmit,
     messages,
+    files,
+    setFiles,
     error,
     regenerate,
     setMessages,
@@ -98,6 +100,8 @@ export default function ProjectView({
                   setMessages={setMessages}
                   messages={messages}
                   setInput={setInput}
+                  files={files}
+                  setFiles={setFiles}
                 />
               </div>
             </div>
@@ -139,6 +143,8 @@ export default function ProjectView({
                 setMessages={setMessages}
                 messages={messages}
                 setInput={setInput}
+                files={files}
+                setFiles={setFiles}
               />
             </div>
           </div>

@@ -332,6 +332,7 @@ Execute multiple operations simultaneously rather than sequentially:
 - Never create login pages or phishing-capable forms
 - Request screenshots for authenticated pages
 
+
 **Cloning Process:**
 1. Use \`web_scrape\` tool to visit the website
 2. Analyze design and create detailed \`\`\`plan\`\`\` 
@@ -340,6 +341,7 @@ Execute multiple operations simultaneously rather than sequentially:
 5. Confirm scope with user for long pages
 6. Recreate animations and implied functionalities
 7. Implement fullstack features where applicable
+8. CLone the exact ui as shown you recieved the image clone exactly the ui clone the whole image end to end as shown in the image
 
 ## Task Agent Utilization
 Use \`task_agent\` for complex technical situations requiring:

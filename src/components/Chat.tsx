@@ -17,7 +17,7 @@ function ChatContent({
   initialMessages: ChatMessage[];
 }) {
   const { data: session } = authClient.useSession();
-  const { input, status, setInput, messages, setMessages } =
+  const { input, status, setInput, messages, setMessages, files, setFiles } =
     useAi({
       id,
       initialMessages,
@@ -25,17 +25,13 @@ function ChatContent({
 
   const handleInitialSubmit = async (
     e: React.FormEvent<HTMLFormElement>,
-    //options: { experimental_attachments: Attachment[] },
   ) => {
-
-
     e.preventDefault();
     if (!input.trim() || status === "streaming") return;
+
     const q = encodeURIComponent(input.trim());
     window.location.replace(`/project/${id}?query=${q}`);
   };
-
-
 
   return (
     <SidebarInset className="relative flex h-full flex-1 flex-col overflow-hidden bg-transparent">
@@ -46,23 +42,34 @@ function ChatContent({
         <div className="absolute top-1/3 right-0 h-[24rem] w-[24rem] translate-x-1/4 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(34,197,94,0.20),transparent_60%)] blur-2xl" />
       </div>
 
-
       <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:22px_22px]" />
 
       <div className="relative z-10 flex flex-1 items-center justify-center p-6 md:p-10">
         {/* Mobile sidebar trigger */}
-        <div className="absolute left-4 top-4 md:hidden">
+        <div className="absolute top-4 left-4 md:hidden">
           <SidebarTrigger className="rounded-xl border border-white/10 bg-zinc-900/70 backdrop-blur hover:bg-zinc-800/70" />
         </div>
-        <div className="absolute right-4 top-4 flex items-center gap-2">
+        <div className="absolute top-4 right-4 flex items-center gap-2">
           <Button asChild variant="ghost">
-            {session ? <Link href="/">Welcome {session.user?.name}</Link> : <Link href="/login">Log in</Link>}
+            {session ? (
+              <Link href="/">Welcome {session.user?.name}</Link>
+            ) : (
+              <Link href="/login">Log in</Link>
+            )}
           </Button>
-          {session ? <Button asChild variant="default" onClick={() => authClient.signOut()}>
-            <Link href="/signup">Sign out</Link>
-          </Button> : <Button asChild variant="default">
-            <Link href="/signup">Sign up</Link>
-          </Button>}
+          {session ? (
+            <Button
+              asChild
+              variant="default"
+              onClick={() => authClient.signOut()}
+            >
+              <Link href="/signup">Sign out</Link>
+            </Button>
+          ) : (
+            <Button asChild variant="default">
+              <Link href="/signup">Sign up</Link>
+            </Button>
+          )}
         </div>
         <div className="w-full max-w-4xl translate-y-[-6vh] space-y-8 text-center md:translate-y-[-8vh]">
           <div className="space-y-3 md:space-y-4">
@@ -82,6 +89,8 @@ function ChatContent({
               handleSubmit={handleInitialSubmit}
               messages={messages}
               setInput={setInput}
+              files={files}
+              setFiles={setFiles}
             />
           </div>
         </div>

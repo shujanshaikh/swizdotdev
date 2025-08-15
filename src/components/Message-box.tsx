@@ -14,9 +14,9 @@ export default function MessageBox({
   input,
   status,
   handleSubmit,
-  setMessages,
-  messages,
   setInput,
+  files,
+  setFiles,
 }: {
   input: string;
   status: string;
@@ -26,16 +26,11 @@ export default function MessageBox({
   setMessages: UseChatHelpers<ChatMessage>['setMessages'];
   messages: ChatMessage[];
   setInput: (input: string) => void;
+  files: FileUIPart[];
+  setFiles: (files: FileUIPart[]) => void;
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [attachments, setAttachments] = useState<FileUIPart[]>([]);
   
-
-  const attachmentsFromMessage = messages.filter(
-    (message) => message.parts.some(p => p.type === 'file'),
-  );
-
-  const attachmentsfile = attachmentsFromMessage.map(message => message.parts.filter(p => p.type === 'file'));
 
   // Auto-resize functionality
   useEffect(() => {
@@ -52,8 +47,8 @@ export default function MessageBox({
     setInput(e.target.value);
   };
 
-  const removeAttachment = (index: number) => {
-    setAttachments((prev) => prev.filter((_, i) => i !== index));
+  const removeAttachment = (index: number , prev: FileUIPart[]) => {
+    setFiles(prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -70,10 +65,10 @@ export default function MessageBox({
         )}
       >
         {/* Attachments inside message box */}
-        {attachments.length > 0 && (
+        {files.length > 0 && (
           <div className="border-b border-white/10 p-3">
             <div className="flex flex-wrap gap-2.5">
-              {attachments.map((attachment, index) => (
+              {files.map((attachment, index) => (
                 <div
                   key={index}
                   className="group/att relative flex max-w-[220px] items-center gap-2 rounded-xl bg-white/5 px-2.5 py-2 ring-1 ring-white/10 transition-colors duration-200 hover:bg-white/10"
@@ -111,7 +106,7 @@ export default function MessageBox({
                   </div>
                   <button
                     type="button"
-                    onClick={() => removeAttachment(index)}
+                    onClick={() => removeAttachment(index, files)}
                     className="ml-1.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-red-500/15 text-red-300 transition-all duration-200 hover:bg-red-500/70 hover:text-white"
                   >
                     <svg
@@ -144,7 +139,7 @@ export default function MessageBox({
             "resize-none overflow-hidden text-base leading-relaxed",
             "transition-all duration-200 focus:outline-none",
             "scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent hover:scrollbar-thumb-white/30",
-            attachments.length > 0 ? "rounded-t-none pt-4" : "",
+            files.length > 0 ? "rounded-t-none pt-4" : "",
           )}
           ref={textareaRef}
         />
@@ -155,11 +150,13 @@ export default function MessageBox({
             onClientUploadComplete={(res) => {
               if (!res) return;
               const newAttachments = res.map((file) => ({
-                name: file.name,
+                filename: file.name,
                 url: file.ufsUrl,
                 contentType: file.type,
+                type: "file",
+                mediaType: file.type,
               }));
-              setAttachments((prev) => [...prev, ...newAttachments as unknown as FileUIPart[]]);
+              setFiles(newAttachments as unknown as FileUIPart[]);
             }}
             onUploadError={(error: Error) => {
               console.log(error);

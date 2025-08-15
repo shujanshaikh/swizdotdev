@@ -3,6 +3,7 @@ import {
   smoothStream,
   stepCountIs,
   streamText,
+  type LanguageModel,
 } from "ai";
 import { Sandbox } from "@e2b/code-interpreter";
 import { PROMPT } from "~/lib/prompt";
@@ -27,8 +28,8 @@ import { webscraper } from "~/lib/ai/tools/web-scrape";
 import { grep } from "~/lib/ai/tools/grep";
 import { read_file } from "~/lib/ai/tools/read-files";
 import { delete_file } from "~/lib/ai/tools/delete-files";
-import { google } from "@ai-sdk/google";
 import { getSession } from "~/lib/server";
+import { createOpenAI, openai } from "@ai-sdk/openai";
 
 export async function POST(req: Request) {
   const { message, id }: { message: ChatMessage; id: string } =
@@ -48,7 +49,7 @@ export async function POST(req: Request) {
     const title = await generateTitleFromUserMessage({
       message,
     });
-    const sandbox = await Sandbox.create("swizdotdev");
+    const sandbox = await Sandbox.create("swizdotdev"); 
     sandboxId = sandbox.sandboxId;
 
     await saveProject({
@@ -82,10 +83,15 @@ export async function POST(req: Request) {
   const messagesFromDb = await getMessagesByProjectId({ id });
   const uiMessages = [...convertToUIMessages(messagesFromDb), message];
 
+  // const openrouter = createOpenAI({
+  //   apiKey: process.env.OPENROUTER_API_KEY,
+  //   baseURL: "https://openrouter.ai/api/v1",
+
+  // });
+
   const result = streamText({
     messages: convertToModelMessages(uiMessages),
-    model: google("gemini-2.5-flash"),
-    temperature: 0.1,
+    model: openai("gpt-4.1-mini"),
     system: PROMPT,
     stopWhen: stepCountIs(10),
     experimental_transform: smoothStream({
@@ -109,6 +115,7 @@ export async function POST(req: Request) {
   });
   result.consumeStream();
   return result.toUIMessageStreamResponse({
+    sendReasoning: false,
     onFinish: async ({ messages }) => {
       const sandbox = await getSandbox(sandboxId);
       // const sandboxUrl = `https://${sandbox.getHost(3000)}`;
@@ -124,7 +131,7 @@ export async function POST(req: Request) {
             console.error("Failed to auto-pause sandbox:", error);
           }
         },
-        12 * 60 * 1000, // 12 minutes
+        9 * 60 * 1000, // 9 minutes
       );
 
       await saveMessages({
@@ -135,7 +142,7 @@ export async function POST(req: Request) {
           createdAt: new Date(),
           attachments: [],
           projectId: id,
-          model: "gemini-2.5-flash",
+          model: "gpt-4o-mini",
           updatedAt: new Date(),
         })),
       });

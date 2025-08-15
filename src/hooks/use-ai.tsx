@@ -1,6 +1,6 @@
 "use client"
 import { useChat } from '@ai-sdk/react';
-import { DefaultChatTransport } from "ai";
+import { DefaultChatTransport, type FileUIPart } from "ai";
 import { useState } from "react";
 import type { ChatMessage } from "~/lib/types";
 
@@ -41,12 +41,14 @@ export function useAi({
     experimental_throttle: 100,
   });
 
+  const [files , setFiles] = useState<FileUIPart[]>([]);
+
   const [input, setInput] = useState("");
    
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!input.trim() || status === "streaming") return;
-    sendMessage({ text: input });
+    sendMessage({ text: input , files}) ;
     setInput('');
   };
   return {
@@ -58,6 +60,8 @@ export function useAi({
     setInput,
     handleSubmit,
     sendMessage,
-    setMessages
+    setMessages,
+    files,
+    setFiles,
   };
 }

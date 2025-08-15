@@ -121,14 +121,15 @@ export default function ProjectMessageView({
                               const { output } = part;
                               return (
                                 <div key={toolCallId}>
-                                  {output.url && (
+                                  {output.data.length > 0 && (
                                     <div className="text-[14px] leading-relaxed whitespace-pre-wrap text-gray-200 sm:text-[15px]">
-                                      {output.url}
-                                    </div>
-                                  )}
-                                  {output.error && (
-                                    <div className="text-[15px] leading-relaxed whitespace-pre-wrap text-red-500">
-                                      {output.error}
+                                      <Image 
+                                        src={output.data[0]?.screenshot || ''} 
+                                        alt="Screenshot preview"
+                                        width={800}
+                                        height={600}
+                                        className="max-w-full rounded-md"
+                                      />
                                     </div>
                                   )}
                                 </div>
