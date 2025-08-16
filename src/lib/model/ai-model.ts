@@ -19,13 +19,6 @@ export const MODELS: AIProvider[] = [
     provider: "google",
   },
   {
-    id: "gemini-2.0-flash",
-    name: "Gemini 2.0 flash",
-    category: "Basic",
-    description: "Basic model , Cheaper",
-    provider: "google",
-  },
-  {
     id: "claude-4-sonnet-20250514",
     name: "Claude 4 Sonnet",
     category: "Agentic",
@@ -54,15 +47,15 @@ export const MODELS: AIProvider[] = [
     provider: "openai",
   },
   {
-    id: "4o-mini",
-    name: "4o Mini",
+    id: "gpt-4.1-mini",
+    name: "4.1-mini",
     category: "Slightly Better",
-    description: "OpenAI latest model , Cheaper",
+    description: "Long Context , Cheaper",
     provider: "openai",
   },
 ] as const;
 
-export const DEFAULT_MODEL = "gemini-2.5-flash" as const;
+export const DEFAULT_MODEL = "gpt-4.1-mini";
 
 export const getModel = (modelName: string) => {
   switch (modelName) {
@@ -78,8 +71,8 @@ export const getModel = (modelName: string) => {
       return anthropic("claude-3-7-sonnet-20250219");
     case "gpt-4.1":
       return openai("gpt-4.1");
-    case "4o-mini":
-      return openai("gpt-4o-mini");
+    case "4.1-mini":
+      return openai("gpt-4.1-mini");
     default:
       return google(DEFAULT_MODEL);
   }

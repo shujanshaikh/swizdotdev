@@ -3,12 +3,11 @@ import {
   smoothStream,
   stepCountIs,
   streamText,
-  type LanguageModel,
 } from "ai";
 import { Sandbox } from "@e2b/code-interpreter";
 import { PROMPT } from "~/lib/prompt";
 import { convertToUIMessages } from "~/lib/utils";
-import { getSandbox } from "~/lib/sandbox";
+import { getSandbox, touchSandboxActivity } from "~/lib/sandbox";
 import {
   getMessagesByProjectId,
   getProjectById,
@@ -29,7 +28,7 @@ import { grep } from "~/lib/ai/tools/grep";
 import { read_file } from "~/lib/ai/tools/read-files";
 import { delete_file } from "~/lib/ai/tools/delete-files";
 import { getSession } from "~/lib/server";
-import { createOpenAI, openai } from "@ai-sdk/openai";
+import { openai } from "@ai-sdk/openai";
 
 export async function POST(req: Request) {
   const { message, id }: { message: ChatMessage; id: string } =
@@ -49,7 +48,9 @@ export async function POST(req: Request) {
     const title = await generateTitleFromUserMessage({
       message,
     });
-    const sandbox = await Sandbox.create("swizdotdev"); 
+    const sandbox = await Sandbox.create("swizdotdev", {
+      timeoutMs: 3_600_000,
+    });
     sandboxId = sandbox.sandboxId;
 
     await saveProject({
@@ -59,11 +60,14 @@ export async function POST(req: Request) {
       sandboxUrl: `https://${sandbox.getHost(3000)}`,
       userId,
     });
-    console.log(`https://${sandbox.getHost(3000)}`, "from project");
   } else {
     console.log("project already exists , connecting to sandbox");
     sandboxId = project.sandboxId!;
-    await Sandbox.connect(sandboxId);
+    await getSandbox(sandboxId);
+  }
+  // Mark activity to delay auto-pause
+  if (sandboxId) {
+    touchSandboxActivity(sandboxId);
   }
   await saveMessages({
     messages: [
@@ -83,11 +87,6 @@ export async function POST(req: Request) {
   const messagesFromDb = await getMessagesByProjectId({ id });
   const uiMessages = [...convertToUIMessages(messagesFromDb), message];
 
-  // const openrouter = createOpenAI({
-  //   apiKey: process.env.OPENROUTER_API_KEY,
-  //   baseURL: "https://openrouter.ai/api/v1",
-
-  // });
 
   const result = streamText({
     messages: convertToModelMessages(uiMessages),
@@ -117,22 +116,13 @@ export async function POST(req: Request) {
   return result.toUIMessageStreamResponse({
     sendReasoning: false,
     onFinish: async ({ messages }) => {
-      const sandbox = await getSandbox(sandboxId);
+      await getSandbox(sandboxId);
       // const sandboxUrl = `https://${sandbox.getHost(3000)}`;
 
-      setTimeout(
-        async () => {
-          try {
-            await sandbox.pause();
-            console.log(
-              `Sandbox ${sandbox.sandboxId} auto-paused after 10 minutes`,
-            );
-          } catch (error) {
-            console.error("Failed to auto-pause sandbox:", error);
-          }
-        },
-        9 * 60 * 1000, // 9 minutes
-      );
+      // Reset inactivity timer after assistant finishes work as well
+      if (sandboxId) {
+        touchSandboxActivity(sandboxId);
+      }
 
       await saveMessages({
         messages: messages.map((message) => ({

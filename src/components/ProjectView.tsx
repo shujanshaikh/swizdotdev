@@ -29,7 +29,6 @@ export default function ProjectView({
   id: string;
   isLoading: boolean;
 }) {
-  console.log(initialMessages, "initialMessages")
  
   const {
     input,
