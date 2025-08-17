@@ -4,10 +4,14 @@ import { Button } from "./ui/button";
 import { api } from "~/trpc/react";
 
 export default function PreviewUrl({ projectId }: { projectId: string }) {
-  const { data: sandboxUrl, isLoading } = api.project.getSandboxUrl.useQuery(
+  const { data: sandboxUrl, isLoading, refetch } = api.project.getSandboxUrl.useQuery(
     { projectId },
     {
       enabled: !!projectId,
+      // Poll until a URL is available, then stop
+      refetchInterval: (query) => (query.state.data ? false : 2000),
+      refetchOnWindowFocus: false,
+      retry: 3,
     },
   );
   const [url, setUrl] = useState(sandboxUrl || "");
@@ -20,7 +24,11 @@ export default function PreviewUrl({ projectId }: { projectId: string }) {
     }
   }, [sandboxUrl]);
 
+  // If polling is still running and we have no URL, show a subtle fetching indicator in the toolbar
+
   const handleRefresh = () => {
+    // Manually refetch sandbox URL in case it just became available
+    void refetch();
     if (iframeRef.current && url) {
       iframeRef.current.src = url;
     }
@@ -286,7 +294,7 @@ export default function PreviewUrl({ projectId }: { projectId: string }) {
             type="text"
             className="flex-1 bg-transparent text-sm text-white outline-none placeholder:text-gray-400"
             placeholder={url ? "Website is loaded" : "Enter URL to preview"}
-            value=""
+            value={url}
             onChange={(e) => setUrl(e.target.value)}
           />
         </div>

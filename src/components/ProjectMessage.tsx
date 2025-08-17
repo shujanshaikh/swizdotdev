@@ -1,22 +1,67 @@
+"use client";
+
+import { useEffect, useCallback } from "react";
 import Image from "next/image";
 import { Button } from "./ui/button";
 import type { ChatMessage } from "~/lib/types";
-import { RefreshCcwIcon } from "lucide-react";
+import Error from "./ui/error";
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
+import { Tooltip, TooltipTrigger, TooltipContent } from "./ui/tooltip";
 
 export default function ProjectMessageView({
   messages,
   status,
   error,
-  regenerate,
+  regenerate: _regenerate,
 }: {
   messages: ChatMessage[];
   status: "submitted" | "streaming" | "ready" | "error";
   error: undefined | Error;
   regenerate: () => void;
 }) {
+
+  const router = useRouter()
+  void _regenerate
+
+  const onhandleBack = useCallback(() => {
+     router.push("/")
+  }, [router])
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" || (event.altKey && event.key === "ArrowLeft")) {
+        event.preventDefault();
+        onhandleBack();
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onhandleBack])
+
   return (
     <div className="flex h-full flex-col overflow-hidden">
+      
       <div className="scrollbar-hide flex-1 overflow-y-auto">
+        <div className="sticky top-0 z-10  backdrop-blur supports-[backdrop-filter]:bg-zinc-900/30">
+          <div className="mx-auto max-w-4xl px-2 py-2 sm:px-4">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={onhandleBack}
+                  variant="ghost"
+                  size="sm"
+                  aria-label="Go back"
+                  className="gap-2 px-2"
+                >
+                  <ArrowLeft className="size-4" />
+                  <span className="hidden sm:inline">Back</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent sideOffset={6}>Back (Esc)</TooltipContent>
+            </Tooltip>
+          </div>
+        </div>
         <div className="mx-auto max-w-4xl space-y-6 p-4 sm:p-6">
           {messages.length === 0 ? (
             <div className="flex h-96 flex-col items-center justify-center text-center">
@@ -229,7 +274,6 @@ export default function ProjectMessageView({
                             const { toolCallId, state } = part;
 
                             if (state === "output-available") {
-                              const { output } = part;
                               return (
                                 <div
                                   key={toolCallId}
@@ -334,37 +378,10 @@ export default function ProjectMessageView({
                 </div>
               )}
 
-              {status === "error" && (
-                <div className="flex justify-start">
-                  <div className="w-full">
-                    <div className="w-full space-y-3 py-4">
-                      <div className="flex items-center gap-2 rounded-lg bg-red-900/20 px-4 py-3">
-                        <div className="flex items-center gap-1">
-                          <div className="h-2 w-2 animate-pulse rounded-full bg-red-400" />
-                          <div className="h-2 w-2 animate-pulse rounded-full bg-red-400 delay-100" />
-                          <div className="h-2 w-2 animate-pulse rounded-full bg-red-400 delay-200" />
-                        </div>
-                        <span className="text-sm text-red-400">
-                          {error?.message ||
-                            (typeof error === "string"
-                              ? error
-                              : error
-                                ? JSON.stringify(error, null, 2)
-                                : "Unknown error")}
-                        </span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={regenerate}
-                          className="flex items-center gap-2"
-                        >
-                          <RefreshCcwIcon className="h-4 w-4" />
-                          <span className="text-sm">Reload</span>
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              {status === "error" && error && (
+              <Error 
+                message={error.message} 
+              />
               )}
             </>
           )}

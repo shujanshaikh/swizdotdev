@@ -9,7 +9,8 @@ import type { ChatMessage } from "~/lib/types";
 import type { UseChatHelpers } from "@ai-sdk/react";
 import type { FileUIPart } from "ai";
 import { authClient } from "~/lib/auth-client";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 export default function MessageBox({
   input,
@@ -39,8 +40,6 @@ export default function MessageBox({
       textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
     }
   }, [input]);
-
-  const router = useRouter()
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     e.target.style.height = "auto";
     e.target.style.height = `${Math.min(e.target.scrollHeight, 200)}px`;
@@ -178,32 +177,77 @@ export default function MessageBox({
           />
         </div>
 
-        <Button
-          type="submit"
-          disabled={status !== "ready" || !input.trim() || !session}
-          className={cn(
-            "absolute right-3 bottom-3 h-10 w-10 rounded-xl",
-            "bg-white/90 text-zinc-900 shadow-md ring-1 ring-black/5",
-            "hover:bg-white hover:shadow-lg",
-            "flex items-center justify-center border-none transition-all duration-200",
-            "select-none focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
-            "hover:scale-[1.03] active:scale-95",
+        <div className="absolute right-3 bottom-3">
+          {!session ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span tabIndex={0} className="inline-flex">
+                  <Button
+                    type="submit"
+                    disabled
+                    className={cn(
+                      "h-10 w-10 rounded-xl",
+                      "bg-white/90 text-zinc-900 shadow-md ring-1 ring-black/5",
+                      "hover:bg-white hover:shadow-lg",
+                      "flex items-center justify-center border-none transition-all duration-200",
+                      "select-none focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+                      "hover:scale-[1.03] active:scale-95",
+                    )}
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="transition-transform duration-200"
+                    >
+                      <path d="M12 19V5M5 12l7-7 7 7" />
+                    </svg>
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              <TooltipContent sideOffset={6}>
+                <div className="flex items-center gap-2">
+                  <span>Login or Signup to continue</span>
+                  <Link href="/login" className="underline underline-offset-2">Login</Link>
+                  <span>·</span>
+                  <Link href="/signup" className="underline underline-offset-2">Signup</Link>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <Button
+              type="submit"
+              disabled={status !== "ready" || !input.trim()}
+              className={cn(
+                "h-10 w-10 rounded-xl",
+                "bg-white/90 text-zinc-900 shadow-md ring-1 ring-black/5",
+                "hover:bg-white hover:shadow-lg",
+                "flex items-center justify-center border-none transition-all duration-200",
+                "select-none focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+                "hover:scale-[1.03] active:scale-95",
+              )}
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="transition-transform duration-200"
+              >
+                <path d="M12 19V5M5 12l7-7 7 7" />
+              </svg>
+            </Button>
           )}
-        >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="transition-transform duration-200"
-          >
-            <path d="M12 19V5M5 12l7-7 7 7" />
-          </svg>
-        </Button>
+        </div>
       </div>
     </form>
   );
