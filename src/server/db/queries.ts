@@ -2,9 +2,15 @@ import "server-only";
 import type { UIMessage } from "ai";
 import { db } from "../db/index";
 import { message, project, type DBMessage } from "./schema";
-import { asc, desc, eq } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte } from "drizzle-orm";
 
-export const createProject = async ({ title, userId }: { title: string; userId: string }) => {
+export const createProject = async ({
+  title,
+  userId,
+}: {
+  title: string;
+  userId: string;
+}) => {
   const result = await db.insert(project).values({ title, userId }).returning();
 
   return result[0]?.id;
@@ -23,7 +29,6 @@ export const getProjects = async ({ userId }: { userId: string }) => {
     throw new Error("Failed to fetch projects");
   }
 };
-
 
 export const loadProject = async (projectId: string) => {
   const messagesResult = await db
@@ -52,7 +57,7 @@ export async function getProjectById({ id }: { id: string }) {
   }
 }
 
-export async function  saveProject({
+export async function saveProject({
   id,
   title,
   sandboxId,
@@ -77,18 +82,15 @@ export async function  saveProject({
   } catch (error) {
     console.log(error);
   }
-};
+}
 
-export async function saveMessages({ 
-  messages, 
-}: { 
-  messages: Array<DBMessage>, 
+export async function saveMessages({
+  messages,
+}: {
+  messages: Array<DBMessage>;
 }) {
   try {
-    const savedMessages = await db
-      .insert(message)
-      .values(messages)
-      .returning();
+    const savedMessages = await db.insert(message).values(messages).returning();
     console.log(
       `Inserted ${savedMessages.length} message(s)`,
       savedMessages.map((m) => m.id),
@@ -112,7 +114,6 @@ export async function getMessagesByProjectId({ id }: { id: string }) {
   }
 }
 
-
 export const getSanboxId = async (projectId: string) => {
   const result = await db
     .select({ sandboxId: project.sandboxId })
@@ -124,3 +125,32 @@ export const getSanboxId = async (projectId: string) => {
   return result[0]?.sandboxId || null;
 };
 
+export const getMessageCOuntByUserId = async (
+  id: string,
+  differenceInMonths: number,
+) => {
+  try {
+    const twentyEightDaysAgo = new Date(
+      Date.now() - differenceInMonths * 24 * 28 * 60 * 60 * 1000,
+    );
+
+    const [stats] = await db
+      .select({
+        count: count(message.id),
+      })
+      .from(message)
+      .innerJoin(project, eq(message.projectId, project.id))
+      .where(
+        and(
+          eq(project.userId, id),
+          gte(message.createdAt, twentyEightDaysAgo),
+          eq(message.role, "user"),
+        ),
+      )
+      .execute();
+
+    return stats?.count ?? 0;
+  } catch (error) {
+    console.log(error);
+  }
+};

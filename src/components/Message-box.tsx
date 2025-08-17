@@ -1,14 +1,15 @@
-"use client"
-import { useEffect, useRef, useState } from "react";
+"use client";
+import { useEffect, useRef } from "react";
 import { cn } from "~/lib/utils";
 import { Button } from "./ui/button";
-//import type { Attachment } from "ai";
 import { UploadButton } from "~/utils/uploadthing";
 import Image from "next/image";
 import { Paperclip } from "lucide-react";
 import type { ChatMessage } from "~/lib/types";
 import type { UseChatHelpers } from "@ai-sdk/react";
 import type { FileUIPart } from "ai";
+import { authClient } from "~/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 export default function MessageBox({
   input,
@@ -20,17 +21,15 @@ export default function MessageBox({
 }: {
   input: string;
   status: string;
-  handleSubmit: (
-    e: React.FormEvent<HTMLFormElement>,
-  ) => void;
-  setMessages: UseChatHelpers<ChatMessage>['setMessages'];
+  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  setMessages: UseChatHelpers<ChatMessage>["setMessages"];
   messages: ChatMessage[];
   setInput: (input: string) => void;
   files: FileUIPart[];
   setFiles: (files: FileUIPart[]) => void;
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  
+  const { data: session } = authClient.useSession();
 
   // Auto-resize functionality
   useEffect(() => {
@@ -41,13 +40,15 @@ export default function MessageBox({
     }
   }, [input]);
 
+  const router = useRouter()
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     e.target.style.height = "auto";
     e.target.style.height = `${Math.min(e.target.scrollHeight, 200)}px`;
+    
     setInput(e.target.value);
   };
 
-  const removeAttachment = (index: number , prev: FileUIPart[]) => {
+  const removeAttachment = (index: number, prev: FileUIPart[]) => {
     setFiles(prev.filter((_, i) => i !== index));
   };
 
@@ -146,6 +147,7 @@ export default function MessageBox({
 
         <div className="absolute bottom-3 left-3">
           <UploadButton
+            disabled={!session}
             endpoint="imageUploader"
             onClientUploadComplete={(res) => {
               if (!res) return;
@@ -178,9 +180,9 @@ export default function MessageBox({
 
         <Button
           type="submit"
-          disabled={status !== "ready" || !input.trim()}
+          disabled={status !== "ready" || !input.trim() || !session}
           className={cn(
-            "absolute bottom-3 right-3 h-10 w-10 rounded-xl",
+            "absolute right-3 bottom-3 h-10 w-10 rounded-xl",
             "bg-white/90 text-zinc-900 shadow-md ring-1 ring-black/5",
             "hover:bg-white hover:shadow-lg",
             "flex items-center justify-center border-none transition-all duration-200",

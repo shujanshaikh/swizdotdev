@@ -29,6 +29,8 @@ import { read_file } from "~/lib/ai/tools/read-files";
 import { delete_file } from "~/lib/ai/tools/delete-files";
 import { getSession } from "~/lib/server";
 import { openai } from "@ai-sdk/openai";
+import { checkRateLimit, getUserIdentifier, getUserIP } from "~/lib/rate-limit";
+import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   const { message, id }: { message: ChatMessage; id: string } =
@@ -39,6 +41,31 @@ export async function POST(req: Request) {
 
   if (!userId) {
     return new Response("Unauthorized", { status: 401 });
+  }
+
+  const userIdentifier = getUserIdentifier(req);
+  //const userIP = getUserIP(req)
+  const rateLimitResult = await checkRateLimit(userIdentifier);
+
+  if (!rateLimitResult.success) {
+    const resetTime = rateLimitResult.resetTime.toLocaleString();
+    return NextResponse.json(
+      {
+        error: "RATE_LIMIT_EXCEEDED",
+        message: `You've reached the limit of 3 generations per 12 hours. Please try again after ${resetTime}.`,
+        limit: rateLimitResult.limit,
+        remaining: rateLimitResult.remaining,
+        resetTime: rateLimitResult.resetTime.toISOString(),
+      },
+      {
+        status: 429,
+        headers: {
+          "X-RateLimit-Limit": rateLimitResult.limit.toString(),
+          "X-RateLimit-Remaining": rateLimitResult.remaining.toString(),
+          "X-RateLimit-Reset": rateLimitResult.reset.toString(),
+        },
+      },
+    );
   }
 
   const project = await getProjectById({ id });
@@ -86,7 +113,6 @@ export async function POST(req: Request) {
 
   const messagesFromDb = await getMessagesByProjectId({ id });
   const uiMessages = [...convertToUIMessages(messagesFromDb), message];
-
 
   const result = streamText({
     messages: convertToModelMessages(uiMessages),
