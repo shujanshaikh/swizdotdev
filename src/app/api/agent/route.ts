@@ -44,30 +44,30 @@ export async function POST(req: Request) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  // const userIdentifier = getUserIdentifier(req);
-  // //const userIP = getUserIP(req)
-  // const rateLimitResult = await checkRateLimit(userIdentifier);
+  const userIdentifier = getUserIdentifier(req);
+  //const userIP = getUserIP(req)
+  const rateLimitResult = await checkRateLimit(userIdentifier);
 
-  // if (!rateLimitResult.success) {
-  //   const resetTime = rateLimitResult.resetTime.toLocaleString();
-  //   return NextResponse.json(
-  //     {
-  //       error: "RATE_LIMIT_EXCEEDED",
-  //       message: `You've reached the limit of 3 generations per 12 hours. Please try again after ${resetTime}.`,
-  //       limit: rateLimitResult.limit,
-  //       remaining: rateLimitResult.remaining,
-  //       resetTime: rateLimitResult.resetTime.toISOString(),
-  //     },
-  //     {
-  //       status: 429,
-  //       headers: {
-  //         "X-RateLimit-Limit": rateLimitResult.limit.toString(),
-  //         "X-RateLimit-Remaining": rateLimitResult.remaining.toString(),
-  //         "X-RateLimit-Reset": rateLimitResult.reset.toString(),
-  //       },
-  //     },
-  //   );
-  // }
+  if (!rateLimitResult.success) {
+    const resetTime = rateLimitResult.resetTime.toLocaleString();
+    return NextResponse.json(
+      {
+        error: "RATE_LIMIT_EXCEEDED",
+        message: `You've reached the limit of 3 generations per 28 days. Please try again after ${resetTime}.`,
+        limit: rateLimitResult.limit,
+        remaining: rateLimitResult.remaining,
+        resetTime: rateLimitResult.resetTime.toISOString(),
+      },
+      {
+        status: 429,
+        headers: {
+          "X-RateLimit-Limit": rateLimitResult.limit.toString(),
+          "X-RateLimit-Remaining": rateLimitResult.remaining.toString(),
+          "X-RateLimit-Reset": rateLimitResult.reset.toString(),
+        },
+      },
+    );
+  }
 
   const project = await getProjectById({ id });
 
