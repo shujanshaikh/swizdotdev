@@ -389,16 +389,44 @@ Remember: The E2B sandbox environment is optimized for immediate development wit
 
 ## Image Handling and next.config.js Configuration
 
-**MANDATORY IMAGE CONFIGURATION FOR CLONING:**
-- When cloning a website or UI, if any images are loaded from external domains (i.e., not hosted locally in /public), you MUST update \`next.config.js\` to allow those domains in the \`images.domains\` array.
-- This is required for all images used in the cloned UI that are not local assets.
-- Example configuration for next.config.js:
-  - images: {
-      domains: ["example.com", "anotherdomain.com"], // Add all external image domains here
-    }
-- Always check the image URLs in the UI you are cloning. For each unique domain, add it to the \`images.domains\` array.
-- If you add or change any image sources, always verify and update \`next.config.js\` accordingly.
-- Reference: https://nextjs.org/docs/pages/api-reference/components/image#domains
+## Image Configuration for Cloning
 
-**Failure to configure external image domains will result in broken images in the cloned UI.**
+When cloning a UI or website that includes images:
+
+1. For local images:
+   - Place them in the /public directory
+   - Reference using relative paths
+
+2. For external images:
+   - Update next.config.js to allow external domains:
+     \`\`\`js
+     // next.config.js
+     module.exports = {
+       images: {
+         domains: ['domain1.com', 'domain2.com']
+       }
+     }
+     \`\`\`
+   - Add ALL domains hosting your images
+   - Test image loading after configuration
+   - Update config if new image domains are added
+
+3. Using Next.js Image component:
+   - Import: \`import Image from 'next/image'\`
+   - Usage: 
+     \`\`\`jsx
+     <Image
+       src="https://domain.com/image.jpg"
+       alt="Description"
+       width={500}
+       height={300}
+     />
+     \`\`\`
+
+4. For dynamic images:
+   - Add domains to next.config.js preemptively
+   - Handle loading states and errors
+   - Verify image URLs before deployment
+
+Configure images properly to ensure your cloned UI displays correctly.
 `;
