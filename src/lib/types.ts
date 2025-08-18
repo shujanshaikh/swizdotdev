@@ -9,6 +9,7 @@ import { ls } from "./ai/tools/ls"
 import { glob } from "./ai/tools/glob"
 import { task_agent } from "./ai/tools/task-agent"
 import { bash } from "./ai/tools/bash"
+import { string_replace } from "./ai/tools/string-replace"
 
 export interface FileType {
     name: string
@@ -30,6 +31,9 @@ export interface ToolCallFile {
     relative_file_path: string
     code_edit: string
     instructions: string
+    old_string?: string
+    new_string?: string
+    replace_all?: boolean
 }
 
 export interface CodeMapping {
@@ -54,7 +58,7 @@ type ls = InferUITool<ReturnType<typeof ls>>;
 type glob = InferUITool<ReturnType<typeof glob>>;
 type task_agent = InferUITool<ReturnType<typeof task_agent>>;
 type bash = InferUITool<ReturnType<typeof bash>>;
-
+type string_replace = InferUITool<ReturnType<typeof string_replace>>;
 
 export type ChatTools = {
   webScraper: webScraper;
@@ -66,6 +70,7 @@ export type ChatTools = {
   glob: glob;
   task_agent: task_agent;
   bash: bash;
+  string_replace: string_replace;
 };
 
 export type CustomUIDataTypes = {

@@ -21,7 +21,7 @@ if (isRateLimitingEnabled) {
 
   generationRateLimit = new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(3, "43200 s"),
+    limiter: Ratelimit.slidingWindow(3, "2419200 s"),
     analytics: true,
     prefix: "swiz_rate_limit",
   });
@@ -87,9 +87,9 @@ export async function checkRateLimit(identifier: string) {
     return {
       success: true,
       limit: 3,
-      reset: Date.now() + 43200000, // 12 hours from now
+      reset: Date.now() + 2419200000, // 28 days from now
       remaining: 3,
-      resetTime: new Date(Date.now() + 43200000),
+      resetTime: new Date(Date.now() + 2419200000),
     };
   }
 
@@ -110,9 +110,9 @@ export async function checkRateLimit(identifier: string) {
     return {
       success: true,
       limit: 3,
-      reset: Date.now() + 43200000, // 12 hours from now
+      reset: Date.now() + 2419200000, // 28 days from now
       remaining: 3,
-      resetTime: new Date(Date.now() + 43200000),
+      resetTime: new Date(Date.now() + 2419200000),
     }
   }
 }

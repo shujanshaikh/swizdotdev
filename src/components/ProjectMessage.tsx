@@ -20,30 +20,31 @@ export default function ProjectMessageView({
   error: undefined | Error;
   regenerate: () => void;
 }) {
-
-  const router = useRouter()
-  void _regenerate
+  const router = useRouter();
+  void _regenerate;
 
   const onhandleBack = useCallback(() => {
-     router.push("/")
-  }, [router])
+    router.push("/");
+  }, [router]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" || (event.altKey && event.key === "ArrowLeft")) {
+      if (
+        event.key === "Escape" ||
+        (event.altKey && event.key === "ArrowLeft")
+      ) {
         event.preventDefault();
         onhandleBack();
       }
-    }
+    };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [onhandleBack])
+  }, [onhandleBack]);
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      
       <div className="scrollbar-hide flex-1 overflow-y-auto">
-        <div className="sticky top-0 z-10  backdrop-blur supports-[backdrop-filter]:bg-zinc-900/30">
+        <div className="sticky top-0 z-10 backdrop-blur supports-[backdrop-filter]:bg-zinc-900/30">
           <div className="mx-auto max-w-4xl px-2 py-2 sm:px-4">
             <Tooltip>
               <TooltipTrigger asChild>
@@ -239,10 +240,12 @@ export default function ProjectMessageView({
                                   key={toolCallId}
                                   className="overflow-hidden rounded-lg border border-zinc-700 bg-zinc-800/50 p-4"
                                 >
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <span className="text-sm font-medium text-zinc-400">Directory Contents</span>
+                                  <div className="mb-2 flex items-center gap-2">
+                                    <span className="text-sm font-medium text-zinc-400">
+                                      Directory Contents
+                                    </span>
                                   </div>
-                                  <div className="text-[14px] font-mono text-gray-200">
+                                  <div className="font-mono text-[14px] text-gray-200">
                                     {output}
                                   </div>
                                 </div>
@@ -280,8 +283,12 @@ export default function ProjectMessageView({
                                   className="overflow-hidden rounded-lg border border-zinc-700 bg-zinc-800/50 p-4"
                                 >
                                   <div className="flex items-center gap-2">
-                                    <span className="text-sm font-medium text-emerald-400">File Edit:</span>
-                                    <span className="text-xs text-zinc-300">{part.input.relative_file_path}</span>
+                                    <span className="text-sm font-medium text-emerald-400">
+                                      File Edit:
+                                    </span>
+                                    <span className="text-xs text-zinc-300">
+                                      {part.input.relative_file_path}
+                                    </span>
                                   </div>
                                 </div>
                               );
@@ -361,6 +368,22 @@ export default function ProjectMessageView({
                               );
                             }
                           }
+
+                          if (part.type === "tool-string_replace") {
+                            const { toolCallId, state } = part;
+
+                            if (state === "input-available") {
+                              return (
+                                <div key={toolCallId}>
+                                  {part.input.relative_file_path}
+                                </div>
+                              );
+                            }
+                            if (state === "output-available") {
+                              const { output } = part;
+                              return <div key={toolCallId}>{output}</div>;
+                            }
+                          }
                         })}
                       </div>
                     )}
@@ -378,11 +401,7 @@ export default function ProjectMessageView({
                 </div>
               )}
 
-              {status === "error" && error && (
-              <Error 
-                message={error.message} 
-              />
-              )}
+              {status === "error" && error && <Error message={error.message} />}
             </>
           )}
         </div>

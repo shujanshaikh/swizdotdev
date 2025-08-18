@@ -315,7 +315,7 @@ export default function CodeSidebar({
         <div className="p-2">
           {fileTree.map((node) => (
             <FileTreeNode
-              key={node.path}
+              key={node.path + node.children?.length}
               node={node}
               selectedFile={relative_file_path}
               onFileSelect={onFileSelect}

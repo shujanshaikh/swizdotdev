@@ -31,6 +31,7 @@ import { getSession } from "~/lib/server";
 import { openai } from "@ai-sdk/openai";
 import { checkRateLimit, getUserIdentifier, getUserIP } from "~/lib/rate-limit";
 import { NextResponse } from "next/server";
+import { string_replace } from "~/lib/ai/tools/string-replace";
 
 export async function POST(req: Request) {
   const { message, id }: { message: ChatMessage; id: string } =
@@ -75,7 +76,7 @@ export async function POST(req: Request) {
     const title = await generateTitleFromUserMessage({
       message,
     });
-    const sandbox = await Sandbox.create("swizdotdev", {
+    const sandbox = await Sandbox.create("swizsandbox", {
       timeoutMs: 3_600_000,
     });
     sandboxId = sandbox.sandboxId;
@@ -118,6 +119,7 @@ export async function POST(req: Request) {
     messages: convertToModelMessages(uiMessages),
     model: openai("gpt-4.1-mini"),
     system: PROMPT,
+    temperature: 0.1,
     stopWhen: stepCountIs(10),
     experimental_transform: smoothStream({
       delayInMs: 20,
@@ -136,6 +138,7 @@ export async function POST(req: Request) {
       suggestion: suggestions,
       read_file: read_file({ sandboxId }),
       delete_file: delete_file({ sandboxId }),
+      string_replace: string_replace({ sandboxId }),
     },
   });
   result.consumeStream();
