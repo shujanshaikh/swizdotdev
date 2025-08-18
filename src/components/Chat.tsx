@@ -10,16 +10,13 @@ import { Button } from "./ui/button";
 import { authClient } from "~/lib/auth-client";
 
 function ChatContent({
-  id,
   initialMessages,
 }: {
-  id: string;
   initialMessages: ChatMessage[];
 }) {
   const { data: session } = authClient.useSession();
   const { input, status, setInput, messages, setMessages, files, setFiles } =
     useAi({
-      id,
       initialMessages,
     });
 
@@ -30,7 +27,8 @@ function ChatContent({
     if (!input.trim() || status === "streaming") return;
 
     const q = encodeURIComponent(input.trim());
-    window.location.replace(`/project/${id}?query=${q}`);
+    const newId = crypto.randomUUID();
+    window.location.replace(`/project/${newId}?query=${q}`);
   };
 
   return (
@@ -100,10 +98,8 @@ function ChatContent({
 }
 
 export default function Chat({
-  id,
   initialMessages,
 }: {
-  id: string;
   initialMessages: ChatMessage[];
 }) {
   const isMobile = useIsMobile();
@@ -111,7 +107,7 @@ export default function Chat({
     <SidebarProvider defaultOpen={!isMobile}>
       <div className="flex h-screen w-full">
         <SidebarComponent />
-        <ChatContent id={id} initialMessages={initialMessages} />
+        <ChatContent initialMessages={initialMessages} />
       </div>
     </SidebarProvider>
   );
