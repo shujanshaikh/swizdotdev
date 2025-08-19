@@ -71,22 +71,22 @@ function ChatContent({
         </div>
         <div className="w-full max-w-4xl translate-y-[-6vh] space-y-8 text-center md:translate-y-[-8vh]">
           <div className="space-y-6 md:space-y-8">
-            <div className="flex items-center justify-center gap-2">
-              <div className="relative flex items-center gap-2 rounded-full border border-white/10 bg-zinc-900/50 px-4 py-1.5 backdrop-blur">
-                <span className="text-sm font-medium text-zinc-300">Made by Shujan Shaikh</span>
-                <div className="mx-1 h-4 w-px bg-white/10" />
+            <div className="flex items-center justify-center">
+              <div className="relative flex flex-col items-center gap-2 rounded-xl border border-white/10 bg-zinc-900/50 px-3 py-2 backdrop-blur sm:flex-row sm:gap-3 sm:rounded-full sm:px-4 sm:py-1.5">
+                <span className="text-xs font-medium text-zinc-300 sm:text-sm">Made by Shujan Shaikh</span>
+                <div className="hidden h-4 w-px bg-white/10 sm:block" />
                 <a
                   href="https://x.com/shujanshaikh"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex items-center gap-1 text-zinc-400 transition-colors hover:text-zinc-200"
+                  className="group flex items-center gap-1.5 rounded-full bg-zinc-800/50 px-2.5 py-1 text-zinc-400 transition-all hover:bg-zinc-800 hover:text-zinc-200 sm:bg-transparent sm:px-0 sm:py-0"
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="transition-transform group-hover:scale-110">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="transition-transform group-hover:scale-110 sm:h-3.5 sm:w-3.5">
                     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                   </svg>
-                  <span className="text-sm">@shujanshaikh</span>
+                  <span className="text-xs sm:text-sm">@shujanshaikh</span>
                 </a>
-                <div className="pointer-events-none absolute inset-0 rounded-full opacity-0 transition-opacity [background:radial-gradient(100%_50%_at_50%_0%,rgba(244,244,245,0.05),transparent)] group-hover:opacity-100" />
+                <div className="pointer-events-none absolute inset-0 rounded-xl opacity-0 transition-opacity [background:radial-gradient(100%_50%_at_50%_0%,rgba(244,244,245,0.05),transparent)] group-hover:opacity-100 sm:rounded-full" />
               </div>
             </div>
 
