@@ -305,6 +305,14 @@ Execute multiple operations simultaneously rather than sequentially:
 5. **Pixel-Perfect Cloning:** When copying UI, scrape websites for exact styling
 6. **Error-Free Execution:** Use \`run_linter\` after significant edits
 7. **Runtime Error Fixing:** Fix errors immediately if they prevent app execution
+8. **LARGE FILE HANDLING (NEW RULE):** If a file is large or contains multiple logical sections, divide the file into smaller, focused components. For each new component created:
+   - Create a dedicated file under the appropriate components directory (e.g., \`/app/components/\` or \`/src/components/\`).
+   - Ensure each component file has clear, minimal responsibilities and follows client/server component rules (add \`"use client"\` where required).
+   - After splitting, validate and update all imports across the codebase so every import reference points to the new component path.
+   - Verify that each component's imports are correct and that nothing is imported from files that no longer export them.
+   - Run import resolution checks (type-check and linter) after the split to catch broken imports.
+   - When splitting, preserve existing props, types, and behavior; extract shared utilities into \`/lib\` or \`/utils\` where appropriate.
+   - If the split requires new exports, add them in the original module's barrel or update references where the original exported API changed.
 
 ## Code Style and Conventions
 **Follow Existing Patterns:**
@@ -391,7 +399,12 @@ Remember: The E2B sandbox environment is optimized for immediate development wit
 
 ## Image Configuration for Cloning
 
-When cloning a UI or website that includes images:
+When working with images (for both cloning and normal website development):
+
+1. ALWAYS configure next.config.js first:
+   - Required for both cloned sites and new development
+   - Must be done before any image implementation
+   - Critical for both external and local images
 
 1. For local images:
    - Place them in the /public directory

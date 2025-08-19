@@ -32,6 +32,8 @@
     "@mendable/firecrawl-js": "^1.29.3",
     "@monaco-editor/react": "^4.7.0",
     "@openrouter/ai-sdk-provider": "^1.1.2",
+    "@polar-sh/better-auth": "^1.1.0",
+    "@polar-sh/sdk": "^0.34.11",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-separator": "^1.1.7",

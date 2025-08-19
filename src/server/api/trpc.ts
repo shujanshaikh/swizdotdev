@@ -6,11 +6,15 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-import { initTRPC } from "@trpc/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
+import { auth } from "~/lib/auth";
+import { polarClient } from "~/lib/polar";
 
 import { db } from "~/server/db";
+import { getMessageCountByUserId } from "../db/queries";
+import { FREE_PLAN_MESSAGE_COUNT, PREMIUM_PLAN_MESSAGE_COUNT } from "~/utils/constant";
 
 /**
  * 1. CONTEXT
@@ -104,3 +108,53 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
  * are logged in.
  */
 export const publicProcedure = t.procedure.use(timingMiddleware);
+
+export const protectedProcedure = publicProcedure.use(async ({ ctx, next }) => {
+  const session = await auth.api.getSession({
+    headers: ctx.headers,
+  });
+  if (!session) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+  return next({
+    ctx: {
+      ...ctx,
+      // infers that `session` is non-nullable to downstream resolvers
+      session: { ...session, user: session.user },
+    },
+  });
+});
+
+export const premiumProcedure = (entity: "messages") => {
+  return protectedProcedure.use(async ({ ctx, next }) => {
+    const customer = await polarClient.customers.getStateExternal({
+      externalId: ctx.session.user.id,
+    });
+
+    const usedCount = (await getMessageCountByUserId(ctx.session.user.id, 1)) ?? 0;
+
+    const isPremium = (customer.activeSubscriptions?.length ?? 0) > 0;
+
+    const planLimit = isPremium
+      ? PREMIUM_PLAN_MESSAGE_COUNT
+      : FREE_PLAN_MESSAGE_COUNT;
+
+    const remaining = Math.max(0, planLimit - usedCount);
+
+    if (entity === "messages" && remaining <= 0) {
+      throw new TRPCError({ code: "FORBIDDEN", message: "Monthly message limit reached" });
+    }
+
+    return next({
+      ctx: {
+        ...ctx,
+        customer,
+        isPremium,
+        isFreePlan: !isPremium,
+        planLimit,
+        usedCount,
+        remaining,
+      }
+    });
+  });
+};

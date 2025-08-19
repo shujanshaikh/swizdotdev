@@ -1,0 +1,2 @@
+export const FREE_PLAN_MESSAGE_COUNT = 3;
+export const PREMIUM_PLAN_MESSAGE_COUNT = 100;

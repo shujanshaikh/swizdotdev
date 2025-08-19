@@ -29,9 +29,10 @@ import { read_file } from "~/lib/ai/tools/read-files";
 import { delete_file } from "~/lib/ai/tools/delete-files";
 import { getSession } from "~/lib/server";
 import { openai } from "@ai-sdk/openai";
-import { checkRateLimit, getUserIdentifier, getUserIP } from "~/lib/rate-limit";
 import { NextResponse } from "next/server";
 import { string_replace } from "~/lib/ai/tools/string-replace";
+import { checkPremiumUser } from "~/lib/check-premium";
+import { google } from "@ai-sdk/google";
 
 export async function POST(req: Request) {
   const { message, id }: { message: ChatMessage; id: string } =
@@ -44,30 +45,21 @@ export async function POST(req: Request) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const userIdentifier = getUserIdentifier(req);
-  //const userIP = getUserIP(req)
-  const rateLimitResult = await checkRateLimit(userIdentifier);
-
-  if (!rateLimitResult.success) {
-    const resetTime = rateLimitResult.resetTime.toLocaleString();
+    const { shouldThrowMessageError } = await checkPremiumUser(
+    userId,
+    "messages",
+  );
+  if (shouldThrowMessageError) {
     return NextResponse.json(
       {
-        error: "RATE_LIMIT_EXCEEDED",
-        message: `You've reached the limit of 3 generations per 28 days. Please try again after ${resetTime}.`,
-        limit: rateLimitResult.limit,
-        remaining: rateLimitResult.remaining,
-        resetTime: rateLimitResult.resetTime.toISOString(),
+        error: "UPGRADE_REQUIRED",
+        message:
+          "You've reached the plan limit.",
       },
-      {
-        status: 429,
-        headers: {
-          "X-RateLimit-Limit": rateLimitResult.limit.toString(),
-          "X-RateLimit-Remaining": rateLimitResult.remaining.toString(),
-          "X-RateLimit-Reset": rateLimitResult.reset.toString(),
-        },
-      },
+      { status: 402 },
     );
   }
+  
 
   const project = await getProjectById({ id });
 
@@ -118,6 +110,7 @@ export async function POST(req: Request) {
   const result = streamText({
     messages: convertToModelMessages(uiMessages),
     model: openai("gpt-4.1-mini"),
+    // model: google("gemini-2.0-flash"),
     system: PROMPT,
     temperature: 0.1,
     stopWhen: stepCountIs(10),

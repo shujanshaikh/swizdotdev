@@ -125,7 +125,7 @@ export const getSanboxId = async (projectId: string) => {
   return result[0]?.sandboxId || null;
 };
 
-export const getMessageCOuntByUserId = async (
+export const getMessageCountByUserId = async (
   id: string,
   differenceInMonths: number,
 ) => {
