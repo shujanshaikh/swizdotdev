@@ -99,7 +99,7 @@ export async function POST(req: Request) {
         attachments: [],
         createdAt: new Date(),
         updatedAt: new Date(),
-        model: "google/gemini-2.5-flash",
+        model: "openai/gpt-4o-mini",
       },
     ],
   });

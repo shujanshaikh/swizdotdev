@@ -15,7 +15,7 @@ export default function SidebarComponent() {
   const projects = api.project.getProjects.useQuery();
   const resumeSandboxMutation = api.message.resumeSandbox.useMutation();
   const { data: session } = authClient.useSession();
-  const { data: credits } = api.premium.getCredits.useQuery(undefined, {
+  const { data: credits , isLoading: creditsLoading } = api.premium.getCredits.useQuery(undefined, {
     enabled: !!session,
   });
 
@@ -211,7 +211,7 @@ export default function SidebarComponent() {
             </div>
           </div>
         </div>
-        {session && credits ? (
+        {session && credits && !creditsLoading ? (
           <div className="border-t border-white/10 px-6 py-4">
             <div className="w-full">
               <div className="w-full rounded-lg border border-white/5 bg-zinc-900/30 p-3">
@@ -242,7 +242,7 @@ export default function SidebarComponent() {
                       size="sm"
                       variant="ghost"
                       className="flex h-7 items-center gap-1.5 rounded-full px-3 text-[11px] text-zinc-400 hover:text-zinc-300"
-                      onClick={() => router.push('/settings')}
+                      onClick={() => router.push('/settings/subscription')}
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
