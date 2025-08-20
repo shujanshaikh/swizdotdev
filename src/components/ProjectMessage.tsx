@@ -444,6 +444,43 @@ export default function ProjectMessageView({
                               return <div key={toolCallId}>{output}</div>;
                             }
                           }
+
+                          if (part.type === "tool-run_tsccheck") {
+                            const { toolCallId, state } = part;
+
+                            if (state === "output-available") {
+                              const { output } = part;
+                              return (
+                                <div 
+                                  key={toolCallId}
+                                  className="overflow-hidden rounded-lg border border-zinc-700 bg-zinc-800/50 p-4"
+                                >
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <svg 
+                                      className="h-4 w-4 text-zinc-400"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      fill="none"
+                                      viewBox="0 0 24 24" 
+                                      stroke="currentColor"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                      />
+                                    </svg>
+                                    <span className="text-sm font-medium text-zinc-300">
+                                      TypeScript Check Results
+                                    </span>
+                                  </div>
+                                  <pre className="text-sm text-zinc-400 font-mono whitespace-pre-wrap">
+                                    {output}
+                                  </pre>
+                                </div>
+                              );
+                            }
+                          }
                         })}
                       </div>
                     )}

@@ -32,6 +32,7 @@ import {  openai } from "@ai-sdk/openai";
 import { NextResponse } from "next/server";
 import { string_replace } from "~/lib/ai/tools/string-replace";
 import { checkPremiumUser } from "~/lib/check-premium";
+import { run_tsccheck } from "~/lib/ai/tools/run-tsccheck";
 
 
 
@@ -112,6 +113,7 @@ export async function POST(req: Request) {
     messages: convertToModelMessages(uiMessages),
     model: openai("gpt-4.1-mini"),
     system: PROMPT,
+    temperature: 0.1,
     stopWhen: stepCountIs(10),
     experimental_transform: smoothStream({
       delayInMs: 10,
@@ -130,6 +132,7 @@ export async function POST(req: Request) {
       read_file: read_file({ sandboxId }),
       delete_file: delete_file({ sandboxId }),
       string_replace: string_replace({ sandboxId }),
+      run_tsccheck: run_tsccheck({ sandboxId }),
     },
   });
   result.consumeStream();

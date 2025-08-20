@@ -11,6 +11,7 @@ import { task_agent } from "./ai/tools/task-agent"
 import { bash } from "./ai/tools/bash"
 import { string_replace } from "./ai/tools/string-replace"
 import type { read_file } from "./ai/tools/read-files"
+import { run_tsccheck } from "./ai/tools/run-tsccheck"
 
 export interface FileType {
     name: string
@@ -61,6 +62,7 @@ type task_agent = InferUITool<ReturnType<typeof task_agent>>;
 type bash = InferUITool<ReturnType<typeof bash>>;
 type string_replace = InferUITool<ReturnType<typeof string_replace>>;
 type read_file = InferUITool<ReturnType<typeof read_file>>;
+type run_tsccheck = InferUITool<ReturnType<typeof run_tsccheck>>;
 
 export type ChatTools = {
   webScraper: webScraper;
@@ -74,6 +76,7 @@ export type ChatTools = {
   bash: bash;
   string_replace: string_replace;
   read_file: read_file;
+  run_tsccheck: run_tsccheck;
 };
 
 export type CustomUIDataTypes = {
