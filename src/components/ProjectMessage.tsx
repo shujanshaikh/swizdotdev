@@ -142,11 +142,27 @@ export default function ProjectMessageView({
                               return (
                                 <div
                                   key={toolCallId}
-                                  className="text-[14px] leading-relaxed whitespace-pre-wrap text-gray-200 sm:text-[15px]"
+                                  className="flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-800/50 px-3 py-2"
                                 >
-                                  {part.input.command}
+                                  <svg 
+                                    className="h-4 w-4 text-zinc-400"
+                                    fill="none"
+                                    stroke="currentColor" 
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round" 
+                                      strokeWidth={2}
+                                      d="M5 12h14M12 5l7 7-7 7"
+                                    />
+                                  </svg>
+                                  <code className="font-mono text-sm text-emerald-400">
+                                    $ {part.input.command}
+                                  </code>
                                 </div>
-                              );
+                            
+                              )
                             }
 
                             if (state === "output-available") {
@@ -203,15 +219,22 @@ export default function ProjectMessageView({
                                           Screenshot Preview
                                         </h3>
                                       </div>
-                                      <div className="relative aspect-video w-full overflow-hidden rounded-lg">
-                                        <Image
-                                          src={output.data[0]?.screenshot || ""}
-                                          alt="Screenshot preview"
-                                          fill
-                                          className="object-cover"
-                                          quality={90}
-                                        />
-                                      </div>
+                                      <a 
+                                        href={output.data[0]?.screenshot || ""}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="block"
+                                      >
+                                        <div className="relative aspect-video w-full overflow-hidden rounded-lg">
+                                          <Image
+                                            src={output.data[0]?.screenshot || ""}
+                                            alt="Screenshot preview"
+                                            fill
+                                            className="object-cover"
+                                            quality={90}
+                                          />
+                                        </div>
+                                      </a>
                                     </div>
                                   )}
                                 </div>
@@ -226,31 +249,45 @@ export default function ProjectMessageView({
                               return (
                                 <div
                                   key={toolCallId}
-                                  className="text-[14px] leading-relaxed whitespace-pre-wrap text-gray-200 sm:text-[15px]"
+                                  className="flex items-center gap-2 px-3 py-2 rounded-md bg-zinc-800/40 border border-zinc-700/50"
                                 >
-                                  Tool: ls {part.input.relative_dir_path}
+                                  <svg
+                                    className="h-4 w-4 text-zinc-400"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none" 
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+                                    />
+                                  </svg>
+                                  <span className="text-sm font-medium text-zinc-300">
+                                    Listing directory: <span className="text-zinc-400 font-mono">{part.input.relative_dir_path}</span>
+                                  </span>
                                 </div>
                               );
                             }
 
-                            if (state === "output-available") {
-                              const { output } = part;
-                              return (
-                                <div
-                                  key={toolCallId}
-                                  className="overflow-hidden rounded-lg border border-zinc-700 bg-zinc-800/50 p-4"
-                                >
-                                  <div className="mb-2 flex items-center gap-2">
-                                    <span className="text-sm font-medium text-zinc-400">
-                                      Directory Contents
-                                    </span>
-                                  </div>
-                                  <div className="font-mono text-[14px] text-gray-200">
-                                    {output}
-                                  </div>
-                                </div>
-                              );
-                            }
+                            // if (state === "output-available") {
+                            //   const { output } = part;
+                            //   return (
+                            //     <div
+                            //       key={toolCallId}
+                            //       className="overflow-hidden rounded-lg border border-zinc-700 bg-zinc-800/50 p-4"
+                            //     >
+                            //       <div className="mb-2 flex items-center gap-2">
+                            //         <span className="text-sm font-medium text-zinc-400">
+                            //           Directory Contents
+                            //         </span>
+                            //       </div>
+                                  
+                            //     </div>
+                            //   );
+                            // }
                           }
 
                           if (part.type === "tool-glob") {
@@ -294,6 +331,29 @@ export default function ProjectMessageView({
                               );
                             }
                           }
+
+                          if (part.type === "tool-read_file") {
+                            const { toolCallId, state } = part;
+
+                            if (state === "output-available") {
+                              return (
+                                <div
+                                  key={toolCallId}
+                                  className="overflow-hidden rounded-lg border border-zinc-700 bg-zinc-800/50 p-4"
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm font-medium text-emerald-400">
+                                      Reading File:
+                                    </span>
+                                    <span className="text-xs text-zinc-300">
+                                      {part.input.relative_file_path}
+                                    </span>
+                                  </div>
+                                </div>
+                              );
+                            }
+                          }
+
 
                           if (part.type === "tool-grep") {
                             const { toolCallId, state } = part;

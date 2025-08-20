@@ -7,7 +7,7 @@ export async function crawlUrl(url: string) {
     limit: 1,
     scrapeOptions: {
       formats: [ 
-        "screenshot" , "html"],
+        "screenshot@fullPage" , "html"],
     },
   });
 

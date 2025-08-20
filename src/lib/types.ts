@@ -10,6 +10,7 @@ import { glob } from "./ai/tools/glob"
 import { task_agent } from "./ai/tools/task-agent"
 import { bash } from "./ai/tools/bash"
 import { string_replace } from "./ai/tools/string-replace"
+import type { read_file } from "./ai/tools/read-files"
 
 export interface FileType {
     name: string
@@ -59,6 +60,7 @@ type glob = InferUITool<ReturnType<typeof glob>>;
 type task_agent = InferUITool<ReturnType<typeof task_agent>>;
 type bash = InferUITool<ReturnType<typeof bash>>;
 type string_replace = InferUITool<ReturnType<typeof string_replace>>;
+type read_file = InferUITool<ReturnType<typeof read_file>>;
 
 export type ChatTools = {
   webScraper: webScraper;
@@ -71,6 +73,7 @@ export type ChatTools = {
   task_agent: task_agent;
   bash: bash;
   string_replace: string_replace;
+  read_file: read_file;
 };
 
 export type CustomUIDataTypes = {

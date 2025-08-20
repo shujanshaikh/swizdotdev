@@ -28,11 +28,12 @@ import { grep } from "~/lib/ai/tools/grep";
 import { read_file } from "~/lib/ai/tools/read-files";
 import { delete_file } from "~/lib/ai/tools/delete-files";
 import { getSession } from "~/lib/server";
-import { openai } from "@ai-sdk/openai";
+import {  openai } from "@ai-sdk/openai";
 import { NextResponse } from "next/server";
 import { string_replace } from "~/lib/ai/tools/string-replace";
 import { checkPremiumUser } from "~/lib/check-premium";
-import { google } from "@ai-sdk/google";
+
+
 
 export async function POST(req: Request) {
   const { message, id }: { message: ChatMessage; id: string } =
@@ -99,7 +100,7 @@ export async function POST(req: Request) {
         attachments: [],
         createdAt: new Date(),
         updatedAt: new Date(),
-        model: "openai/gpt-4o-mini",
+        model: "openai/gpt-5-mini",
       },
     ],
   });
@@ -109,16 +110,13 @@ export async function POST(req: Request) {
 
   const result = streamText({
     messages: convertToModelMessages(uiMessages),
-    model: openai("gpt-4.1-mini"),
-    // model: google("gemini-2.0-flash"),
+    model: openai.chat("gpt-5-mini-2025-08-07"),
     system: PROMPT,
-    temperature: 0.1,
     stopWhen: stepCountIs(10),
     experimental_transform: smoothStream({
-      delayInMs: 20,
-      chunking: "word",
+      delayInMs: 10,
+      chunking: "line",
     }),
-    //toolChoice: "required",
     tools: {
       edit_file: edit_file({ sandboxId }),
       grep: grep({ sandboxId }),
@@ -139,7 +137,6 @@ export async function POST(req: Request) {
     sendReasoning: false,
     onFinish: async ({ messages }) => {
       await getSandbox(sandboxId);
-      // const sandboxUrl = `https://${sandbox.getHost(3000)}`;
 
       // Reset inactivity timer after assistant finishes work as well
       if (sandboxId) {
@@ -154,7 +151,7 @@ export async function POST(req: Request) {
           createdAt: new Date(),
           attachments: [],
           projectId: id,
-          model: "gpt-4o-mini",
+          model: "gpt-5-mini",
           updatedAt: new Date(),
         })),
       });
