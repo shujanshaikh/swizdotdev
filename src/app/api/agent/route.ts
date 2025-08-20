@@ -110,7 +110,7 @@ export async function POST(req: Request) {
 
   const result = streamText({
     messages: convertToModelMessages(uiMessages),
-    model: openai.chat("gpt-5-mini-2025-08-07"),
+    model: openai("gpt-4.1-mini"),
     system: PROMPT,
     stopWhen: stepCountIs(10),
     experimental_transform: smoothStream({
