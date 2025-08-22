@@ -8,12 +8,14 @@ interface Params {
 
 export const run_tsccheck = ({ sandboxId }: Params) => tool({
     description:"Run the tsc check to check for type errors. This tool validates TypeScript code for type safety issues. Use this tool after code changes or at completion to ensure type correctness. Has a 30-second timeout to handle large codebases efficiently.",
-    inputSchema: z.object({}),
-    execute: async () => {
+    inputSchema: z.object({
+      relative_file_path: z.string(),
+    }),
+    execute: async ({ relative_file_path }) => {
       const buffer = { stdout: "", stderr: "" };
       try {
         const sandbox = await getSandbox(sandboxId);
-        const result = await sandbox.commands.run("npx tsc --noEmit", {
+        const result = await sandbox.commands.run(`npx tsc --noEmit ${relative_file_path}`, {
           onStdout: (data) => {
             buffer.stdout += data;
           },

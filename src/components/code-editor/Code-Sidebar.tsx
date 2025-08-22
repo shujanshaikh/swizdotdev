@@ -236,7 +236,7 @@ function FileTreeNode({
           <div className="animate-in slide-in-from-top-2 duration-200">
             {node.children.map((child) => (
               <FileTreeNode
-                key={child.path}
+                key={`${child.path}-${child.type}-${child.name}`}
                 node={child}
                 depth={depth + 1}
                 selectedFile={selectedFile}
@@ -315,7 +315,7 @@ export default function CodeSidebar({
         <div className="p-2">
           {fileTree.map((node) => (
             <FileTreeNode
-              key={node.path + node.children?.length}
+              key={`${node.path}-${node.type}-${node.name}`}
               node={node}
               selectedFile={relative_file_path}
               onFileSelect={onFileSelect}

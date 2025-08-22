@@ -35,8 +35,8 @@ export const  grep =  ({ sandboxId }: Params) => tool({
       exclude_pattern,
     }) => {
       try {
-        const sandbox = await getSandbox(sandboxId);
-        let command = `grep -r ${case_sensitive ? "" : "-i"} "${query}"`;
+        const sandbox = await getSandbox(sandboxId );
+        let command = `grep -r ${case_sensitive ? "" : "-i"} "${query}"` ;
         if (include_pattern) {
           command += ` --include="${include_pattern}"`;
         }
@@ -44,7 +44,9 @@ export const  grep =  ({ sandboxId }: Params) => tool({
           command += ` --exclude="${exclude_pattern}"`;
         }
         command += " .";
-        const result = await sandbox.commands.run(command);
+        const result = await sandbox.commands.run(command, {
+          timeoutMs: 0,
+        });
         return result.stdout;
       } catch (error) {
         return `Error searching: ${error}`;

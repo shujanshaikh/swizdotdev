@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useState } from "react";
 import Image from "next/image";
 import { Button } from "./ui/button";
 import type { ChatMessage } from "~/lib/types";
@@ -22,7 +22,8 @@ export default function ProjectMessageView({
 }) {
   const router = useRouter();
   void _regenerate;
-
+  const [isOpenGrep, setIsOpenGrep] = useState(false);
+  const [isOpenTsc, setIsOpenTsc] = useState(false);
   const onhandleBack = useCallback(() => {
     router.push("/");
   }, [router]);
@@ -362,16 +363,41 @@ export default function ProjectMessageView({
                               return (
                                 <div
                                   key={toolCallId}
-                                  className="text-[14px] leading-relaxed whitespace-pre-wrap text-gray-200 sm:text-[15px]"
+                                  className="flex items-center gap-2 px-3 py-2 rounded-md bg-zinc-800/50 border border-zinc-700"
                                 >
-                                  {part.input.query}
+                                  <span className="text-sm font-medium text-zinc-400">Searching for:</span>
+                                  <span className="text-sm text-gray-200">{part.input.query}</span>
                                 </div>
                               );
                             }
 
                             if (state === "output-available") {
                               const { output } = part;
-                              return <div key={toolCallId}>{output}</div>;
+                              return (
+                                <div 
+                                  key={toolCallId}
+                                  className="overflow-hidden rounded-lg border border-zinc-700 bg-zinc-800/50 p-4 mt-2"
+                                >
+                                  <div className="flex items-center justify-between cursor-pointer" onClick={() => setIsOpenGrep(!isOpenGrep)}>
+                                    <span className="text-sm font-medium text-zinc-300">Grepping for: {part.input.query}</span>
+                                    <svg 
+                                      className={`w-5 h-5 text-zinc-400 transition-transform ${isOpenGrep ? 'rotate-0' : 'rotate-180'}`}
+                                      fill="none" 
+                                      stroke="currentColor" 
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                  </div>
+                                  
+                                  <div className={`mt-2 overflow-hidden transition-all duration-200 ${isOpenGrep ? 'max-h-96' : 'max-h-0'}`}>
+                                    <div className="text-[14px] leading-relaxed whitespace-pre-wrap text-gray-200 sm:text-[15px] rounded-md bg-zinc-900/50 p-3">
+                                      {output}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                              
                             }
                           }
 
@@ -441,15 +467,6 @@ export default function ProjectMessageView({
                             }
                             if (state === "output-available") {
                               const { output } = part;
-                              return <div key={toolCallId}>{output}</div>;
-                            }
-                          }
-
-                          if (part.type === "tool-run_tsccheck") {
-                            const { toolCallId, state } = part;
-
-                            if (state === "output-available") {
-                              const { output } = part;
                               return (
                                 <div 
                                   key={toolCallId}
@@ -458,6 +475,57 @@ export default function ProjectMessageView({
                                   <div className="flex items-center gap-2 mb-2">
                                     <svg 
                                       className="h-4 w-4 text-zinc-400"
+                                      xmlns="http://www.w3.org/2000/svg" 
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      stroke="currentColor"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round" 
+                                        strokeWidth={2}
+                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                      />
+                                    </svg>
+                                    <span className="text-sm font-medium text-zinc-300">
+                                      String Replace Results
+                                    </span>
+                                  </div>
+                                  <pre className="text-sm text-zinc-400 font-mono whitespace-pre-wrap">
+                                    {output}
+                                  </pre>
+                                </div>
+                              );
+                            }
+                          }
+
+                          if (part.type === "tool-run_tsccheck") {
+
+                            const { toolCallId, state } = part;
+
+
+                            if (state === "input-available") {
+                              const { input } = part;
+                              return (
+                                <div key={toolCallId}>
+                                  {input.relative_file_path}
+                                </div>
+                              );
+                            }
+
+                            if (state === "output-available") {
+                              const { output } = part;
+                              return (
+                                <div 
+                                  key={toolCallId}
+                                  className="overflow-hidden rounded-lg border border-zinc-700 bg-zinc-800/50 p-4"
+                                >
+                                  <div 
+                                    className="flex items-center gap-2 mb-2 cursor-pointer"
+                                    onClick={() => setIsOpenTsc(!isOpenTsc)}
+                                  >
+                                    <svg 
+                                      className={`h-4 w-4 text-zinc-400 transition-transform ${isOpenGrep ? 'rotate-180' : ''}`}
                                       xmlns="http://www.w3.org/2000/svg"
                                       fill="none"
                                       viewBox="0 0 24 24" 
@@ -467,16 +535,18 @@ export default function ProjectMessageView({
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
                                         strokeWidth={2}
-                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                        d="M19 9l-7 7-7-7"
                                       />
                                     </svg>
                                     <span className="text-sm font-medium text-zinc-300">
                                       TypeScript Check Results
                                     </span>
                                   </div>
-                                  <pre className="text-sm text-zinc-400 font-mono whitespace-pre-wrap">
-                                    {output}
-                                  </pre>
+                                  {isOpenTsc && (
+                                    <pre className="text-sm text-zinc-400 font-mono whitespace-pre-wrap">
+                                      {output}
+                                    </pre>
+                                  )}
                                 </div>
                               );
                             }

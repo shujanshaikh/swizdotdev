@@ -111,7 +111,7 @@ export async function POST(req: Request) {
 
   const result = streamText({
     messages: convertToModelMessages(uiMessages),
-    model: openai("gpt-4.1-mini"),
+    model: "openai/gpt-5-mini",
     system: PROMPT,
     temperature: 0.1,
     stopWhen: stepCountIs(10),
