@@ -60,9 +60,9 @@ export default function Editor({
     return (
       <div className="flex h-full w-full flex-col min-h-0">
         <Tabs defaultValue="editor" className="flex h-full flex-col">
-          <TabsList className="sticky top-0 z-10 flex gap-2 bg-zinc-900/50 p-2">
-            <TabsTrigger value="files" className="flex-1 border-none text-white">Files</TabsTrigger>
-            <TabsTrigger value="editor" className="flex-1 border-none text-white">Editor</TabsTrigger>
+          <TabsList className="sticky top-0 z-10 flex gap-2 bg-zinc-900/50 p-2 border-none">
+            <TabsTrigger value="files" className="flex-1 border-none text-white bg-zinc-900/50">Files</TabsTrigger>
+            <TabsTrigger value="editor" className="flex-1 border-none text-white bg-zinc-900/50">Editor</TabsTrigger>
           </TabsList>
           <TabsContent value="files" className="flex-1 min-h-0 data-[state=active]:block">
             <div className="h-full w-full">
@@ -82,7 +82,7 @@ export default function Editor({
   }
 
   return (
-    <ResizablePanelGroup direction="horizontal" className="h-full w-full">
+    <ResizablePanelGroup direction="horizontal" className="h-full w-full ">
       <ResizablePanel defaultSize={20} minSize={15} maxSize={30}>
         <div className="flex h-full w-full flex-col">
           <CodeSidebar 

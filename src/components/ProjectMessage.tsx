@@ -6,7 +6,7 @@ import { Button } from "./ui/button";
 import type { ChatMessage } from "~/lib/types";
 import Error from "./ui/error";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, FileCode2, FileEdit, Terminal } from "lucide-react";
 import { Tooltip, TooltipTrigger, TooltipContent } from "./ui/tooltip";
 
 export default function ProjectMessageView({
@@ -116,9 +116,18 @@ export default function ProjectMessageView({
                             return (
                               <div
                                 key={key}
-                                className="text-[14px] leading-relaxed whitespace-pre-wrap text-gray-200 sm:text-[15px]"
+                                className="rounded-2xl bg-zinc-800/40 px-4 py-3 text-[14px] leading-relaxed text-gray-200 shadow-sm backdrop-blur sm:text-[15px]"
                               >
-                                {part.text}
+                                <div className="flex items-start gap-3">
+                                  <div className="flex-shrink-0">
+                                   
+                                  </div>
+                                  <div className="min-w-0 flex-1">
+                                    <div className="whitespace-pre-wrap">
+                                      {part.text}
+                                    </div>
+                                  </div>
+                                </div>
                               </div>
                             );
                           }
@@ -145,19 +154,7 @@ export default function ProjectMessageView({
                                   key={toolCallId}
                                   className="flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-800/50 px-3 py-2"
                                 >
-                                  <svg 
-                                    className="h-4 w-4 text-zinc-400"
-                                    fill="none"
-                                    stroke="currentColor" 
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round" 
-                                      strokeWidth={2}
-                                      d="M5 12h14M12 5l7 7-7 7"
-                                    />
-                                  </svg>
+                                  <Terminal className="h-4 w-4 text-white" />
                                   <code className="font-mono text-sm text-emerald-400">
                                     $ {part.input.command}
                                   </code>
@@ -168,7 +165,22 @@ export default function ProjectMessageView({
 
                             if (state === "output-available") {
                               const { output } = part;
-                              return <div key={toolCallId}>{output}</div>;
+                              return (
+                                <div
+                                  key={toolCallId}
+                                  className="overflow-hidden rounded-lg border border-zinc-700 bg-zinc-800/50 p-3"
+                                >
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <Terminal className="h-4 w-4 text-white" />
+                                    <span className="text-xs font-medium text-zinc-400">
+                                      Terminal 
+                                    </span>
+                                  </div>
+                                  <pre className="font-mono text-sm text-zinc-300 whitespace-pre-wrap">
+                                    {output}
+                                  </pre>
+                                </div>
+                              );
                             }
                           }
                           if (part.type === "tool-webScraper") {
@@ -322,9 +334,10 @@ export default function ProjectMessageView({
                                 >
                                   <div className="flex items-center gap-2">
                                     <span className="text-sm font-medium text-emerald-400">
-                                      File Edit:
+                                      
+                                      <FileCode2 className="h-4 w-4 text-white" />
                                     </span>
-                                    <span className="text-xs text-zinc-300">
+                                    <span className="text-md text-zinc-300">
                                       {part.input.relative_file_path}
                                     </span>
                                   </div>

@@ -150,15 +150,15 @@ export default function ProjectView({
         </ResizablePanel>
         <ResizableHandle withHandle={false} />
         <ResizablePanel className="h-full" defaultSize={70}>
-          <Tabs defaultValue="app" className="h-full bg-zinc-900/50">
-            <TabsList className="justify-center bg-zinc-900/50">
-              <TabsTrigger value="app" className="border-none text-white">
+          <Tabs defaultValue="app" className="flex h-full flex-col bg-zinc-900/50">
+            <TabsList  className="justify-center  border-none p-2.5 py-2.5 bg-zinc-900/50">
+              <TabsTrigger value="app" className=" text-white border-none ">
                 <AppWindowMac className="h-2 w-2" />
-                App
+                Web
               </TabsTrigger>
-              <TabsTrigger value="editor" className="border-none text-white">
-                <Code2Icon className="h-2 w-2" />
-                Editor
+              <TabsTrigger value="editor" className=" text-white border-none ">
+                <Code2Icon className="h-2 w-2" /> 
+                Code
               </TabsTrigger>
             </TabsList>
             <TabsContent value="app">
