@@ -11,11 +11,6 @@ export const models = [
   },
 
 
-  // {
-  //   name: "GPT 5",
-  //   value: "openai/gpt-5",
-  //   description: "Most capable, expensive",
-  // },
   {
     name: "GPT 4.1",
     value: "openai/gpt-4.1",
@@ -26,7 +21,15 @@ export const models = [
     value: "openai/gpt-4o-mini",
     description: "Good balance, affordable",
   },
+ 
 
+  // {
+  //   name: "GPT 5",
+  //   value: "openai/gpt-5",
+  //   description: "Most capable, expensive",
+  // },
+
+  
   // {
   //   name: "Claude 4 sonnet",
   //   value: "anthropic/claude-sonnet-4",
