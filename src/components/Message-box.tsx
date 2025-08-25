@@ -4,13 +4,15 @@ import { cn } from "~/lib/utils";
 import { Button } from "./ui/button";
 import { UploadButton } from "~/utils/uploadthing";
 import Image from "next/image";
-import { Paperclip } from "lucide-react";
+import { InfoIcon, Paperclip } from "lucide-react";
 import type { ChatMessage } from "~/lib/types";
 import type { UseChatHelpers } from "@ai-sdk/react";
 import type { FileUIPart } from "ai";
 import { authClient } from "~/lib/auth-client";
 import Link from "next/link";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { models } from "~/lib/model/model";
 
 export default function MessageBox({
   input,
@@ -19,6 +21,8 @@ export default function MessageBox({
   setInput,
   files,
   setFiles,
+  model,
+  setModel,
 }: {
   input: string;
   status: string;
@@ -28,6 +32,8 @@ export default function MessageBox({
   setInput: (input: string) => void;
   files: FileUIPart[];
   setFiles: (files: FileUIPart[]) => void;
+  model: string;
+  setModel: (model: string) => void;
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { data: session } = authClient.useSession();
@@ -128,7 +134,6 @@ export default function MessageBox({
             </div>
           </div>
         )}
-
         <textarea
           value={input}
           onChange={handleTextareaChange}
@@ -176,7 +181,41 @@ export default function MessageBox({
             }}
           />
         </div>
+ 
 
+        <div className="flex items-center gap-2 px-3 absolute bottom-3 right-16"> 
+          <Select
+            value={model}
+            onValueChange={(value) => {
+              setModel(value);
+            }}
+          >
+            <SelectTrigger className="bg-white/5 border-none text-white/80 hover:bg-white/10 hover:text-white transition-all duration-200 h-9 px-3 text-sm rounded-lg">
+              <SelectValue placeholder="Select a model" />
+            </SelectTrigger>
+            <SelectContent className="bg-zinc-900 border-white/10 rounded-lg min-w-[200px]">
+              {models.map((modelItem) => (
+                <SelectItem 
+                  key={modelItem.value} 
+                  value={modelItem.value}
+                  className="hover:bg-white/10 focus:bg-white/10 cursor-pointer"
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <span className="font-medium text-white mr-2">{modelItem.name}</span>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <InfoIcon className="h-4 w-4 text-white/60" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-xs">{modelItem.description}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <div className="absolute right-3 bottom-3">
           {!session ? (
             <Tooltip>

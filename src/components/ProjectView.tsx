@@ -42,12 +42,15 @@ export default function ProjectView({
     setMessages,
     setInput,
     sendMessage,
+    model,
+    setModel,
   } = useAi({
     id,
     initialMessages,
   });
   const searchParams = useSearchParams();
   const query = searchParams.get("query");
+  const models = searchParams.get("model");
   const [hasAppendedQuery, setHasAppendedQuery] = useState(false);
 
   useEffect(() => {
@@ -55,11 +58,15 @@ export default function ProjectView({
       sendMessage({
         role: "user" as const,
         parts: [{ type: "text", text: query }],
+      }, {
+        body : {
+          model : models
+        }
       });
       setHasAppendedQuery(true);
       window.history.replaceState({}, "", `/project/${id}`);
     }
-  }, [query, hasAppendedQuery, id, sendMessage]);
+  }, [query, hasAppendedQuery, id, sendMessage , models]);
   const editFileData = getLatestEditFileData(messages);
   const allEditedFiles = getAllEditedFiles(messages);
   const isMobile = useIsMobile();
@@ -101,6 +108,8 @@ export default function ProjectView({
                   setInput={setInput}
                   files={files}
                   setFiles={setFiles}
+                  model={model}
+                  setModel={setModel}
                 />
               </div>
             </div>
@@ -144,6 +153,8 @@ export default function ProjectView({
                 setInput={setInput}
                 files={files}
                 setFiles={setFiles}
+                model={model}
+                setModel={setModel}
               />
             </div>
           </div>

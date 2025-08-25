@@ -6,7 +6,7 @@ import { Button } from "./ui/button";
 import type { ChatMessage } from "~/lib/types";
 import Error from "./ui/error";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, FileCode2, FileEdit, Terminal } from "lucide-react";
+import { ArrowLeft, FileCode2, Terminal } from "lucide-react";
 import { Tooltip, TooltipTrigger, TooltipContent } from "./ui/tooltip";
 
 export default function ProjectMessageView({

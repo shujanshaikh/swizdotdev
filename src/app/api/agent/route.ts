@@ -28,17 +28,17 @@ import { grep } from "~/lib/ai/tools/grep";
 import { read_file } from "~/lib/ai/tools/read-files";
 import { delete_file } from "~/lib/ai/tools/delete-files";
 import { getSession } from "~/lib/server";
-import {  openai } from "@ai-sdk/openai";
 import { NextResponse } from "next/server";
 import { string_replace } from "~/lib/ai/tools/string-replace";
 import { checkPremiumUser } from "~/lib/check-premium";
 import { run_tsccheck } from "~/lib/ai/tools/run-tsccheck";
 
-
-
 export async function POST(req: Request) {
-  const { message, id }: { message: ChatMessage; id: string } =
-    await req.json();
+  const {
+    message,
+    id,
+    model,
+  }: { message: ChatMessage; id: string; model: string } = await req.json();
 
   const session = await getSession();
   const userId = session?.user.id;
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-    const { shouldThrowMessageError } = await checkPremiumUser(
+  const { shouldThrowMessageError } = await checkPremiumUser(
     userId,
     "messages",
   );
@@ -55,13 +55,11 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         error: "UPGRADE_REQUIRED",
-        message:
-          "You've reached the plan limit.",
+        message: "You've reached the plan limit.",
       },
       { status: 402 },
     );
   }
-  
 
   const project = await getProjectById({ id });
 
@@ -101,7 +99,7 @@ export async function POST(req: Request) {
         attachments: [],
         createdAt: new Date(),
         updatedAt: new Date(),
-        model: "openai/gpt-5-mini",
+        model: model,
       },
     ],
   });
@@ -111,7 +109,7 @@ export async function POST(req: Request) {
 
   const result = streamText({
     messages: convertToModelMessages(uiMessages),
-    model: "openai/gpt-5-mini",
+    model: model,
     system: PROMPT,
     temperature: 0.1,
     stopWhen: stepCountIs(10),
@@ -154,7 +152,7 @@ export async function POST(req: Request) {
           createdAt: new Date(),
           attachments: [],
           projectId: id,
-          model: "gpt-5-mini",
+          model: model,
           updatedAt: new Date(),
         })),
       });

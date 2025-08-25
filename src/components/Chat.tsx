@@ -15,7 +15,7 @@ function ChatContent({
   initialMessages: ChatMessage[];
 }) {
   const { data: session } = authClient.useSession();
-  const { input, status, setInput, messages, setMessages, files, setFiles } =
+  const { input, status, setInput, messages, setMessages, files, setFiles, model, setModel } =
     useAi({
       initialMessages,
     });
@@ -27,8 +27,9 @@ function ChatContent({
     if (!input.trim() || status === "streaming") return;
 
     const q = encodeURIComponent(input.trim());
+    const m = encodeURIComponent(model);
     const newId = crypto.randomUUID();
-    window.location.replace(`/project/${newId}?query=${q}`);
+    window.location.replace(`/project/${newId}?query=${q}&model=${m}`);
   };
 
   return (
@@ -109,6 +110,8 @@ function ChatContent({
                 setInput={setInput}
                 files={files}
                 setFiles={setFiles}
+                model={model}
+                setModel={setModel}
               />
             </div>
           </div>

@@ -2,6 +2,7 @@
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport, type FileUIPart } from "ai";
 import { useState } from "react";
+import { models } from '~/lib/model/model';
 import type { ChatMessage } from "~/lib/types";
 
 export function useAi({
@@ -44,11 +45,16 @@ export function useAi({
   const [files , setFiles] = useState<FileUIPart[]>([]);
 
   const [input, setInput] = useState("");
+  const [model, setModel] = useState<string>(models?.[0]?.value ?? "");
    
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!input.trim() || status === "streaming") return;
-    sendMessage({ text: input , files}) ;
+    sendMessage({ text: input , files} , {
+      body : {
+        model : model
+      }
+    }) ;
     setInput('');
   };
   return {
@@ -63,5 +69,7 @@ export function useAi({
     setMessages,
     files,
     setFiles,
+    model,
+    setModel,
   };
 }
