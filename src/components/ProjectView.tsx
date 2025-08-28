@@ -44,6 +44,7 @@ export default function ProjectView({
     sendMessage,
     model,
     setModel,
+    stop
   } = useAi({
     id,
     initialMessages,
@@ -51,22 +52,39 @@ export default function ProjectView({
   const searchParams = useSearchParams();
   const query = searchParams.get("query");
   const models = searchParams.get("model");
+  const file = searchParams.get("files");
   const [hasAppendedQuery, setHasAppendedQuery] = useState(false);
 
   useEffect(() => {
     if (query && !hasAppendedQuery) {
-      sendMessage({
-        role: "user" as const,
-        parts: [{ type: "text", text: query }],
-      }, {
-        body : {
-          model : models
+      const parts: Array<{ type: "text"; text: string } | { type: "file"; url: string; filename: string; mediaType: string }> = [
+        { type: "text", text: query },
+      ];
+
+      if (file && file.trim().length > 0) {
+        parts.push({
+          type: "file",
+          url: file,
+          filename: file,
+          mediaType: "image/png",
+        });
+      }
+
+      sendMessage(
+        {
+          role: "user" as const,
+          parts,
+        },
+        {
+          body: {
+            model: models,
+          },
         }
-      });
+      );
       setHasAppendedQuery(true);
       window.history.replaceState({}, "", `/project/${id}`);
     }
-  }, [query, hasAppendedQuery, id, sendMessage , models]);
+  }, [query, hasAppendedQuery, id, sendMessage , models , file]);
   const editFileData = getLatestEditFileData(messages);
   const allEditedFiles = getAllEditedFiles(messages);
   const isMobile = useIsMobile();
@@ -110,6 +128,7 @@ export default function ProjectView({
                   setFiles={setFiles}
                   model={model}
                   setModel={setModel}
+                  stop={stop}
                 />
               </div>
             </div>
@@ -155,6 +174,7 @@ export default function ProjectView({
                 setFiles={setFiles}
                 model={model}
                 setModel={setModel}
+                stop={stop}
               />
             </div>
           </div>

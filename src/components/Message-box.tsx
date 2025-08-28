@@ -13,6 +13,7 @@ import Link from "next/link";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { models } from "~/lib/model/model";
+import Stop from "./ui/stop";
 
 export default function MessageBox({
   input,
@@ -23,6 +24,7 @@ export default function MessageBox({
   setFiles,
   model,
   setModel,
+  stop,
 }: {
   input: string;
   status: string;
@@ -34,6 +36,7 @@ export default function MessageBox({
   setFiles: (files: FileUIPart[]) => void;
   model: string;
   setModel: (model: string) => void;
+  stop: () => void;
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { data: session } = authClient.useSession();
@@ -259,7 +262,11 @@ export default function MessageBox({
               </TooltipContent>
             </Tooltip>
           ) : (
+            (status === 'submitted' || status === 'streaming') ? (
+              <Stop stop={stop} />
+            ) : (
             <Button
+
               type="submit"
               disabled={status !== "ready" || !input.trim()}
               className={cn(
@@ -283,8 +290,9 @@ export default function MessageBox({
                 className="transition-transform duration-200"
               >
                 <path d="M12 19V5M5 12l7-7 7 7" />
-              </svg>
-            </Button>
+                </svg>
+              </Button>
+            )
           )}
         </div>
       </div>

@@ -132,6 +132,8 @@ export async function POST(req: Request) {
       string_replace: string_replace({ sandboxId }),
       run_tsccheck: run_tsccheck({ sandboxId }),
     },
+    abortSignal: req.signal,
+    
   });
   result.consumeStream();
   return result.toUIMessageStreamResponse({

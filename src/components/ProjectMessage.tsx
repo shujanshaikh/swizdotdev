@@ -14,7 +14,7 @@ export default function ProjectMessageView({
   status,
   error,
   regenerate: _regenerate,
-}: {
+  }: {
   messages: ChatMessage[];
   status: "submitted" | "streaming" | "ready" | "error";
   error: undefined | Error;
@@ -225,22 +225,22 @@ export default function ProjectMessageView({
                                   key={toolCallId}
                                   className="overflow-hidden rounded-lg border border-zinc-700 bg-zinc-800/50 p-4"
                                 >
-                                  {output.data.length > 0 && (
+                                  {output.data.length > 0 && output.data[0]?.screenshot && (
                                     <div className="space-y-4">
                                       <div className="flex items-center justify-between">
                                         <h3 className="text-sm font-medium text-zinc-200">
                                           Screenshot Preview
                                         </h3>
                                       </div>
-                                      <a 
-                                        href={output.data[0]?.screenshot || ""}
+                                      <a
+                                        href={output.data[0].screenshot}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="block"
                                       >
                                         <div className="relative aspect-video w-full overflow-hidden rounded-lg">
                                           <Image
-                                            src={output.data[0]?.screenshot || ""}
+                                            src={output.data[0].screenshot}
                                             alt="Screenshot preview"
                                             fill
                                             className="object-cover"

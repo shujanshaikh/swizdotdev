@@ -9,8 +9,6 @@ export const models = [
     value: "openai/gpt-5-nano",
     description: "Ultra-fast, ultra-cheap",
   },
-
-
   {
     name: "GPT 4.1",
     value: "openai/gpt-4.1",
@@ -21,15 +19,23 @@ export const models = [
     value: "openai/gpt-4o-mini",
     description: "Good balance, affordable",
   },
- 
-
+  {
+    name: "DeepSeek V3.1",
+    value: "deepseek/deepseek-v3.1",
+    description: "Low cost, good performance"
+  },
+  {
+    name: "Kimi-K2",
+    value: "moonshotai/kimi-k2",
+    description: "Model from moonshotai"
+  }
   // {
   //   name: "GPT 5",
   //   value: "openai/gpt-5",
   //   description: "Most capable, expensive",
   // },
 
-  
+
   // {
   //   name: "Claude 4 sonnet",
   //   value: "anthropic/claude-sonnet-4",

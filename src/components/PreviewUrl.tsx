@@ -25,11 +25,6 @@ export default function PreviewUrl({ projectId }: { projectId: string }) {
   }, [sandboxUrl]);
 
   // If polling is still running and we have no URL, show a subtle fetching indicator in the toolbar
-
-
-
-
-
   // Show loading state when query is loading
   if (isLoading) {
     return (

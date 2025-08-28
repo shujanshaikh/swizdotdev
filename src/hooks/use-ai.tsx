@@ -18,7 +18,8 @@ export function useAi({
     sendMessage,
     error,
     regenerate,
-    setMessages
+    setMessages,
+    stop
   } = useChat<ChatMessage>({
     id,
     messages: initialMessages,
@@ -46,7 +47,7 @@ export function useAi({
 
   const [input, setInput] = useState("");
   const [model, setModel] = useState<string>(models?.[0]?.value ?? "");
-   
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!input.trim() || status === "streaming") return;
@@ -56,8 +57,10 @@ export function useAi({
       }
     }) ;
     setInput('');
+    setFiles([]);
   };
   return {
+    stop,
     status,
     messages,
     error,

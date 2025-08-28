@@ -15,7 +15,7 @@ function ChatContent({
   initialMessages: ChatMessage[];
 }) {
   const { data: session } = authClient.useSession();
-  const { input, status, setInput, messages, setMessages, files, setFiles, model, setModel } =
+  const { input, status, setInput, messages, setMessages, files, setFiles, model, setModel, stop } =
     useAi({
       initialMessages,
     });
@@ -28,8 +28,9 @@ function ChatContent({
 
     const q = encodeURIComponent(input.trim());
     const m = encodeURIComponent(model);
+    const f = encodeURIComponent(files.map((file) => file.url).join(","));
     const newId = crypto.randomUUID();
-    window.location.replace(`/project/${newId}?query=${q}&model=${m}`);
+    window.location.replace(`/project/${newId}?query=${q}&model=${m}&files=${f}`);
   };
 
   return (
@@ -112,6 +113,7 @@ function ChatContent({
                 setFiles={setFiles}
                 model={model}
                 setModel={setModel}
+                stop={stop}
               />
             </div>
           </div>
