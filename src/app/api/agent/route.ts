@@ -7,7 +7,7 @@ import {
 import { Sandbox } from "@e2b/code-interpreter";
 import { PROMPT } from "~/lib/prompt";
 import { convertToUIMessages } from "~/lib/utils";
-import { getSandbox, touchSandboxActivity } from "~/lib/sandbox";
+import { getSandbox } from "~/lib/sandbox";
 import {
   getMessagesByProjectId,
   getProjectById,
@@ -68,11 +68,15 @@ export async function POST(req: Request) {
     const title = await generateTitleFromUserMessage({
       message,
     });
+    console.log("creating new sandbox");
     const sandbox = await Sandbox.create("swizsandbox", {
-      timeoutMs: 3_600_000,
+      requestTimeoutMs: 900_000,
+      timeoutMs: 900_000,
+      autoPause: true,
     });
     sandboxId = sandbox.sandboxId;
 
+    console.log("sandbox created", sandboxId);
     await saveProject({
       id: id,
       title,
@@ -84,10 +88,6 @@ export async function POST(req: Request) {
     console.log("project already exists , connecting to sandbox");
     sandboxId = project.sandboxId!;
     await getSandbox(sandboxId);
-  }
-  // Mark activity to delay auto-pause
-  if (sandboxId) {
-    touchSandboxActivity(sandboxId);
   }
   await saveMessages({
     messages: [
@@ -138,15 +138,9 @@ export async function POST(req: Request) {
   result.consumeStream();
   return result.toUIMessageStreamResponse({
     sendReasoning: false,
+
     onFinish: async ({ messages }) => {
-      await getSandbox(sandboxId);
-
-      // Reset inactivity timer after assistant finishes work as well
-      if (sandboxId) {
-        touchSandboxActivity(sandboxId);
-      }
-
-      await saveMessages({
+       await saveMessages({
         messages: messages.map((message) => ({
           id: crypto.randomUUID(),
           role: message.role,

@@ -36,7 +36,11 @@ export const messageRouter = createTRPCRouter({
           message: "No sandbox found for this project. Please start a conversation first."
         };
       }
-      const resumedSandbox = await Sandbox.resume(sandboxId);
+      const resumedSandbox = await Sandbox.connect(sandboxId , {
+        autoPause: true,
+        requestTimeoutMs: 900_000,
+        timeoutMs: 900_000,
+      });
       console.log('Sandbox resumed', resumedSandbox.sandboxId);
       return {
         success: true,

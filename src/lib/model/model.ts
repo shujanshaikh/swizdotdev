@@ -28,6 +28,11 @@ export const models = [
     name: "Kimi-K2",
     value: "moonshotai/kimi-k2",
     description: "Model from moonshotai"
+  } ,
+  {
+    name : "Gemini 2.0 Flash",
+    value : "google/gemini-2.0-flash",
+    description : "Google's cheapest model"
   }
   // {
   //   name: "GPT 5",
