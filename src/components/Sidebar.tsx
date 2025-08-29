@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { authClient } from "~/lib/auth-client";
 import { FREE_PLAN_MESSAGE_COUNT } from "~/utils/constant";
+import { audiowide } from "~/lib/font";
 
 export default function SidebarComponent() {
   const projects = api.project.getProjects.useQuery();
@@ -110,18 +111,18 @@ export default function SidebarComponent() {
       <SidebarContent className="relative z-10 flex flex-col bg-transparent">
         <div className="flex items-center justify-between p-8 pb-6">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-zinc-700/60 to-zinc-800/60 shadow-sm ring-1 ring-white/10">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl ">
               <Image
                 src="/logo.svg"
                 alt="Swiz"
-                width={18}
-                height={18}
+                width={28}
+                height={28}
                 className="opacity-90"
               />
             </div>
             <div>
-              <h1 className="text-xl font-semibold tracking-tight text-white">
-                swizdotdev
+              <h1 className={`text-3xl font-semibold tracking-tight text-white items-center justify-center ${audiowide.className}`}>
+                swiz
               </h1>
             </div>
           </div>

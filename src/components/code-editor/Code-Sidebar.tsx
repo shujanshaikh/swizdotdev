@@ -304,13 +304,6 @@ export default function CodeSidebar({
 
   return (
     <div className="w-full h-full bg-zinc-900/50 flex flex-col">
-      <div className="flex-shrink-0 p-3">
-        <div className="flex items-center gap-2">
-          <Folder className="w-4 h-4 text-blue-400" />
-          <span className="text-sm font-medium text-gray-200">Generated Files</span>
-        </div>
-      </div>
-
       <div className="flex-1 overflow-y-auto scrollbar-hide">
         <div className="p-2">
           {fileTree.map((node) => (
@@ -323,16 +316,6 @@ export default function CodeSidebar({
               onToggleFolder={handleToggleFolder}
             />
           ))}
-        </div>
-      </div>
-
-      <div className="flex-shrink-0 p-2 bg-zinc-900/30">
-        <div className="flex items-center justify-between text-xs text-gray-500">
-          <span>{editedFiles.length} files created</span>
-          <div className="flex items-center gap-1">
-            <Zap className="w-3 h-3" />
-            <span>Ready</span>
-          </div>
         </div>
       </div>
     </div>

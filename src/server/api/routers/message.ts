@@ -13,7 +13,7 @@ export const messageRouter = createTRPCRouter({
         projectId: z.string(),
       }),
     )
-    .query(async ({ ctx, input }) => {
+    .query(async ({ input }) => {
       return getMessagesByProjectId({ id: input.projectId });
     }),
 

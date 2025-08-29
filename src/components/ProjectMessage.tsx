@@ -1,20 +1,23 @@
 "use client";
 
-import { useEffect, useCallback, useState } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 import Image from "next/image";
 import { Button } from "./ui/button";
 import type { ChatMessage } from "~/lib/types";
 import Error from "./ui/error";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, FileCode2, Terminal } from "lucide-react";
-import { Tooltip, TooltipTrigger, TooltipContent } from "./ui/tooltip";
+import { ArrowLeft, Check, Terminal, X } from "lucide-react";
+import { Tooltip, TooltipTrigger } from "./ui/tooltip";
+import { getFileIcon } from "./icons";
+import { audiowide } from "~/lib/font";
+
 
 export default function ProjectMessageView({
   messages,
   status,
   error,
   regenerate: _regenerate,
-  }: {
+}: {
   messages: ChatMessage[];
   status: "submitted" | "streaming" | "ready" | "error";
   error: undefined | Error;
@@ -23,7 +26,11 @@ export default function ProjectMessageView({
   const router = useRouter();
   void _regenerate;
   const [isOpenGrep, setIsOpenGrep] = useState(false);
-  const [isOpenTsc, setIsOpenTsc] = useState(false);
+  const [isOpenTsc, setIsOpenTsc] = useState<string | null>(null);
+
+
+  const expandHandler = (id: string) => () => setIsOpenTsc((oldId) => (oldId === id ? null : id));
+
   const onhandleBack = useCallback(() => {
     router.push("/");
   }, [router]);
@@ -47,21 +54,22 @@ export default function ProjectMessageView({
       <div className="scrollbar-hide flex-1 overflow-y-auto">
         <div className="sticky top-0 z-10 backdrop-blur supports-[backdrop-filter]:bg-zinc-900/30">
           <div className="mx-auto max-w-4xl px-2 py-2 sm:px-4">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  onClick={onhandleBack}
-                  variant="ghost"
-                  size="sm"
-                  aria-label="Go back"
-                  className="gap-2 px-2"
-                >
-                  <ArrowLeft className="size-4" />
-                  <span className="hidden sm:inline">Back</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent sideOffset={6}>Back (Esc)</TooltipContent>
-            </Tooltip>
+            <div className="flex items-center gap-2">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    onClick={onhandleBack}
+                    variant="ghost"
+                    size="sm"
+                    aria-label="Go back"
+                    className="gap-2 px-2"
+                  >
+                    <ArrowLeft className="size-4" />
+                  </Button>
+                </TooltipTrigger>
+              </Tooltip>
+              {/* <span className="hidden sm:inline text-zinc-300 font-medium">SWIZDOTDEV</span> */}
+            </div>
           </div>
         </div>
         <div className="mx-auto max-w-4xl space-y-6 p-4 sm:p-6">
@@ -109,7 +117,12 @@ export default function ProjectMessageView({
                           ))}
                       </div>
                     ) : (
+
                       <div className="w-full space-y-3 py-4">
+                        <div className={`text-3xl  tracking-tight text-white ${audiowide.className}`}>
+                          swiz
+                        </div>
+
                         {message.parts.map((part, partIndex) => {
                           const key = `message-${message.id}-part-${partIndex}`;
                           if (part.type === "text") {
@@ -120,7 +133,7 @@ export default function ProjectMessageView({
                               >
                                 <div className="flex items-start gap-3">
                                   <div className="flex-shrink-0">
-                                   
+
                                   </div>
                                   <div className="min-w-0 flex-1">
                                     <div className="whitespace-pre-wrap">
@@ -148,6 +161,22 @@ export default function ProjectMessageView({
                           if (part.type === "tool-bash") {
                             const { toolCallId, state } = part;
 
+                            if (state === "input-streaming") {
+                              return (
+                                <div key={toolCallId} className="flex items-center gap-2 px-4 py-2">
+                                  <span className="text-sm font-medium text-zinc-300">Running Command:</span>
+                                  <div
+                                    className="inline-flex items-center gap-2 rounded-2xl bg-zinc-800/20 px-3 py-2 shadow-lg backdrop-blur-sm ring-1 ring-white/10"
+                                  >
+                                    <code className="font-mono text-sm text-emerald-400">
+                                      $ {part.input.command}
+
+                                    </code>
+                                  </div>
+                                </div>
+                              );
+                            }
+
                             if (state === "input-available") {
                               return (
                                 <div
@@ -159,7 +188,7 @@ export default function ProjectMessageView({
                                     $ {part.input.command}
                                   </code>
                                 </div>
-                            
+
                               )
                             }
 
@@ -173,7 +202,7 @@ export default function ProjectMessageView({
                                   <div className="flex items-center gap-2 mb-2">
                                     <Terminal className="h-4 w-4 text-white" />
                                     <span className="text-xs font-medium text-zinc-400">
-                                      Terminal 
+                                      Terminal
                                     </span>
                                   </div>
                                   <pre className="font-mono text-sm text-zinc-300 whitespace-pre-wrap">
@@ -255,53 +284,53 @@ export default function ProjectMessageView({
                             }
                           }
 
-                          if (part.type === "tool-ls") {
-                            const { toolCallId, state } = part;
+                          // if (part.type === "tool-ls") {
+                          //   const { toolCallId, state } = part;
 
-                            if (state === "input-available") {
-                              return (
-                                <div
-                                  key={toolCallId}
-                                  className="flex items-center gap-2 px-3 py-2 rounded-md bg-zinc-800/40 border border-zinc-700/50"
-                                >
-                                  <svg
-                                    className="h-4 w-4 text-zinc-400"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none" 
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-                                    />
-                                  </svg>
-                                  <span className="text-sm font-medium text-zinc-300">
-                                    Listing directory: <span className="text-zinc-400 font-mono">{part.input.relative_dir_path}</span>
-                                  </span>
-                                </div>
-                              );
-                            }
+                          //   if (state === "input-available") {
+                          //     return (
+                          //       <div
+                          //         key={toolCallId}
+                          //         className="flex items-center gap-2 px-3 py-2 rounded-md bg-zinc-800/40 border border-zinc-700/50"
+                          //       >
+                          //         <svg
+                          //           className="h-4 w-4 text-zinc-400"
+                          //           xmlns="http://www.w3.org/2000/svg"
+                          //           fill="none" 
+                          //           viewBox="0 0 24 24"
+                          //           stroke="currentColor"
+                          //         >
+                          //           <path
+                          //             strokeLinecap="round"
+                          //             strokeLinejoin="round"
+                          //             strokeWidth={2}
+                          //             d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+                          //           />
+                          //         </svg>
+                          //         <span className="text-sm font-medium text-zinc-300">
+                          //           Listing directory: <span className="text-zinc-400 font-mono">{part.input.relative_dir_path}</span>
+                          //         </span>
+                          //       </div>
+                          //     );
+                          //   }
 
-                            // if (state === "output-available") {
-                            //   const { output } = part;
-                            //   return (
-                            //     <div
-                            //       key={toolCallId}
-                            //       className="overflow-hidden rounded-lg border border-zinc-700 bg-zinc-800/50 p-4"
-                            //     >
-                            //       <div className="mb-2 flex items-center gap-2">
-                            //         <span className="text-sm font-medium text-zinc-400">
-                            //           Directory Contents
-                            //         </span>
-                            //       </div>
-                                  
-                            //     </div>
-                            //   );
-                            // }
-                          }
+                          //   if (state === "output-available") {
+                          //     const { output } = part;
+                          //     return (
+                          //       <div
+                          //         key={toolCallId}
+                          //         className="overflow-hidden rounded-lg border border-zinc-700 bg-zinc-800/50 p-4"
+                          //       >
+                          //         <div className="mb-2 flex items-center gap-2">
+                          //           <span className="text-sm font-medium text-zinc-400">
+                          //             Directory Contents: {output}
+                          //           </span>
+                          //         </div>
+
+                          //       </div>
+                          //     );
+                          //   }
+                          // }
 
                           if (part.type === "tool-glob") {
                             const { toolCallId, state } = part;
@@ -326,18 +355,35 @@ export default function ProjectMessageView({
                           if (part.type === "tool-edit_file") {
                             const { toolCallId, state } = part;
 
+                            if (state === "input-streaming") {
+                              return (
+                                <div key={toolCallId} className="flex items-center gap-2 px-4 py-2">
+
+                                  <span className="text-sm font-medium text-zinc-300">Editing File.....</span>
+
+                                  <div
+                                    className="inline-flex items-center gap-2 rounded-2xl bg-zinc-800/20 px-3 py-2 shadow-lg backdrop-blur-sm ring-1 ring-white/10"
+                                  >
+                                    <span className="text-md text-zinc-300 hover:text-white transition-colors duration-200">
+                                      {part.input.relative_file_path}
+                                    </span>
+
+                                  </div>
+                                </div>
+                              );
+                            }
+
+
                             if (state === "output-available") {
                               return (
-                                <div
-                                  key={toolCallId}
-                                  className="overflow-hidden rounded-lg border border-zinc-700 bg-zinc-800/50 p-4"
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-sm font-medium text-emerald-400">
-                                      
-                                      <FileCode2 className="h-4 w-4 text-white" />
-                                    </span>
-                                    <span className="text-md text-zinc-300">
+                                <div key={toolCallId} className="flex items-center gap-2 px-4 py-2">
+                                  <span className="text-sm font-medium text-zinc-300">Edited File:</span>
+
+                                  <div
+                                    className="inline-flex items-center gap-2 rounded-2xl bg-zinc-800/20 px-3 py-2 shadow-lg backdrop-blur-sm ring-1 ring-white/10"
+                                  >
+                                    {getFileIcon(part.input.relative_file_path)}
+                                    <span className="text-md text-zinc-300 hover:text-white transition-colors duration-200">
                                       {part.input.relative_file_path}
                                     </span>
                                   </div>
@@ -348,18 +394,32 @@ export default function ProjectMessageView({
 
                           if (part.type === "tool-read_file") {
                             const { toolCallId, state } = part;
+                            if (state === "input-streaming") {
+                              return (
+                                <div key={toolCallId} className="flex items-center gap-2 px-4 py-2">
+                                  <span className="text-sm font-medium text-zinc-300">Reading File.....</span>
+
+                                  <div
+                                    className="inline-flex items-center gap-2 rounded-2xl bg-zinc-800/20 px-3 py-2 shadow-lg backdrop-blur-sm ring-1 ring-white/10"
+                                  >
+                                    <span className="text-md text-zinc-300 hover:text-white transition-colors duration-200">
+                                      {part.input.relative_file_path}
+                                    </span>
+                                  </div>
+                                </div>
+                              );
+                            }
 
                             if (state === "output-available") {
                               return (
-                                <div
-                                  key={toolCallId}
-                                  className="overflow-hidden rounded-lg border border-zinc-700 bg-zinc-800/50 p-4"
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-sm font-medium text-emerald-400">
-                                      Reading File:
-                                    </span>
-                                    <span className="text-xs text-zinc-300">
+                                <div key={toolCallId} className="flex items-center gap-2 px-4 py-2">
+                                  <span className="text-sm font-medium text-zinc-300">Read File</span>
+
+                                  <div
+                                    className="inline-flex items-center gap-2 rounded-2xl bg-zinc-800/20 px-3 py-2 shadow-lg backdrop-blur-sm ring-1 ring-white/10"
+                                  >
+                                    {getFileIcon(part.input.relative_file_path)}
+                                    <span className="text-md text-zinc-300 hover:text-white transition-colors duration-200">
                                       {part.input.relative_file_path}
                                     </span>
                                   </div>
@@ -367,8 +427,6 @@ export default function ProjectMessageView({
                               );
                             }
                           }
-
-
                           if (part.type === "tool-grep") {
                             const { toolCallId, state } = part;
 
@@ -387,22 +445,22 @@ export default function ProjectMessageView({
                             if (state === "output-available") {
                               const { output } = part;
                               return (
-                                <div 
+                                <div
                                   key={toolCallId}
                                   className="overflow-hidden rounded-lg border border-zinc-700 bg-zinc-800/50 p-4 mt-2"
                                 >
                                   <div className="flex items-center justify-between cursor-pointer" onClick={() => setIsOpenGrep(!isOpenGrep)}>
                                     <span className="text-sm font-medium text-zinc-300">Grepping for: {part.input.query}</span>
-                                    <svg 
+                                    <svg
                                       className={`w-5 h-5 text-zinc-400 transition-transform ${isOpenGrep ? 'rotate-0' : 'rotate-180'}`}
-                                      fill="none" 
-                                      stroke="currentColor" 
+                                      fill="none"
+                                      stroke="currentColor"
                                       viewBox="0 0 24 24"
                                     >
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                     </svg>
                                   </div>
-                                  
+
                                   <div className={`mt-2 overflow-hidden transition-all duration-200 ${isOpenGrep ? 'max-h-96' : 'max-h-0'}`}>
                                     <div className="text-[14px] leading-relaxed whitespace-pre-wrap text-gray-200 sm:text-[15px] rounded-md bg-zinc-900/50 p-3">
                                       {output}
@@ -410,7 +468,7 @@ export default function ProjectMessageView({
                                   </div>
                                 </div>
                               );
-                              
+
                             }
                           }
 
@@ -423,7 +481,15 @@ export default function ProjectMessageView({
                                   key={toolCallId}
                                   className="text-[14px] leading-relaxed whitespace-pre-wrap text-gray-200 sm:text-[15px]"
                                 >
-                                  {part.input.prompt}
+                                  {part.input.todo_text}
+                                  <div className="flex items-center gap-2">
+                                    <Button variant="outline" size="sm">
+                                      <Check className="h-4 w-4" />
+                                    </Button>
+                                    <Button variant="outline" size="sm">
+                                      <X className="h-4 w-4" />
+                                    </Button>
+                                  </div>
                                 </div>
                               );
                             }
@@ -473,40 +539,42 @@ export default function ProjectMessageView({
 
                             if (state === "input-available") {
                               return (
-                                <div key={toolCallId}>
-                                  {part.input.relative_file_path}
+                                <div
+                                  key={toolCallId}
+                                  className="overflow-hidden rounded-2xl border border-zinc-700/20 bg-zinc-800/20 backdrop-blur-sm p-4 shadow-lg transition-all duration-200 hover:bg-zinc-800/30 hover:border-zinc-700/30"
+                                >
+                                  <div className="flex items-center gap-2 mb-3">
+                                    <Terminal className="h-4 w-4 text-zinc-400" />
+                                    <span className="text-sm font-medium text-zinc-300">
+                                      String Replace Input
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm text-zinc-300 font-mono">
+                                      {part.input.relative_file_path}
+                                    </span>
+                                  </div>
                                 </div>
                               );
                             }
                             if (state === "output-available") {
                               const { output } = part;
                               return (
-                                <div 
+                                <div
                                   key={toolCallId}
-                                  className="overflow-hidden rounded-lg border border-zinc-700 bg-zinc-800/50 p-4"
+                                  className="overflow-hidden rounded-2xl border border-zinc-700/20 bg-zinc-800/20 backdrop-blur-sm p-4 shadow-lg transition-all duration-200 hover:bg-zinc-800/30 hover:border-zinc-700/30"
                                 >
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <svg 
-                                      className="h-4 w-4 text-zinc-400"
-                                      xmlns="http://www.w3.org/2000/svg" 
-                                      fill="none"
-                                      viewBox="0 0 24 24"
-                                      stroke="currentColor"
-                                    >
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round" 
-                                        strokeWidth={2}
-                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                      />
-                                    </svg>
+                                  <div className="flex items-center gap-2 mb-3">
+                                    <Terminal className="h-4 w-4 text-zinc-400" />
                                     <span className="text-sm font-medium text-zinc-300">
-                                      String Replace Results
+                                      String Replace Output
                                     </span>
                                   </div>
-                                  <pre className="text-sm text-zinc-400 font-mono whitespace-pre-wrap">
-                                    {output}
-                                  </pre>
+                                  <div className="rounded-xl">
+                                    <pre className="text-sm text-zinc-300 font-mono whitespace-pre-wrap px-3 py-2">
+                                      {output}
+                                    </pre>
+                                  </div>
                                 </div>
                               );
                             }
@@ -514,34 +582,24 @@ export default function ProjectMessageView({
 
                           if (part.type === "tool-run_tsccheck") {
 
-                            const { toolCallId, state } = part;
-
-
-                            if (state === "input-available") {
-                              const { input } = part;
-                              return (
-                                <div key={toolCallId}>
-                                  {input.relative_file_path}
-                                </div>
-                              );
-                            }
+                            const { state } = part;
 
                             if (state === "output-available") {
-                              const { output } = part;
+                              const { output, toolCallId } = part;
                               return (
-                                <div 
+                                <div
                                   key={toolCallId}
-                                  className="overflow-hidden rounded-lg border border-zinc-700 bg-zinc-800/50 p-4"
+                                  className="overflow-hidden rounded-4xl border border-zinc-700/40 bg-zinc-800/30 backdrop-blur-sm p-5 shadow-lg"
                                 >
-                                  <div 
-                                    className="flex items-center gap-2 mb-2 cursor-pointer"
-                                    onClick={() => setIsOpenTsc(!isOpenTsc)}
+                                  <div
+                                    className="flex items-center gap-3 mb-3 cursor-pointer hover:opacity-80 transition-opacity"
+                                    onClick={expandHandler(toolCallId)}
                                   >
-                                    <svg 
-                                      className={`h-4 w-4 text-zinc-400 transition-transform ${isOpenGrep ? 'rotate-180' : ''}`}
+                                    <svg
+                                      className={`h-4 w-4 text-zinc-300 transition-transform duration-200 ${isOpenTsc === toolCallId ? 'rotate-180' : ''}`}
                                       xmlns="http://www.w3.org/2000/svg"
                                       fill="none"
-                                      viewBox="0 0 24 24" 
+                                      viewBox="0 0 24 24"
                                       stroke="currentColor"
                                     >
                                       <path
@@ -551,14 +609,16 @@ export default function ProjectMessageView({
                                         d="M19 9l-7 7-7-7"
                                       />
                                     </svg>
-                                    <span className="text-sm font-medium text-zinc-300">
+                                    <span className="text-sm font-medium text-zinc-200">
                                       TypeScript Check Results
                                     </span>
                                   </div>
-                                  {isOpenTsc && (
-                                    <pre className="text-sm text-zinc-400 font-mono whitespace-pre-wrap">
-                                      {output}
-                                    </pre>
+                                  {isOpenTsc === toolCallId && (
+                                    <div className={`mt-3 overflow-hidden transition-all duration-300 ease-in-out ${isOpenTsc === toolCallId ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+                                      <pre className="text-sm text-zinc-300 font-mono whitespace-pre-wrap bg-zinc-800/40 rounded-lg p-4">
+                                        {output}
+                                      </pre>
+                                    </div>
                                   )}
                                 </div>
                               );
