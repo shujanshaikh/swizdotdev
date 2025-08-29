@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   images: {
-    domains: ['lh3.googleusercontent.com', 'firecrawl.com', 'service.firecrawl.dev'],
+    domains: ['lh3.googleusercontent.com', 'firecrawl.com', 'service.firecrawl.dev', 'storage.googleapis.com'],
     remotePatterns: [
       {
         protocol: 'https',

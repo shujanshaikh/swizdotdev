@@ -6,7 +6,7 @@ export async function crawlUrl(url: string) {
   const crawlResponse = await app.crawlUrl(url, {
     limit: 1,
     scrapeOptions: {
-      formats: ["html", "screenshot" ],
+      formats: ["html", "screenshot"  ],
     },
   });
 

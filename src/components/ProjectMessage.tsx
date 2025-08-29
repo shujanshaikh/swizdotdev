@@ -169,7 +169,7 @@ export default function ProjectMessageView({
                                     className="inline-flex items-center gap-2 rounded-2xl bg-zinc-800/20 px-3 py-2 shadow-lg backdrop-blur-sm ring-1 ring-white/10"
                                   >
                                     <code className="font-mono text-sm text-emerald-400">
-                                      $ {part.input.command}
+                                      $ {part.input?.command || 'Unknown command'}
 
                                     </code>
                                   </div>
@@ -185,7 +185,7 @@ export default function ProjectMessageView({
                                 >
                                   <Terminal className="h-4 w-4 text-white" />
                                   <code className="font-mono text-sm text-emerald-400">
-                                    $ {part.input.command}
+                                    $ {part.input?.command || 'Unknown command'}
                                   </code>
                                 </div>
 
@@ -235,12 +235,12 @@ export default function ProjectMessageView({
                                     />
                                   </svg>
                                   <a
-                                    href={part.input.url}
+                                    href={part.input?.url || '#'}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-sm text-blue-400 hover:text-blue-300 hover:underline"
                                   >
-                                    {part.input.url}
+                                    {part.input?.url || 'Unknown URL'}
                                   </a>
                                 </div>
                               );
@@ -341,7 +341,7 @@ export default function ProjectMessageView({
                                   key={toolCallId}
                                   className="text-[14px] leading-relaxed whitespace-pre-wrap text-gray-200 sm:text-[15px]"
                                 >
-                                  {part.input.pattern}
+                                  {part.input?.pattern || 'Unknown pattern'}
                                 </div>
                               );
                             }
@@ -365,7 +365,7 @@ export default function ProjectMessageView({
                                     className="inline-flex items-center gap-2 rounded-2xl bg-zinc-800/20 px-3 py-2 shadow-lg backdrop-blur-sm ring-1 ring-white/10"
                                   >
                                     <span className="text-md text-zinc-300 hover:text-white transition-colors duration-200">
-                                      {part.input.relative_file_path}
+                                      {part.input?.relative_file_path || 'Unknown file'}
                                     </span>
 
                                   </div>
@@ -382,9 +382,9 @@ export default function ProjectMessageView({
                                   <div
                                     className="inline-flex items-center gap-2 rounded-2xl bg-zinc-800/20 px-3 py-2 shadow-lg backdrop-blur-sm ring-1 ring-white/10"
                                   >
-                                    {getFileIcon(part.input.relative_file_path)}
+                                    {getFileIcon(part.input?.relative_file_path || '')}
                                     <span className="text-md text-zinc-300 hover:text-white transition-colors duration-200">
-                                      {part.input.relative_file_path}
+                                      {part.input?.relative_file_path || 'Unknown file'}
                                     </span>
                                   </div>
                                 </div>
@@ -403,7 +403,7 @@ export default function ProjectMessageView({
                                     className="inline-flex items-center gap-2 rounded-2xl bg-zinc-800/20 px-3 py-2 shadow-lg backdrop-blur-sm ring-1 ring-white/10"
                                   >
                                     <span className="text-md text-zinc-300 hover:text-white transition-colors duration-200">
-                                      {part.input.relative_file_path}
+                                      {part.input?.relative_file_path || 'Unknown file'}
                                     </span>
                                   </div>
                                 </div>
@@ -418,9 +418,9 @@ export default function ProjectMessageView({
                                   <div
                                     className="inline-flex items-center gap-2 rounded-2xl bg-zinc-800/20 px-3 py-2 shadow-lg backdrop-blur-sm ring-1 ring-white/10"
                                   >
-                                    {getFileIcon(part.input.relative_file_path)}
+                                    {getFileIcon(part.input?.relative_file_path || '')}
                                     <span className="text-md text-zinc-300 hover:text-white transition-colors duration-200">
-                                      {part.input.relative_file_path}
+                                      {part.input?.relative_file_path || 'Unknown file'}
                                     </span>
                                   </div>
                                 </div>
@@ -437,7 +437,7 @@ export default function ProjectMessageView({
                                   className="flex items-center gap-2 px-3 py-2 rounded-md bg-zinc-800/50 border border-zinc-700"
                                 >
                                   <span className="text-sm font-medium text-zinc-400">Searching for:</span>
-                                  <span className="text-sm text-gray-200">{part.input.query}</span>
+                                  <span className="text-sm text-gray-200">{part.input?.query || 'Unknown query'}</span>
                                 </div>
                               );
                             }
@@ -450,7 +450,7 @@ export default function ProjectMessageView({
                                   className="overflow-hidden rounded-lg border border-zinc-700 bg-zinc-800/50 p-4 mt-2"
                                 >
                                   <div className="flex items-center justify-between cursor-pointer" onClick={() => setIsOpenGrep(!isOpenGrep)}>
-                                    <span className="text-sm font-medium text-zinc-300">Grepping for: {part.input.query}</span>
+                                    <span className="text-sm font-medium text-zinc-300">Grepping for: {part.input?.query || 'Unknown query'}</span>
                                     <svg
                                       className={`w-5 h-5 text-zinc-400 transition-transform ${isOpenGrep ? 'rotate-0' : 'rotate-180'}`}
                                       fill="none"
@@ -481,7 +481,7 @@ export default function ProjectMessageView({
                                   key={toolCallId}
                                   className="text-[14px] leading-relaxed whitespace-pre-wrap text-gray-200 sm:text-[15px]"
                                 >
-                                  {part.input.todo_text}
+                                  {part.input?.todo_text || 'Unknown task'}
                                   <div className="flex items-center gap-2">
                                     <Button variant="outline" size="sm">
                                       <Check className="h-4 w-4" />
@@ -509,7 +509,7 @@ export default function ProjectMessageView({
                                   key={toolCallId}
                                   className="text-[15px] leading-relaxed whitespace-pre-wrap text-gray-200"
                                 >
-                                  {part.input.search_term}
+                                  {part.input?.search_term || 'Unknown search term'}
                                 </div>
                               );
                             }
@@ -551,7 +551,7 @@ export default function ProjectMessageView({
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <span className="text-sm text-zinc-300 font-mono">
-                                      {part.input.relative_file_path}
+                                      {part.input?.relative_file_path || 'Unknown file'}
                                     </span>
                                   </div>
                                 </div>
