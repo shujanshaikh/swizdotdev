@@ -91,11 +91,11 @@ export default function ProjectMessageView({
                     className={`${message.role === "user" ? "ml-auto max-w-[90%] sm:max-w-[80%] md:max-w-[75%]" : "w-full"}`}
                   >
                     {message.role === "user" ? (
-                      <div className="rounded-2xl bg-zinc-800 px-4 py-3 text-white sm:px-5 sm:py-4">
+                      <div className="rounded-2xl bg-zinc-800 px-5 py-4 text-white shadow-sm">
                         {message.parts.map((part, partIndex) => (
-                          <div key={partIndex}>
+                          <div key={partIndex} className="flex flex-col gap-2">
                             {part.type === "text" && (
-                              <div className="text-[14px] leading-relaxed whitespace-pre-wrap sm:text-[15px]">
+                              <div className="text-[15px] leading-relaxed whitespace-pre-wrap text-zinc-100">
                                 {part.text}
                               </div>
                             )}

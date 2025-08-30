@@ -180,22 +180,22 @@ export default function ProjectView({
           </div>
         </ResizablePanel>
         <ResizableHandle withHandle={false} />
-        <ResizablePanel className="h-full" defaultSize={70}>
+        <ResizablePanel className="h-full" defaultSize={70} minSize={40} maxSize={80}>
           <Tabs defaultValue="app" className="flex h-full flex-col bg-zinc-900/50">
-            <TabsList  className="justify-center  border-none p-2.5 py-2.5 bg-zinc-900/50">
-              <TabsTrigger value="app" className=" text-white border-none ">
-                <AppWindowMac className="h-2 w-2" />
-                Web
+            <TabsList className="sticky top-0 z-10 flex justify-center gap-2 border-none bg-zinc-900/80 p-3 backdrop-blur supports-[backdrop-filter]:bg-zinc-900/60">
+              <TabsTrigger value="app" className="flex items-center   px-4 py-4 text-white border-none hover:bg-zinc-800 data-[state=active]:bg-zinc-800">
+                <AppWindowMac className="h-4 w-4" />
+                Preview
               </TabsTrigger>
-              <TabsTrigger value="editor" className=" text-white border-none ">
-                <Code2Icon className="h-2 w-2" /> 
-                Code
+              <TabsTrigger value="editor" className="flex items-center  px-4 py-4 text-white border-none hover:bg-zinc-800 data-[state=active]:bg-zinc-800">
+                <Code2Icon className="h-4 w-4" />
+                Editor
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="app">
+            <TabsContent value="app" className="flex-1 min-h-0 data-[state=active]:flex">
               <PreviewUrl projectId={id!} />
             </TabsContent>
-            <TabsContent value="editor">
+            <TabsContent value="editor" className="flex-1 min-h-0 data-[state=active]:flex">
               <Editor
                 code_edit={editFileData.code_edit}
                 relative_file_path={editFileData.relative_file_path}

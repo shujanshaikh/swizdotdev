@@ -90,11 +90,11 @@ export default function CodeEditor({ code_edit }: CodeEditorProps) {
   };
 
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full rounded-md py-4">
       <Editor
         height="100%"
         width="100%"
-        theme="vs-dark"
+        theme="premium-dark"
         defaultLanguage="typescript"
         value={editorContent}
         onMount={handleEditorDidMount}
