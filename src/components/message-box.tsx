@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "~/lib/utils";
 import { Button } from "./ui/button";
 import { UploadButton } from "~/utils/uploadthing";
@@ -13,6 +13,8 @@ import Link from "next/link";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import Stop from "./ui/stop";
 import ModelSelector from "./model-selector";
+import { toast } from "sonner";
+ 
 
 export default function MessageBox({
   input,
@@ -58,6 +60,8 @@ export default function MessageBox({
   const removeAttachment = (index: number, prev: FileUIPart[]) => {
     setFiles(prev.filter((_, i) => i !== index));
   };
+  const [progress, setProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
 
   return (
     <form
@@ -72,6 +76,43 @@ export default function MessageBox({
           "transition-all duration-300 ease-in-out",
         )}
       >
+        {isUploading && (
+          <div className="absolute right-4 top-4 flex items-center gap-3 rounded-2xl bg-gradient-to-r from-white/10 to-white/5 px-4 py-2 text-sm font-medium text-white/90 shadow-lg ring-1 ring-white/20 backdrop-blur-md">
+            <div className="relative h-5 w-5">
+              <div className="absolute inset-0 animate-ping rounded-full bg-white/20"></div>
+              <svg
+                className="absolute inset-0 h-5 w-5 animate-spin"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle 
+                  className="opacity-25" 
+                  cx="12" 
+                  cy="12" 
+                  r="10" 
+                  stroke="currentColor" 
+                  strokeWidth="3"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="h-1.5 w-24 overflow-hidden rounded-full bg-white/20">
+                <div 
+                  className="h-full bg-gradient-to-r from-zinc-800 via-zinc-700 to-zinc-600 transition-all duration-300 ease-out"
+                  style={{width: `${progress}%`}}
+                />
+              </div>
+              <span className="min-w-[3ch] text-right tabular-nums">{Math.round(progress)}%</span>
+            </div>
+          </div>
+        )}
+        
         {/* Attachments inside message box */}
         {files.length > 0 && (
           <div className="border-b border-white/10 p-3">
@@ -112,6 +153,7 @@ export default function MessageBox({
                       {attachment.filename || "Unnamed file"}
                     </span>
                   </div>
+                 
                   <button
                     type="button"
                     onClick={() => removeAttachment(index, files)}
@@ -153,8 +195,12 @@ export default function MessageBox({
 
         <div className="absolute bottom-3 left-3">
           <UploadButton
-            disabled={!session}
+            disabled={!session || isUploading}
             endpoint="imageUploader"
+            onUploadProgress={(progress) => {
+                setProgress(progress)
+                if (!isUploading) setIsUploading(true)
+            }}
             onClientUploadComplete={(res) => {
               if (!res) return;
               const newAttachments = res.map((file) => ({
@@ -165,9 +211,15 @@ export default function MessageBox({
                 mediaType: file.type,
               }));
               setFiles(newAttachments as unknown as FileUIPart[]);
+              toast.success("Files uploaded successfully");
+              setIsUploading(false);
+              setTimeout(() => setProgress(0), 300);
             }}
             onUploadError={(error: Error) => {
+              toast.error(error.message);
               console.log(error);
+              setIsUploading(false);
+              setProgress(0);
             }}
             appearance={{
               button: cn(
@@ -179,7 +231,21 @@ export default function MessageBox({
               allowedContent: "hidden",
             }}
             content={{
-              button: <Paperclip className="h-5 w-5" />,
+              button: (
+                isUploading ? (
+                  <svg
+                    className="h-5 w-5 animate-spin text-white/90"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                    <path d="M22 12a10 10 0 00-10-10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                  </svg>
+                ) : (
+                  <Paperclip className="h-5 w-5" />
+                )
+              ),
             }}
           />
         </div>
