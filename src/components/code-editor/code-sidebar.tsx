@@ -14,7 +14,6 @@ import {
   Package,
   Lock,
   GitBranch,
-  Zap,
 } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { type ToolCallFile } from "~/lib/types";

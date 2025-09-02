@@ -1,5 +1,5 @@
 import { convertToUIMessages } from "~/lib/utils";
-import ProjectView from "./ProjectView";
+import ProjectView from "./project-view";
 import { getMessagesByProjectId } from "~/server/db/queries";
 
 

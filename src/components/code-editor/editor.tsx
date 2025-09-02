@@ -5,8 +5,8 @@ import {
   ResizablePanelGroup,
 } from "../ui/resizable";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import CodeEditor from "./Code-editor";
-import CodeSidebar from "./Code-Sidebar";
+import CodeEditor from "./code-editor";
+import CodeSidebar from "./code-sidebar";
 import { type ToolCallFile } from "~/lib/types";
 import { useIsMobile } from "~/hooks/use-mobile";
 

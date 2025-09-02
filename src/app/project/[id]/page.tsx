@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import ProjectViewPage from "~/components/projectviewpage";
+import ProjectViewPage from "~/components/project-viewpage";
 import { auth } from "~/lib/auth";
 
 export default async function ProjectPage(props: { params: Promise<{ id: string }> }) {

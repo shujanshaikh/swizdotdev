@@ -4,14 +4,14 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "./ui/resizable";
-import MessageBox from "./Message-box";
-import ProjectMessageView from "./ProjectMessage";
+import MessageBox from "./message-box";
+import ProjectMessageView from "./project-message";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import PreviewUrl from "./PreviewUrl";
+import PreviewUrl from "./preview-url";
 import { AppWindowMac, Code2Icon } from "lucide-react";
 
 
-import Editor from "./code-editor/Editor";
+import Editor from "./code-editor/editor";
 import { getLatestEditFileData } from "~/lib/code-message/latest-edits";
 import { getAllEditedFiles } from "~/lib/code-message/all-edited";
 import { useAi } from "~/hooks/use-ai";

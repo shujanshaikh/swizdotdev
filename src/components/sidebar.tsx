@@ -8,23 +8,15 @@ import { api } from "~/trpc/react";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { authClient } from "~/lib/auth-client";
-import { FREE_PLAN_MESSAGE_COUNT } from "~/utils/constant";
 import { audiowide } from "~/lib/font";
+import { toast } from "sonner";
 
 export default function SidebarComponent() {
   const projects = api.project.getProjects.useQuery();
   const resumeSandboxMutation = api.message.resumeSandbox.useMutation();
-  const { data: session } = authClient.useSession();
-  const { data: credits , isLoading: creditsLoading } = api.premium.getCredits.useQuery(undefined, {
-    enabled: !!session,
-  });
 
   const router = useRouter();
 
-  const usedCount = credits?.usedCount ?? 0;
-  const planLimit = credits?.planLimit ?? FREE_PLAN_MESSAGE_COUNT;
-  const percentUsed = Math.min(100, Math.round((usedCount / planLimit) * 100));
 
   const filterOptions = [
     { label: "Last 7 days", days: 7 },
@@ -45,12 +37,14 @@ export default function SidebarComponent() {
 
       if (result.success) {
         console.log("Sandbox resumed successfully:", result.sandboxId);
+        toast.success("Sandbox resumed successfully");
         router.push(`/project/${projectId}`);
       } else {
         console.error("Failed to resume sandbox:", result.message);
       }
     } catch (error) {
       console.error("Error resuming sandbox:", error);
+      toast.error("Error resuming sandbox");
       router.push(`/project/${projectId}`);
     }
   };
@@ -95,9 +89,7 @@ export default function SidebarComponent() {
   return (
     <Sidebar
       side="left"
-      variant="sidebar"
-      collapsible="offcanvas"
-      className="relative border-r-0 bg-zinc-950/70 backdrop-blur-xl"
+      variant="inset"
     >
       <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-900" />
 
@@ -212,51 +204,6 @@ export default function SidebarComponent() {
             </div>
           </div>
         </div>
-        {session && credits && !creditsLoading ? (
-          <div className="border-t border-white/10 px-6 py-4">
-            <div className="w-full">
-              <div className="w-full rounded-lg border border-white/5 bg-zinc-900/30 p-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-zinc-200">{credits?.isPremium ? "Pro plan" : "Free plan"}</span>
-                  <span className="text-[11px] text-zinc-500">{usedCount}/{planLimit}</span>
-                </div>
-                <div className="mt-2 h-1 overflow-hidden rounded-full bg-zinc-800/80">
-                  <div
-                    className="h-full bg-gradient-to-r from-violet-500 to-violet-400 transition-all duration-300"
-                    style={{ width: `${percentUsed}%` }}
-                  />
-                </div>
-                <div className="mt-2 flex items-center justify-between">
-                  <span className="text-[11px] text-zinc-500">{percentUsed}% used</span>
-                  <div className="flex items-center gap-1">
-                    {!credits?.isPremium ? (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-7 rounded-full px-3 text-[11px] text-violet-400 hover:text-violet-300"
-                        onClick={() => router.push('/settings/subscription')}
-                      >
-                        Upgrade
-                      </Button>
-                    ) : null}
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="flex h-7 items-center gap-1.5 rounded-full px-3 text-[11px] text-zinc-400 hover:text-zinc-300"
-                      onClick={() => router.push('/settings/subscription')}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
-                        <circle cx="12" cy="12" r="3"/>
-                      </svg>
-                      Settings
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : null}
       </SidebarContent>
     </Sidebar>
   );

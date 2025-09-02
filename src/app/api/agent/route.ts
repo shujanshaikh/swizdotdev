@@ -138,8 +138,8 @@ export async function POST(req: Request) {
   result.consumeStream();
   return result.toUIMessageStreamResponse({
     sendReasoning: false,
-
-    onFinish: async ({ messages }) => {
+    onFinish: async ({ messages}) => {
+       
        await saveMessages({
         messages: messages.map((message) => ({
           id: crypto.randomUUID(),

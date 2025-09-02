@@ -1,13 +1,14 @@
 "use client";
-import MessageBox from "./Message-box";
+import MessageBox from "./message-box";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "./ui/sidebar";
-import SidebarComponent from "./Sidebar";
+import SidebarComponent from "./sidebar";
 import { useAi } from "~/hooks/use-ai";
 import type { ChatMessage } from "~/lib/types";
 import { useIsMobile } from "~/hooks/use-mobile";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { authClient } from "~/lib/auth-client";
+import UserProfile from "./user-profile";
 
 function ChatContent({
   initialMessages,
@@ -45,30 +46,22 @@ function ChatContent({
       <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:22px_22px]" />
 
       <div className="relative z-10 flex flex-1 items-center justify-center p-6 md:p-10">
-        {/* Mobile sidebar trigger */}
-        <div className="absolute top-4 left-4 md:hidden">
+        {/* Sidebar trigger for both mobile and desktop */}
+        <div className="absolute top-4 left-4">
           <SidebarTrigger className="rounded-xl border border-white/10 bg-zinc-900/70 backdrop-blur hover:bg-zinc-800/70" />
         </div>
         <div className="absolute top-4 right-4 flex items-center gap-2">
-          <Button asChild variant="ghost">
-            {session ? (
-              <Link href="/">Welcome {session.user?.name}</Link>
-            ) : (
-              <Link href="/login">Log in</Link>
-            )}
-          </Button>
           {session ? (
-            <Button
-              asChild
-              variant="default"
-              onClick={() => authClient.signOut()}
-            >
-              <Link href="/signup">Sign out</Link>
-            </Button>
+            <UserProfile />
           ) : (
-            <Button asChild variant="default">
-              <Link href="/signup">Sign up</Link>
-            </Button>
+            <>
+              <Button asChild variant="ghost">
+                <Link href="/login">Log in</Link>
+              </Button>
+              <Button asChild variant="default">
+                <Link href="/signup">Sign up</Link>
+              </Button>
+            </>
           )}
         </div>
         <div className="w-full max-w-4xl translate-y-[-6vh] space-y-8 text-center md:translate-y-[-8vh]">
@@ -131,7 +124,7 @@ export default function Chat({
   const isMobile = useIsMobile();
   return (
     <SidebarProvider defaultOpen={!isMobile}>
-      <div className="flex h-screen w-full">
+      <div className="flex h-dvh min-h-0 w-full overflow-hidden ">
         <SidebarComponent />
         <ChatContent initialMessages={initialMessages} />
       </div>
