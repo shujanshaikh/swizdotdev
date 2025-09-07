@@ -6,7 +6,7 @@ import { Button } from "./ui/button";
 import type { ChatMessage } from "~/lib/types";
 import Error from "./ui/error";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Check, Terminal, X } from "lucide-react";
+import { ArrowLeft, Terminal } from "lucide-react";
 import { Tooltip, TooltipTrigger } from "./ui/tooltip";
 import { getFileIcon } from "./icons";
 import { audiowide } from "~/lib/font";
@@ -88,14 +88,14 @@ export default function ProjectMessageView({
                   className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`${message.role === "user" ? "ml-auto max-w-[90%] sm:max-w-[80%] md:max-w-[75%]" : "w-full"}`}
+                    className={`${message.role === "user" ? "ml-auto min-w-0 max-w-[90%] sm:max-w-[80%] md:max-w-[75%]" : "w-full min-w-0"}`}
                   >
                     {message.role === "user" ? (
                       <div className="rounded-2xl bg-zinc-800 px-5 py-4 text-white shadow-sm">
                         {message.parts.map((part, partIndex) => (
                           <div key={partIndex} className="flex flex-col gap-2">
                             {part.type === "text" && (
-                              <div className="text-[15px] leading-relaxed whitespace-pre-wrap text-zinc-100">
+                              <div className="text-[15px] leading-relaxed whitespace-pre-wrap text-zinc-100 break-words overflow-hidden">
                                 {part.text}
                               </div>
                             )}
@@ -136,7 +136,7 @@ export default function ProjectMessageView({
 
                                   </div>
                                   <div className="min-w-0 flex-1">
-                                    <div className="whitespace-pre-wrap">
+                                    <div className="whitespace-pre-wrap break-words break-all">
                                       {part.text}
                                     </div>
                                   </div>
@@ -151,7 +151,7 @@ export default function ProjectMessageView({
                             return (
                               <div
                                 key={key}
-                                className="text-[14px] leading-relaxed whitespace-pre-wrap text-gray-200 sm:text-[15px]"
+                                className="text-[14px] leading-relaxed whitespace-pre-wrap break-words text-gray-200 sm:text-[15px]"
                               >
                                 {part.text}
                               </div>
@@ -168,7 +168,7 @@ export default function ProjectMessageView({
                                   <div
                                     className="inline-flex items-center gap-2 rounded-2xl bg-zinc-800/20 px-3 py-2 shadow-lg backdrop-blur-sm ring-1 ring-white/10"
                                   >
-                                    <code className="font-mono text-sm text-emerald-400">
+                                    <code className="font-mono text-sm text-emerald-400 break-all">
                                       $ {part.input?.command || 'Unknown command'}
 
                                     </code>
@@ -184,7 +184,7 @@ export default function ProjectMessageView({
                                   className="flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-800/50 px-3 py-2"
                                 >
                                   <Terminal className="h-4 w-4 text-white" />
-                                  <code className="font-mono text-sm text-emerald-400">
+                                  <code className="font-mono text-sm text-emerald-400 break-all">
                                     $ {part.input?.command || 'Unknown command'}
                                   </code>
                                 </div>
@@ -205,7 +205,7 @@ export default function ProjectMessageView({
                                       Terminal
                                     </span>
                                   </div>
-                                  <pre className="font-mono text-sm text-zinc-300 whitespace-pre-wrap">
+                                  <pre className="font-mono text-sm text-zinc-300 whitespace-pre-wrap break-words overflow-x-auto">
                                     {output}
                                   </pre>
                                 </div>
@@ -238,7 +238,7 @@ export default function ProjectMessageView({
                                     href={part.input?.url || '#'}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-sm text-blue-400 hover:text-blue-300 hover:underline"
+                                    className="text-sm text-blue-400 hover:text-blue-300 hover:underline break-all"
                                   >
                                     {part.input?.url || 'Unknown URL'}
                                   </a>
@@ -339,7 +339,7 @@ export default function ProjectMessageView({
                               return (
                                 <div
                                   key={toolCallId}
-                                  className="text-[14px] leading-relaxed whitespace-pre-wrap text-gray-200 sm:text-[15px]"
+                                  className="text-[14px] leading-relaxed whitespace-pre-wrap break-words text-gray-200 sm:text-[15px]"
                                 >
                                   {part.input?.pattern || 'Unknown pattern'}
                                 </div>
@@ -348,7 +348,7 @@ export default function ProjectMessageView({
 
                             if (state === "output-available") {
                               const { output } = part;
-                              return <div key={toolCallId}>{output}</div>;
+                              return <div key={toolCallId} className="text-[14px] leading-relaxed whitespace-pre-wrap break-words text-gray-200 sm:text-[15px]">{output}</div>;
                             }
                           }
 
@@ -364,7 +364,7 @@ export default function ProjectMessageView({
                                   <div
                                     className="inline-flex items-center gap-2 rounded-2xl bg-zinc-800/20 px-3 py-2 shadow-lg backdrop-blur-sm ring-1 ring-white/10"
                                   >
-                                    <span className="text-md text-zinc-300 hover:text-white transition-colors duration-200">
+                                    <span className="text-md text-zinc-300 hover:text-white transition-colors duration-200 break-all">
                                       {part.input?.relative_file_path || 'Unknown file'}
                                     </span>
 
@@ -383,7 +383,7 @@ export default function ProjectMessageView({
                                     className="inline-flex items-center gap-2 rounded-2xl bg-zinc-800/20 px-3 py-2 shadow-lg backdrop-blur-sm ring-1 ring-white/10"
                                   >
                                     {getFileIcon(part.input?.relative_file_path || '')}
-                                    <span className="text-md text-zinc-300 hover:text-white transition-colors duration-200">
+                                    <span className="text-md text-zinc-300 hover:text-white transition-colors duration-200 break-all">
                                       {part.input?.relative_file_path || 'Unknown file'}
                                     </span>
                                   </div>
@@ -402,7 +402,7 @@ export default function ProjectMessageView({
                                   <div
                                     className="inline-flex items-center gap-2 rounded-2xl bg-zinc-800/20 px-3 py-2 shadow-lg backdrop-blur-sm ring-1 ring-white/10"
                                   >
-                                    <span className="text-md text-zinc-300 hover:text-white transition-colors duration-200">
+                                    <span className="text-md text-zinc-300 hover:text-white transition-colors duration-200 break-all">
                                       {part.input?.relative_file_path || 'Unknown file'}
                                     </span>
                                   </div>
@@ -419,7 +419,7 @@ export default function ProjectMessageView({
                                     className="inline-flex items-center gap-2 rounded-2xl bg-zinc-800/20 px-3 py-2 shadow-lg backdrop-blur-sm ring-1 ring-white/10"
                                   >
                                     {getFileIcon(part.input?.relative_file_path || '')}
-                                    <span className="text-md text-zinc-300 hover:text-white transition-colors duration-200">
+                                    <span className="text-md text-zinc-300 hover:text-white transition-colors duration-200 break-all">
                                       {part.input?.relative_file_path || 'Unknown file'}
                                     </span>
                                   </div>
@@ -449,8 +449,8 @@ export default function ProjectMessageView({
                                   key={toolCallId}
                                   className="overflow-hidden rounded-lg border border-zinc-700 bg-zinc-800/50 p-4 mt-2"
                                 >
-                                  <div className="flex items-center justify-between cursor-pointer" onClick={() => setIsOpenGrep(!isOpenGrep)}>
-                                    <span className="text-sm font-medium text-zinc-300">Grepping for: {part.input?.query || 'Unknown query'}</span>
+                                  <div className="flex items-center justify-between gap-2 cursor-pointer" onClick={() => setIsOpenGrep(!isOpenGrep)}>
+                                    <span className="text-sm font-medium text-zinc-300 flex-1 min-w-0 truncate">Grepping for: {part.input?.query || 'Unknown query'}</span>
                                     <svg
                                       className={`w-5 h-5 text-zinc-400 transition-transform ${isOpenGrep ? 'rotate-0' : 'rotate-180'}`}
                                       fill="none"
@@ -462,7 +462,7 @@ export default function ProjectMessageView({
                                   </div>
 
                                   <div className={`mt-2 overflow-hidden transition-all duration-200 ${isOpenGrep ? 'max-h-96' : 'max-h-0'}`}>
-                                    <div className="text-[14px] leading-relaxed whitespace-pre-wrap text-gray-200 sm:text-[15px] rounded-md bg-zinc-900/50 p-3">
+                                    <div className="text-[14px] leading-relaxed whitespace-pre-wrap break-words text-gray-200 sm:text-[15px] rounded-md bg-zinc-900/50 p-3">
                                       {output}
                                     </div>
                                   </div>
@@ -475,28 +475,46 @@ export default function ProjectMessageView({
                           if (part.type === "tool-task_agent") {
                             const { toolCallId, state } = part;
 
+                            if (state === "input-streaming") {
+                              return (
+                                <div
+                                  key={toolCallId}
+                                  className="text-sm text-zinc-300"
+                                >
+                                  <span className="mr-2">Task:</span>
+                                  <span className="text-zinc-200">
+                                    {part.input?.todo_text || "…"}
+                                  </span>
+                                  <span className="ml-2 inline-block h-1.5 w-1.5 rounded-full bg-zinc-400 animate-pulse" />
+                                </div>
+                              );
+                            }
+
                             if (state === "input-available") {
                               return (
                                 <div
                                   key={toolCallId}
-                                  className="text-[14px] leading-relaxed whitespace-pre-wrap text-gray-200 sm:text-[15px]"
+                                  className="text-sm text-zinc-300"
                                 >
-                                  {part.input?.todo_text || 'Unknown task'}
-                                  <div className="flex items-center gap-2">
-                                    <Button variant="outline" size="sm">
-                                      <Check className="h-4 w-4" />
-                                    </Button>
-                                    <Button variant="outline" size="sm">
-                                      <X className="h-4 w-4" />
-                                    </Button>
-                                  </div>
+                                  <span className="mr-2">Task:</span>
+                                  <span className="text-zinc-200 whitespace-pre-wrap break-words">
+                                    {part.input?.todo_text || "Unknown task"}
+                                  </span>
                                 </div>
                               );
                             }
 
                             if (state === "output-available") {
                               const { output } = part;
-                              return <div key={toolCallId}>{output}</div>;
+                              return (
+                                <div 
+                                  key={toolCallId}
+                                  className="space-y-1"
+                                >
+                                  <div className="text-xs text-zinc-400">Task created</div>
+                                  <div className="text-sm text-zinc-200 whitespace-pre-wrap break-words">{output}</div>
+                                </div>
+                              );
                             }
                           }
 
@@ -507,7 +525,7 @@ export default function ProjectMessageView({
                               return (
                                 <div
                                   key={toolCallId}
-                                  className="text-[15px] leading-relaxed whitespace-pre-wrap text-gray-200"
+                                  className="text-[15px] leading-relaxed whitespace-pre-wrap break-words text-gray-200"
                                 >
                                   {part.input?.search_term || 'Unknown search term'}
                                 </div>
@@ -524,6 +542,7 @@ export default function ProjectMessageView({
                                         href={result.url}
                                         target="_blank"
                                         rel="noopener noreferrer"
+                                        className="break-all"
                                       >
                                         {result.title}
                                       </a>
@@ -550,7 +569,7 @@ export default function ProjectMessageView({
                                     </span>
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <span className="text-sm text-zinc-300 font-mono">
+                                    <span className="text-sm text-zinc-300 font-mono break-all">
                                       {part.input?.relative_file_path || 'Unknown file'}
                                     </span>
                                   </div>
@@ -571,7 +590,7 @@ export default function ProjectMessageView({
                                     </span>
                                   </div>
                                   <div className="rounded-xl">
-                                    <pre className="text-sm text-zinc-300 font-mono whitespace-pre-wrap px-3 py-2">
+                                    <pre className="text-sm text-zinc-300 font-mono whitespace-pre-wrap break-words overflow-x-auto px-3 py-2">
                                       {output}
                                     </pre>
                                   </div>
@@ -615,7 +634,7 @@ export default function ProjectMessageView({
                                   </div>
                                   {isOpenTsc === toolCallId && (
                                     <div className={`mt-3 overflow-hidden transition-all duration-300 ease-in-out ${isOpenTsc === toolCallId ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
-                                      <pre className="text-sm text-zinc-300 font-mono whitespace-pre-wrap bg-zinc-800/40 rounded-lg p-4">
+                                      <pre className="text-sm text-zinc-300 font-mono whitespace-pre-wrap break-words overflow-x-auto bg-zinc-800/40 rounded-lg p-4">
                                         {output}
                                       </pre>
                                     </div>

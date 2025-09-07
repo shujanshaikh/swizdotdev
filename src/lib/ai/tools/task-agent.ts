@@ -29,7 +29,7 @@ export const task_agent = ({ sandboxId }: Params) => tool({
             return "Error: todo_text is required for add_todo action";
           }
 
-          // Generate a unique ID for the todo
+          // Generate a unique ID for the 
           const timestamp = Date.now();
           const todoId = `todo_${timestamp}`;
 
@@ -51,7 +51,7 @@ export const task_agent = ({ sandboxId }: Params) => tool({
           // Update the main todos index file
           await updateTodosIndex(sandbox, todoId, todo_text, "pending");
 
-          return `Successfully added todo: ${todo_text} (ID: ${todoId})`;
+          return `Successfully added todo: ${todo_text}`;
 
         case "mark_complete":
           if (!todo_id) {
@@ -80,7 +80,7 @@ export const task_agent = ({ sandboxId }: Params) => tool({
             // Update the main todos index file
             await updateTodosIndex(sandbox, todo_id, "", "completed");
 
-            return `Successfully marked todo ${todo_id} as completed`;
+            return `Successfully marked todo as completed`;
           } catch (error) {
             return `Error updating todo: ${error}`;
           }

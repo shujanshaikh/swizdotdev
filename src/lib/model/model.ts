@@ -10,6 +10,16 @@ export const models = [
     description: "Ultra-fast, ultra-cheap",
   },
   {
+    name: "Kimi-K2-0905",
+    value: "moonshotai/kimi-k2-0905",
+    description: "Model from moonshotai"
+  } ,
+  {
+    name: "DeepSeek V3.1",
+    value: "deepseek/deepseek-v3.1",
+    description: "Low cost, good performance"
+  },
+  {
     name: "GPT 4.1",
     value: "openai/gpt-4.1",
     description: "Balanced performance, mid-cost",
@@ -19,16 +29,8 @@ export const models = [
     value: "openai/gpt-4o-mini",
     description: "Good balance, affordable",
   },
-  {
-    name: "DeepSeek V3.1",
-    value: "deepseek/deepseek-v3.1",
-    description: "Low cost, good performance"
-  },
-  {
-    name: "Kimi-K2",
-    value: "moonshotai/kimi-k2",
-    description: "Model from moonshotai"
-  } ,
+
+  
   {
     name : "Gemini 2.0 Flash",
     value : "google/gemini-2.0-flash",

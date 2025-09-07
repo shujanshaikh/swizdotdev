@@ -117,6 +117,7 @@ export async function POST(req: Request) {
       delayInMs: 10,
       chunking: "line",
     }),
+    maxRetries : 3,
     tools: {
       edit_file: edit_file({ sandboxId }),
       grep: grep({ sandboxId }),

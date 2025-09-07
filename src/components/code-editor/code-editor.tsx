@@ -100,7 +100,7 @@ export default function CodeEditor({ code_edit }: CodeEditorProps) {
         onMount={handleEditorDidMount}
         loading={
           <div className="flex h-full w-full items-center justify-center bg-black/40">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+            <Loader2 className="h-8 w-8 animate-spin" />
           </div>
         }
         options={{
