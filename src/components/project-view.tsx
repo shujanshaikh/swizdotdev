@@ -89,6 +89,10 @@ export default function ProjectView({
   const editFileData = getLatestEditFileData(messages);
   const allEditedFiles = getAllEditedFiles(messages);
   const isMobile = useIsMobile();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
     if(isLoading){
       return (
@@ -97,6 +101,14 @@ export default function ProjectView({
         </div>
       )
     }
+
+  if (!mounted) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-zinc-700 border-top-white"></div>
+      </div>
+    );
+  }
 
   if (isMobile) {
     return (

@@ -113,29 +113,8 @@ export default function PreviewUrl({ projectId }: { projectId: string }) {
                 <span className="text-xs">Open</span>
               </Button>
             </div>
-            {/* Removed overlay masks to avoid visual padding on right/bottom */}
           </div>
-        ) : (
-          <div className="flex h-full w-full items-center justify-center bg-zinc-900/20">
-            <div className="text-center text-gray-400">
-              <svg
-                className="mx-auto mb-4 h-16 w-16 opacity-50"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1}
-                  d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9"
-                />
-              </svg>
-              <p className="text-lg font-medium">No URL to preview</p>
-              <p className="text-sm">Start a conversation to create a sandbox for this project</p>
-            </div>
-          </div>
-        )}
+        ) : null}
       </div>
     </div>
   );
