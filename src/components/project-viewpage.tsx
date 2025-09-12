@@ -12,7 +12,6 @@ export default  async function ProjectViewPage({
 }) {
     const dbMessages = await getMessagesByProjectId({ id: id! })
     const uimessages =  convertToUIMessages(dbMessages!);
-    console.log(uimessages, "uimessages from project view page")
     return (
         <ProjectView initialMessages={uimessages} id={id!} isLoading={false} />
     )

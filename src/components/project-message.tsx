@@ -23,7 +23,7 @@ export default function ProjectMessageView({
   error: undefined | Error;
   regenerate: () => void;
 }) {
-  const router = useRouter();
+ 
   void _regenerate;
   const [isOpenGrep, setIsOpenGrep] = useState(false);
   const [isOpenTsc, setIsOpenTsc] = useState<string | null>(null);
@@ -31,47 +31,12 @@ export default function ProjectMessageView({
 
   const expandHandler = (id: string) => () => setIsOpenTsc((oldId) => (oldId === id ? null : id));
 
-  const onhandleBack = useCallback(() => {
-    router.push("/");
-  }, [router]);
 
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (
-        event.key === "Escape" ||
-        (event.altKey && event.key === "ArrowLeft")
-      ) {
-        event.preventDefault();
-        onhandleBack();
-      }
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [onhandleBack]);
+
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
       <div className="scrollbar-hide flex-1 overflow-y-auto">
-        <div className="sticky top-0 z-10 backdrop-blur supports-[backdrop-filter]:bg-zinc-900/30">
-          <div className="mx-auto max-w-4xl px-2 py-2 sm:px-4">
-            <div className="flex items-center gap-2">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    onClick={onhandleBack}
-                    variant="ghost"
-                    size="sm"
-                    aria-label="Go back"
-                    className="gap-2 px-2"
-                  >
-                    <ArrowLeft className="size-4" />
-                  </Button>
-                </TooltipTrigger>
-              </Tooltip>
-              {/* <span className="hidden sm:inline text-zinc-300 font-medium">SWIZDOTDEV</span> */}
-            </div>
-          </div>
-        </div>
         <div className="mx-auto max-w-4xl space-y-6 p-4 sm:p-6">
           {messages.length === 0 ? (
             <div className="flex h-96 flex-col items-center justify-center text-center">

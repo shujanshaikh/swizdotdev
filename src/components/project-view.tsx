@@ -8,7 +8,8 @@ import MessageBox from "./message-box";
 import ProjectMessageView from "./project-message";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import PreviewUrl from "./preview-url";
-import { AppWindowMac, Code2Icon } from "lucide-react";
+import { AppWindowMac, Code2Icon, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 
 import Editor from "./code-editor/editor";
@@ -151,9 +152,22 @@ export default function ProjectView({
   return (
    
     <div className="h-screen">
-      <ResizablePanelGroup direction="horizontal" className="h-screen">
+      <div className="h-full overflow-hidden rounded-none border border-zinc-800/60 bg-zinc-900/50 backdrop-blur supports-[backdrop-filter]:bg-zinc-900/40">
+        <ResizablePanelGroup direction="horizontal" className="h-full">
         <ResizablePanel maxSize={40} minSize={20} defaultSize={30}>
-          <div className="flex h-full flex-col bg-zinc-900">
+          <div className="flex h-full flex-col bg-transparent">
+            <div className="sticky top-0 z-10 flex h-12 items-center justify-between gap-2 border-b border-zinc-800/60 bg-transparent px-3">
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/"
+                  className="text-zinc-300 hover:text-white inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-zinc-800/50"
+                  aria-label="Back to home"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Link>
+                <div className="text-sm font-medium text-zinc-200">Conversation</div>
+              </div>
+            </div>
             <div className="min-h-0 flex-1">
               <ProjectMessageView
                 messages={messages}
@@ -162,7 +176,7 @@ export default function ProjectView({
                 regenerate={regenerate}
               />
             </div>
-            <div className="flex-shrink-0 border-t border-zinc-700/50 p-4">
+            <div className="flex-shrink-0 border-t border-zinc-800/60 p-4">
               <MessageBox
                 input={input}
                 status={status}
@@ -179,20 +193,22 @@ export default function ProjectView({
             </div>
           </div>
         </ResizablePanel>
-        <ResizableHandle withHandle={false} />
+        <ResizableHandle withHandle={false} className="bg-transparent after:bg-transparent" />
         <ResizablePanel className="h-full" defaultSize={70} minSize={40} maxSize={80}>
-          <Tabs defaultValue="app" className="flex h-full flex-col bg-zinc-900/50">
-            <TabsList className="sticky top-0 z-10 flex justify-center gap-2 border-none bg-zinc-900/80 p-3 backdrop-blur supports-[backdrop-filter]:bg-zinc-900/60">
-              <TabsTrigger value="app" className="flex items-center   px-4 py-4 text-white border-none hover:bg-zinc-800 data-[state=active]:bg-zinc-800">
-                <AppWindowMac className="h-4 w-4" />
-                Preview
-              </TabsTrigger>
-              <TabsTrigger value="editor" className="flex items-center  px-4 py-4 text-white border-none hover:bg-zinc-800 data-[state=active]:bg-zinc-800">
-                <Code2Icon className="h-4 w-4" />
-                Editor
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="app" className="flex-1 min-h-0 data-[state=active]:flex">
+          <Tabs defaultValue="app" className="flex h-full flex-col gap-0 bg-transparent">
+            <div className="sticky top-0 z-10 flex h-12 items-center justify-center gap-2 border-b border-zinc-800/60 bg-transparent px-3">
+              <TabsList className="flex w-fit items-center gap-2 border-none bg-zinc-800/60 p-1">
+                <TabsTrigger value="app" className="flex items-center gap-2 px-3 py-2 text-white border-none hover:bg-zinc-800 data-[state=active]:bg-zinc-700">
+                  <AppWindowMac className="h-4 w-4" />
+                  Preview
+                </TabsTrigger>
+                <TabsTrigger value="editor" className="flex items-center gap-2 px-3 py-2 text-white border-none hover:bg-zinc-800 data-[state=active]:bg-zinc-700">
+                  <Code2Icon className="h-4 w-4" />
+                  Editor
+                </TabsTrigger>
+              </TabsList>
+            </div>
+            <TabsContent value="app" className="flex-1 min-h-0 data-[state=active]:flex overflow-hidden">
               <PreviewUrl projectId={id!} />
             </TabsContent>
             <TabsContent value="editor" className="flex-1 min-h-0 data-[state=active]:flex">
@@ -204,7 +220,8 @@ export default function ProjectView({
             </TabsContent>
           </Tabs>
         </ResizablePanel>
-      </ResizablePanelGroup>
+        </ResizablePanelGroup>
+      </div>
     </div>
   );
 }

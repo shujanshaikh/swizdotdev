@@ -35,7 +35,12 @@ export const models = [
     name : "Gemini 2.0 Flash",
     value : "google/gemini-2.0-flash",
     description : "Google's cheapest model"
-  }
+  } ,
+   {
+    name : "GLM 4.5",
+    value : "zai/glm-4.5",
+    description : "Zai's model"
+   }
   // {
   //   name: "GPT 5",
   //   value: "openai/gpt-5",

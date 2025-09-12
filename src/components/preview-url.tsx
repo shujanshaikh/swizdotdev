@@ -25,78 +25,37 @@ export default function PreviewUrl({ projectId }: { projectId: string }) {
     }
   }, [sandboxUrl]);
 
-  // If polling is still running and we have no URL, show a subtle fetching indicator in the toolbar
-  // Show loading state when query is loading
   if (isLoading) {
     return (
-      <div className="flex h-full w-full flex-col min-h-0">
-        <div className="sticky top-0 z-10 flex items-center gap-2 bg-zinc-900/50 px-3 py-2 backdrop-blur supports-[backdrop-filter]:bg-zinc-900/60 sm:gap-3 sm:px-4">
-          <div className="flex items-center gap-1 flex-shrink-0">
-            <div className="h-6 w-6 animate-pulse rounded bg-zinc-700"></div>
-            <div className="h-6 w-6 animate-pulse rounded bg-zinc-700"></div>
-            <div className="h-6 w-6 animate-pulse rounded bg-zinc-700"></div>
-          </div>
-          <div className="flex flex-1 min-w-0 items-center rounded-full border border-white bg-zinc-800 px-3 py-1 sm:px-4 sm:py-1.5">
-            <div className="mr-2 h-4 w-4 animate-pulse rounded bg-zinc-700"></div>
-            <div className="flex-1 h-4 animate-pulse rounded bg-zinc-700"></div>
-          </div>
-          <div className="flex items-center gap-1 flex-shrink-0">
-            <div className="h-6 w-6 animate-pulse rounded bg-zinc-700"></div>
-          </div>
-        </div>
-        <div className="flex-1 min-h-0">
-          <div className="flex h-full w-full items-center justify-center bg-zinc-900/20">
-            <div className="text-center text-gray-400">
-              <div className="mx-auto mb-4 h-16 w-16 animate-spin rounded-full border-4 border-zinc-700 border-t-white"></div>
-              <p className="text-lg font-medium">Loading sandbox...</p>
-              <p className="text-sm">Please wait while we prepare your preview</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Show message when no sandbox URL is available
-  if (!sandboxUrl) {
-    return (
       <div className="flex h-full w-full items-center justify-center bg-zinc-900/20">
-        <div className="text-center text-gray-400">
-          <svg
-            className="mx-auto mb-4 h-16 w-16 opacity-50"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1}
-              d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9"
-            />
-          </svg>
-          <p className="text-lg font-medium">No sandbox URL available</p>
-          <p className="text-sm">Start a conversation to create a sandbox for this project</p>
-        </div>
+        <p className="text-gray-400">Preview will be available soon...</p>
       </div>
     );
   }
 
   return (
     <div className="flex h-full w-full flex-col min-h-0">
-      
-
       <div className="flex-1 min-h-0">
         {url ? (
-          <div className={`relative h-full w-full overflow-auto rounded-2xl [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] ${isMobileView ? 'flex items-center justify-center bg-zinc-900/10' : ''}`}>
+          <div
+            className={`relative h-full w-full overflow-hidden overscroll-contain ${isMobileView ? 'flex items-center justify-center bg-zinc-900/10' : ''}`}
+          >
             <div className={`relative ${isMobileView ? 'w-[393px] h-[852px] rounded-[2.5rem] border-4 border-zinc-700 shadow-2xl overflow-hidden' : 'h-full w-full'}`}>
               <iframe
                 ref={iframeRef}
                 width="100%"
                 height="100%"
                 src={url}
-                className={`border-none ${isMobileView ? 'rounded-[2.5rem]' : 'rounded-2xl'}`}
-                style={isMobileView ? { width: '393px', height: '852px' } : {}}
+                className={`border-none ${isMobileView ? 'rounded-[2.5rem]' : ''}`}
+                style={
+                  isMobileView
+                    ? { width: '393px', height: '852px' }
+                    : {
+                        width: 'calc(100% + 32px)',
+                        height: 'calc(100% + 32px)',
+                        transform: 'translate(-16px, -16px)',
+                      }
+                }
               />
             </div>
             <div className="absolute top-4 right-4 flex items-center gap-2">
@@ -154,6 +113,7 @@ export default function PreviewUrl({ projectId }: { projectId: string }) {
                 <span className="text-xs">Open</span>
               </Button>
             </div>
+            {/* Removed overlay masks to avoid visual padding on right/bottom */}
           </div>
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-zinc-900/20">
