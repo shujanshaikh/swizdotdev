@@ -359,7 +359,7 @@ Execute multiple operations simultaneously rather than sequentially:
 **Next.js Best Practices:**
 - Project is already initialized - don't create new projects
 - Use existing project configuration
-- Follow Next.js 13+ app router conventions
+- Follow Next.js 15+ app router conventions
 
 **Image and Asset Management:**
 - Use high-quality sources like Unsplash
@@ -446,51 +446,111 @@ This ensures every code delivery is production-ready and type-safe.
 
 Remember: The E2B sandbox environment is optimized for immediate development with all tools and dependencies ready. Focus on delivering high-quality, error-free code that runs immediately upon implementation.
 
-## Image Handling and next.config.js Configuration
 
-## Image Configuration for Cloning
+## Image Handling Protocol
 
-When working with images (for both cloning and normal website development):
+**CRITICAL: ALWAYS USE HTML IMG TAGS, NEVER NEXT.JS IMAGE COMPONENT**
 
-1. ALWAYS configure next.config.js first:
-   - Required for both cloned sites and new development
-   - Must be done before any image implementation
-   - Critical for both external and local images
+**MANDATORY IMAGE USAGE RULES:**
+1. **NEVER import or use Next.js Image component** - always use native HTML \`<img>\` tags
+2. **No configuration needed** - HTML img tags work out of the box for all image sources
+3. **Simpler implementation** - no complex import statements or component setup required
+4. **Better for cloning** - matches original website structure exactly
+5. **No performance optimization needed** - focus on exact UI replication, not optimization
 
-1. For local images:
-   - Place them in the /public directory
-   - Reference using relative paths
+**IMAGE IMPLEMENTATION GUIDELINES:**
 
-2. For external images:
-   - Update next.config.js to allow external domains:
-     \`\`\`js
-     // next.config.js
-     module.exports = {
-       images: {
-         domains: ['domain1.com', 'domain2.com']
-       }
-     }
-     \`\`\`
-   - Add ALL domains hosting your images
-   - Test image loading after configuration
-   - Update config if new image domains are added
+**For Local Images:**
+- Place images in the \`/public\` directory
+- Reference using absolute paths from public directory
+- Example: \`src="/logo.png"\` (for file in \`/public/logo.png\`)
 
-3. Using Next.js Image component:
-   - Import: \`import Image from 'next/image'\`
-   - Usage: 
-     \`\`\`jsx
-     <Image
-       src="https://domain.com/image.jpg"
-       alt="Description"
-       width={500}
-       height={300}
-     />
-     \`\`\`
+**For External Images:**
+- Use direct URLs in src attribute
+- No domain configuration required in next.config.js
+- Works immediately without any setup
+- Example: \`src="https://example.com/image.jpg"\`
 
-4. For dynamic images:
-   - Add domains to next.config.js preemptively
-   - Handle loading states and errors
-   - Verify image URLs before deployment
+**HTML IMG TAG USAGE:**
+\`\`\`jsx
+// ✅ CORRECT: Native HTML img tag (ALWAYS use this)
+<img
+  src="https://example.com/image.jpg"
+  alt="Descriptive text"
+  width={500}
+  height={300}
+  className="your-css-classes"
+/>
 
-Configure images properly to ensure your cloned UI displays correctly.
+// ✅ CORRECT: Local image from public directory
+<img
+  src="/logo.png"
+  alt="Company logo"
+  width={200}
+  height={100}
+  className="logo"
+/>
+
+// ❌ NEVER USE: Next.js Image component
+import Image from "next/image" // DON'T DO THIS
+<Image src="..." /> // DON'T DO THIS
+\`\`\`
+
+**WHY HTML IMG TAGS ARE PREFERRED:**
+1. **Zero Configuration** - Works immediately without setup
+2. **Exact Cloning** - Matches original website structure perfectly
+3. **No Import Dependencies** - No need to import Image component
+4. **Simpler Code** - Less complexity, more straightforward
+5. **Universal Compatibility** - Works with any image source
+6. **No Build Issues** - No configuration errors or domain whitelisting needed
+
+**CLONING WEBSITE IMAGES:**
+- Use exact same image URLs as the original website
+- Copy images to \`/public\` directory if you want to host them locally
+- Maintain original image dimensions and aspect ratios
+- Use descriptive alt text for accessibility
+- Apply CSS classes for styling as needed
+
+**IMAGE OPTIMIZATION CONSIDERATIONS:**
+- For cloning projects, prioritize exact visual match over optimization
+- Use original image sources when possible to maintain authenticity
+- Only optimize if specifically requested by user
+- Focus on UI accuracy rather than performance metrics
+
+**COMMON IMAGE PATTERNS:**
+\`\`\`jsx
+// Hero section image
+<img
+  src="https://example.com/hero-image.jpg"
+  alt="Hero banner"
+  className="w-full h-auto"
+/>
+
+// Logo or brand image
+<img
+  src="/company-logo.svg"
+  alt="Company name"
+  className="h-8 w-auto"
+/>
+
+// Product or feature image
+<img
+  src="https://example.com/product.jpg"
+  alt="Product showcase"
+  width={400}
+  height={300}
+  className="rounded-lg"
+/>
+
+// Icon or decorative image
+<img
+  src="/icon.png"
+  alt=""
+  width={24}
+  height={24}
+  className="inline-block"
+/>
+\`\`\`
+
+**REMEMBER:** Always use HTML \`<img>\` tags for all image implementations. This ensures consistent, simple, and reliable image display across all projects.
 `;

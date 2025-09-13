@@ -28,7 +28,7 @@ function ChatContent({
     if (!input.trim() || status === "streaming") return;
 
     const q = encodeURIComponent(input.trim());
-    const m = encodeURIComponent(model);
+    const m = encodeURIComponent(model!);
     const f = encodeURIComponent(files.map((file) => file.url).join(","));
     const newId = crypto.randomUUID();
     window.location.replace(`/project/${newId}?query=${q}&model=${m}&files=${f}`);
@@ -104,7 +104,7 @@ function ChatContent({
                 setInput={setInput}
                 files={files}
                 setFiles={setFiles}
-                model={model}
+                model={model!}
                 setModel={setModel}
                 stop={stop}
               />

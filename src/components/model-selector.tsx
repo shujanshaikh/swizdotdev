@@ -2,6 +2,7 @@ import { models } from "~/lib/model/model";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { InfoIcon } from "lucide-react";
+import { openRouterModel } from "~/lib/model/open-router";
 
 
 export default function ModelSelector({ model, setModel }: { model: string, setModel: (model: string) => void }) {
@@ -17,7 +18,7 @@ export default function ModelSelector({ model, setModel }: { model: string, setM
               <SelectValue placeholder="Select a model" />
             </SelectTrigger>
             <SelectContent className="bg-zinc-900 border-white/10 rounded-lg min-w-[200px]">
-              {models.map((modelItem) => (
+              {openRouterModel.map((modelItem) => (
                 <SelectItem 
                   key={modelItem.value} 
                   value={modelItem.value}

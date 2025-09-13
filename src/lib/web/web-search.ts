@@ -1,43 +1,39 @@
-import Exa from "exa-js";
+import FirecrawlApp from '@mendable/firecrawl-js';
 
-export const exa = new Exa(process.env.EXA_API_KEY);
+export const app = new FirecrawlApp({ apiKey: process.env.FIRECRAWL_API_KEY! });
+
+interface WebSearchInput {
+  url: string;
+  format: ['markdown', 'html'], 
+  options: {
+    livecrawl: 'always',
+    numResults: 3,
+    includeImages: boolean,
+    stream: boolean,
+  }
+}
+
 
 export async function webSearch(
-  search_term: string,
-  type: "text" | "images" = "text",
+  url: string,
+  format: ['markdown', 'html' , "links"],
+  options?: {
+    livecrawl: 'always',
+    numResults: 3,
+    includeImages: boolean,
+    onlyMainContent: boolean,
+    waitFor: number,
+    timeout: number,
+    stream: boolean,
+  }
 ) {
   try {
-    const { results } = await exa.searchAndContents(search_term, {
-      livecrawl: "always",
-      numResults: 3,
-      includeImages: type === "images",
-      stream: true,
+    const scrapeResult = await app.scrape(url, {
+      formats: format,
+      ...options // Pass through any additional options
     });
-    if (type === "text") {
-      return results.map((result) => ({
-        title: result.title,
-        url: result.url,
-        content: result.text.slice(0, 1000),
-        publishedDate: result.publishedDate,
-      }));
-    } else if (type === "images") {
-      return results.map((result) => ({
-        title: result.title,
-        url: result.url,
-        content: result.text.slice(0, 1000),
-        publishedDate: result.publishedDate,
-        image: result.image,
-      }));
-    }
+    return scrapeResult;
   } catch (error) {
-    console.error(" Web search error:", error);
-    return [
-      {
-        title: "Search Error",
-        url: "",
-        content: `Unable to perform web search: ${error instanceof Error ? error.message : "Unknown error"}`,
-        publishedDate: null,
-      },
-    ];
+    return `Error searching: ${error}`;
   }
 }

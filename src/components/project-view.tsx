@@ -104,8 +104,11 @@ export default function ProjectView({
 
   if (!mounted) {
     return (
-      <div className="flex h-full w-full items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-zinc-700 border-top-white"></div>
+      <div className="flex h-screen w-full items-center justify-center bg-zinc-900">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-600 border-t-zinc-300"></div>
+          <p className="text-zinc-400 text-sm">Loading...</p>
+        </div>
       </div>
     );
   }
@@ -139,7 +142,7 @@ export default function ProjectView({
                   setInput={setInput}
                   files={files}
                   setFiles={setFiles}
-                  model={model}
+                  model={model!}
                   setModel={setModel}
                   stop={stop}
                 />
@@ -198,7 +201,7 @@ export default function ProjectView({
                 setInput={setInput}
                 files={files}
                 setFiles={setFiles}
-                model={model}
+                model={model!}
                 setModel={setModel}
                 stop={stop}
               />

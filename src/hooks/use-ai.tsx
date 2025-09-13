@@ -3,7 +3,9 @@ import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport, type FileUIPart } from "ai";
 import { useState } from "react";
 import { models } from '~/lib/model/model';
+import { openRouterModel } from '~/lib/model/open-router';
 import type { ChatMessage } from "~/lib/types";
+
 
 export function useAi({
   id,
@@ -46,7 +48,7 @@ export function useAi({
   const [files , setFiles] = useState<FileUIPart[]>([]);
 
   const [input, setInput] = useState("");
-  const [model, setModel] = useState<string>(models?.[0]?.value ?? "");
+  const [ model , setModel ] = useState(openRouterModel[0]?.value);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

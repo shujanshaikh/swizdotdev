@@ -32,6 +32,7 @@ import { NextResponse } from "next/server";
 import { string_replace } from "~/lib/ai/tools/string-replace";
 import { checkPremiumUser } from "~/lib/check-premium";
 import { run_tsccheck } from "~/lib/ai/tools/run-tsccheck";
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 
 export async function POST(req: Request) {
   const {
@@ -104,12 +105,17 @@ export async function POST(req: Request) {
     ],
   });
 
+  const openrouter = createOpenRouter({
+    apiKey: process.env.OPENROUTER_API_KEY,
+  });
+  const models = openrouter.chat(model);
+
   const messagesFromDb = await getMessagesByProjectId({ id });
   const uiMessages = [...convertToUIMessages(messagesFromDb), message];
 
   const result = streamText({
     messages: convertToModelMessages(uiMessages),
-    model: model,
+    model: models,
     system: PROMPT,
     temperature: 0.1,
     stopWhen: stepCountIs(10),

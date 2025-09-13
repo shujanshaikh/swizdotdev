@@ -1,13 +1,10 @@
 "use client";
 
-import React, { useEffect, useCallback, useState } from "react";
+import React, {  useState } from "react";
 import Image from "next/image";
-import { Button } from "./ui/button";
 import type { ChatMessage } from "~/lib/types";
 import Error from "./ui/error";
-import { useRouter } from "next/navigation";
-import { ArrowLeft, Terminal } from "lucide-react";
-import { Tooltip, TooltipTrigger } from "./ui/tooltip";
+import {  Terminal } from "lucide-react";
 import { getFileIcon } from "./icons";
 import { audiowide } from "~/lib/font";
 
@@ -219,7 +216,7 @@ export default function ProjectMessageView({
                                   key={toolCallId}
                                   className="overflow-hidden rounded-lg border border-zinc-700 bg-zinc-800/50 p-4"
                                 >
-                                  {output.data.length > 0 && output.data[0]?.screenshot && (
+                                  {output  && (
                                     <div className="space-y-4">
                                       <div className="flex items-center justify-between">
                                         <h3 className="text-sm font-medium text-zinc-200">
@@ -227,14 +224,14 @@ export default function ProjectMessageView({
                                         </h3>
                                       </div>
                                       <a
-                                        href={output.data[0].screenshot}
+                                        href={output}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="block"
                                       >
                                         <div className="relative aspect-video w-full overflow-hidden rounded-lg">
                                           <Image
-                                            src={output.data[0].screenshot}
+                                            src={output}
                                             alt="Screenshot preview"
                                             fill
                                             className="object-cover"
@@ -483,40 +480,6 @@ export default function ProjectMessageView({
                             }
                           }
 
-                          if (part.type === "tool-webSearch") {
-                            const { toolCallId, state } = part;
-
-                            if (state === "input-available") {
-                              return (
-                                <div
-                                  key={toolCallId}
-                                  className="text-[15px] leading-relaxed whitespace-pre-wrap break-words text-gray-200"
-                                >
-                                  {part.input?.search_term || 'Unknown search term'}
-                                </div>
-                              );
-                            }
-
-                            if (state === "output-available") {
-                              const { output } = part;
-                              return (
-                                <div key={toolCallId}>
-                                  {output?.map((result) => (
-                                    <div key={result.url}>
-                                      <a
-                                        href={result.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="break-all"
-                                      >
-                                        {result.title}
-                                      </a>
-                                    </div>
-                                  ))}
-                                </div>
-                              );
-                            }
-                          }
 
                           if (part.type === "tool-string_replace") {
                             const { toolCallId, state } = part;
