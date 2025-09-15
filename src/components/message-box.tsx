@@ -185,9 +185,9 @@ export default function MessageBox({
           className={cn(
             "max-h-[260px] min-h-[130px] w-full bg-transparent px-5 py-6 pr-24 text-white placeholder:text-white/50",
             "rounded-2xl",
-            "resize-none overflow-hidden text-base leading-relaxed",
+            "resize-none overflow-y-auto text-base leading-relaxed",
             "transition-all duration-200 focus:outline-none",
-            "scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent hover:scrollbar-thumb-white/30",
+            "scrollbar-elegant",
             files.length > 0 ? "rounded-t-none pt-4" : "",
           )}
           ref={textareaRef}

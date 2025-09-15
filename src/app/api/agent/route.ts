@@ -1,5 +1,7 @@
 import {
   convertToModelMessages,
+  createUIMessageStream,
+  createUIMessageStreamResponse,
   smoothStream,
   stepCountIs,
   streamText,
@@ -69,7 +71,7 @@ export async function POST(req: Request) {
     const title = await generateTitleFromUserMessage({
       message,
     });
-    console.log("creating new sandbox");
+
     const sandbox = await Sandbox.create("swizsandbox", {
       requestTimeoutMs: 900_000,
       timeoutMs: 900_000,
@@ -77,7 +79,6 @@ export async function POST(req: Request) {
     });
     sandboxId = sandbox.sandboxId;
 
-    console.log("sandbox created", sandboxId);
     await saveProject({
       id: id,
       title,
@@ -86,7 +87,6 @@ export async function POST(req: Request) {
       userId,
     });
   } else {
-    console.log("project already exists , connecting to sandbox");
     sandboxId = project.sandboxId!;
     await getSandbox(sandboxId);
   }
@@ -113,52 +113,64 @@ export async function POST(req: Request) {
   const messagesFromDb = await getMessagesByProjectId({ id });
   const uiMessages = [...convertToUIMessages(messagesFromDb), message];
 
-  const result = streamText({
-    messages: convertToModelMessages(uiMessages),
-    model: models,
-    system: PROMPT,
-    temperature: 0.1,
-    stopWhen: stepCountIs(10),
-    experimental_transform: smoothStream({
-      delayInMs: 10,
-      chunking: "line",
+  return createUIMessageStreamResponse({
+    stream: createUIMessageStream({
+      execute: ({ writer: dataStream }) => {
+        const result = streamText({
+          messages: convertToModelMessages(uiMessages),
+          model: models,
+          system: PROMPT,
+          temperature: 0.1,
+          stopWhen: stepCountIs(20),
+          experimental_transform: smoothStream({
+            delayInMs: 10,
+            chunking: "line",
+          }),
+          maxRetries: 3,
+          tools: {
+            edit_file: edit_file({ sandboxId }),
+            grep: grep({ sandboxId }),
+            ls: ls({ sandboxId }),
+            glob: glob({ sandboxId }),
+            task_agent: task_agent({ sandboxId }),
+            bash: bash({ sandboxId }),
+            webScraper: webscraper,
+            webSearch: web_search,
+            suggestion: suggestions,
+            read_file: read_file({ sandboxId }),
+            delete_file: delete_file({ sandboxId }),
+            string_replace: string_replace({ sandboxId }),
+            run_tsccheck: run_tsccheck({ sandboxId }),
+          },
+
+        });
+        result.consumeStream();
+        dataStream.merge(
+          result.toUIMessageStream({
+            sendReasoning: true,
+          }),
+        );
+      },
+      onFinish: async ({ messages }) => {
+        await saveMessages({
+          messages: messages.map((message) => ({
+            id: crypto.randomUUID(),
+            role: message.role,
+            parts: message.parts,
+            createdAt: new Date(),
+            attachments: [],
+            projectId: id,
+            model: model,
+            updatedAt: new Date(),
+          })),
+        });
+      },
+      onError: (error) => {
+        console.error('Error communicating with AI')
+        console.error(JSON.stringify(error, null, 2))
+        return 'Error communicating with AI'
+      },
     }),
-    maxRetries : 3,
-    tools: {
-      edit_file: edit_file({ sandboxId }),
-      grep: grep({ sandboxId }),
-      ls: ls({ sandboxId }),
-      glob: glob({ sandboxId }),
-      task_agent: task_agent({ sandboxId }),
-      bash: bash({ sandboxId }),
-      webScraper: webscraper,
-      webSearch: web_search,
-      suggestion: suggestions,
-      read_file: read_file({ sandboxId }),
-      delete_file: delete_file({ sandboxId }),
-      string_replace: string_replace({ sandboxId }),
-      run_tsccheck: run_tsccheck({ sandboxId }),
-    },
-    abortSignal: req.signal,
-    
-  });
-  result.consumeStream();
-  return result.toUIMessageStreamResponse({
-    sendReasoning: false,
-    onFinish: async ({ messages}) => {
-       
-       await saveMessages({
-        messages: messages.map((message) => ({
-          id: crypto.randomUUID(),
-          role: message.role,
-          parts: message.parts,
-          createdAt: new Date(),
-          attachments: [],
-          projectId: id,
-          model: model,
-          updatedAt: new Date(),
-        })),
-      });
-    },
+
   });
 }

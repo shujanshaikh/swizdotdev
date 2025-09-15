@@ -1,6 +1,6 @@
 export const openRouterModel = [
     {
-        name : "sonoma-sky-alpha",
+        name : "Sonoma Sky Alpha",
         description : "A maximally intelligent general-purpose frontier model with a 2 million token context window",
         value : "openrouter/sonoma-sky-alpha"
     },

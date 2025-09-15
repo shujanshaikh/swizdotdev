@@ -23,13 +23,6 @@ export default function ProjectMessageView({
  
   void _regenerate;
   const [isOpenGrep, setIsOpenGrep] = useState(false);
-  const [isOpenTsc, setIsOpenTsc] = useState<string | null>(null);
-
-
-  const expandHandler = (id: string) => () => setIsOpenTsc((oldId) => (oldId === id ? null : id));
-
-
-
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
@@ -87,25 +80,28 @@ export default function ProjectMessageView({
 
                         {message.parts.map((part, partIndex) => {
                           const key = `message-${message.id}-part-${partIndex}`;
-                          if (part.type === "text") {
-                            return (
-                              <div
-                                key={key}
-                                className="rounded-2xl bg-zinc-800/40 px-4 py-3 text-[14px] leading-relaxed text-gray-200 shadow-sm backdrop-blur sm:text-[15px]"
-                              >
-                                <div className="flex items-start gap-3">
-                                  <div className="flex-shrink-0">
+                          // if (part.type === "text") {
+                          //   return (
+                          //     <div
+                          //       key={key}
+                          //       className="rounded-2xl bg-zinc-800/40 px-4 py-3 text-[14px] leading-relaxed text-gray-200 shadow-sm backdrop-blur sm:text-[15px]"
+                          //     >
+                          //       <div className="flex items-start gap-3">
+                          //         <div className="flex-shrink-0">
 
-                                  </div>
-                                  <div className="min-w-0 flex-1">
-                                    <div className="whitespace-pre-wrap break-words break-all">
-                                      {part.text}
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          }
+                          //         </div>
+                          //         <div className="min-w-0 flex-1">
+                          //           <div className="whitespace-pre-wrap break-words break-all">
+                          //             {part.text}
+                          //           </div>
+                          //         </div>
+                          //       </div>
+                          //     </div>
+                          //   );
+                          // }
+
+                    
+
                           if (
                             part.type === "reasoning" &&
                             part.text?.trim().length > 0
@@ -529,44 +525,47 @@ export default function ProjectMessageView({
 
                           if (part.type === "tool-run_tsccheck") {
 
-                            const { state } = part;
+                            const { state, toolCallId } = part;
+
+                            if(state === "input-streaming") {
+                              return (
+                                <div
+                                  key={toolCallId}
+                                  className="rounded-lg border border-zinc-700/20 bg-zinc-800/20 p-3"
+                                >
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <Terminal className="h-4 w-4 text-zinc-400" />
+                                    <span className="text-sm text-zinc-300">
+                                      TypeScript Check
+                                    </span>
+                                  </div>
+                                  <div className="inline-flex items-center gap-2 rounded-2xl bg-zinc-800/20 px-3 py-2 shadow-lg backdrop-blur-sm ring-1 ring-white/10">
+                                    <span className="text-md text-zinc-300 hover:text-white transition-colors duration-200 break-all">
+                                      {part.input?.relative_file_path || 'Unknown file'}
+                                    </span>
+                                  </div>
+                                </div>
+                              );
+                            }
 
                             if (state === "output-available") {
                               const { output, toolCallId } = part;
                               return (
                                 <div
                                   key={toolCallId}
-                                  className="overflow-hidden rounded-4xl border border-zinc-700/40 bg-zinc-800/30 backdrop-blur-sm p-5 shadow-lg"
+                                  className="rounded-lg border border-zinc-700/20 bg-zinc-800/20 p-3"
                                 >
-                                  <div
-                                    className="flex items-center gap-3 mb-3 cursor-pointer hover:opacity-80 transition-opacity"
-                                    onClick={expandHandler(toolCallId)}
-                                  >
-                                    <svg
-                                      className={`h-4 w-4 text-zinc-300 transition-transform duration-200 ${isOpenTsc === toolCallId ? 'rotate-180' : ''}`}
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      fill="none"
-                                      viewBox="0 0 24 24"
-                                      stroke="currentColor"
-                                    >
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M19 9l-7 7-7-7"
-                                      />
-                                    </svg>
-                                    <span className="text-sm font-medium text-zinc-200">
-                                      TypeScript Check Results
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <Terminal className="h-4 w-4 text-zinc-400" />
+                                    <span className="text-sm text-zinc-300">
+                                      TypeScript Check
                                     </span>
                                   </div>
-                                  {isOpenTsc === toolCallId && (
-                                    <div className={`mt-3 overflow-hidden transition-all duration-300 ease-in-out ${isOpenTsc === toolCallId ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
-                                      <pre className="text-sm text-zinc-300 font-mono whitespace-pre-wrap break-words overflow-x-auto bg-zinc-800/40 rounded-lg p-4">
-                                        {output}
-                                      </pre>
-                                    </div>
-                                  )}
+                                  <div className="rounded bg-zinc-900/50 p-2">
+                                    <pre className="text-xs text-zinc-400 font-mono whitespace-pre-wrap break-words">
+                                      {output}
+                                    </pre>
+                                  </div>
                                 </div>
                               );
                             }

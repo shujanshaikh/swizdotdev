@@ -17,6 +17,7 @@ export const bash = ({ sandboxId }: Params) => tool({
       try {
         const sandbox = await getSandbox(sandboxId);
         const result = await sandbox.commands.run(command, {
+          background : true,
           onStdout: (data) => {
             buffer.stdout += data;
           },
