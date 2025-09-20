@@ -1,5 +1,15 @@
 export const models = [
   {
+    name: "Sonoma Sky Alpha",
+    value: "stealth/sonoma-sky-alpha",
+    description: "A maximally intelligent general-purpose frontier model with a 2 million token context window"
+  },
+  {
+    name : "Grok 4 Fast Reasoning",
+    value : "xai/grok-4-fast-reasoning",
+    description : "Grok 4 Fast Reasoning is a fast and powerful model that can reason about complex problems"
+  },
+  {
     name: "GPT 5-mini",
     value: "openai/gpt-5-mini",
     description: "Fast, cheap, efficient",
@@ -19,23 +29,6 @@ export const models = [
     value: "deepseek/deepseek-v3.1",
     description: "Low cost, good performance"
   },
-  {
-    name: "GPT 4.1",
-    value: "openai/gpt-4.1",
-    description: "Balanced performance, mid-cost",
-  },
-  {
-    name: "GPT 4o mini",
-    value: "openai/gpt-4o-mini",
-    description: "Good balance, affordable",
-  },
-
-  
-  {
-    name : "Gemini 2.0 Flash",
-    value : "google/gemini-2.0-flash",
-    description : "Google's cheapest model"
-  } ,
    {
     name : "GLM 4.5",
     value : "zai/glm-4.5",

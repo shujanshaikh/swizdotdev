@@ -102,10 +102,7 @@ export default function ProjectMessageView({
 
                     
 
-                          if (
-                            part.type === "reasoning" &&
-                            part.text?.trim().length > 0
-                          ) {
+                          if (part.type === "reasoning") {
                             return (
                               <div
                                 key={key}

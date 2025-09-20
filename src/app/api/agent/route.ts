@@ -166,8 +166,8 @@ export async function POST(req: Request) {
         });
       },
       onError: (error) => {
-        console.error('Error communicating with AI')
-        console.error(JSON.stringify(error, null, 2))
+        console.error(`Error : ${error}`)
+       // console.error(JSON.stringify(error, null, 2))
         return 'Error communicating with AI'
       },
     }),

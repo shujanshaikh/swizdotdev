@@ -1,9 +1,9 @@
-export const openRouterModel = [
+export const openRouterModel = [ 
     {
-        name : "Sonoma Sky Alpha",
-        description : "A maximally intelligent general-purpose frontier model with a 2 million token context window",
-        value : "openrouter/sonoma-sky-alpha"
-    },
+        name : "Grok 4 Fast",
+        value : "x-ai/grok-4-fast:free",
+        description : "Grok 4 Fast is xAI's latest multimodal model with SOTA cost-efficiency and a 2M token context window" 
+    } 
     // {
     //     name : "deepseek-chat-v3.1",
     //     description : "DeepSeek's model",
