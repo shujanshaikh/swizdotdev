@@ -2,13 +2,16 @@
 import { useEffect, useState, useRef } from "react";
 import { Button } from "./ui/button";
 import { api } from "~/trpc/react";
+import SandboxLoader from "./sanndbox-loader";
 
 export default function PreviewUrl({ projectId }: { projectId: string }) {
+  const [showSandbox, setShowSandbox] = useState(false);
+
   const { data: sandboxUrl, isLoading } = api.project.getSandboxUrl.useQuery(
     { projectId },
     {
       enabled: !!projectId,
-      refetchInterval: (query) => (query.state.data ? false : 2000),
+      refetchInterval: (query) => (query.state.data ? false : 10000),
       refetchOnWindowFocus: false,
       retry: 3,
     },
@@ -26,25 +29,24 @@ export default function PreviewUrl({ projectId }: { projectId: string }) {
     }
   }, [sandboxUrl]);
 
+  useEffect(() => {
+    if (sandboxUrl) {
+      const timer = setTimeout(() => {
+        setShowSandbox(true);
+      }, 10000); // 10 seconds delay
+
+      return () => clearTimeout(timer);
+    }
+  }, [sandboxUrl]);
+
   const handleIframeLoad = () => {
     setIsIframeLoading(false);
   };
 
-  if (isLoading) {
+  if (isLoading || !showSandbox) {
     return (
-      <div className="h-full w-full flex items-center justify-center bg-zinc-900/5">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-400 border-t-transparent"></div>
-          <p className="text-gray-400 text-xs">Loading preview...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!url) {
-    return (
-      <div className="h-full w-full flex items-center justify-center bg-zinc-900/5">
-        <p className="text-gray-400 text-xs">No preview available</p>
+      <div className="h-full w-full flex items-center justify-center">
+        <SandboxLoader />
       </div>
     );
   }
@@ -133,14 +135,7 @@ export default function PreviewUrl({ projectId }: { projectId: string }) {
       </div>
 
         {isIframeLoading && (
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-4 left-4 bg-zinc-900/90 text-white px-3 py-2 rounded-lg shadow-lg backdrop-blur-sm">
-              <div className="flex items-center gap-2">
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                <p className="text-xs">Loading the preview...</p>
-              </div>
-            </div>
-          </div>
+          <SandboxLoader />
         )}
     </div>
   );

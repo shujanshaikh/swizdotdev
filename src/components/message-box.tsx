@@ -57,6 +57,15 @@ export default function MessageBox({
     setInput(e.target.value);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      if (input.trim() && status === "ready") {
+        handleSubmit(e as unknown as React.FormEvent<HTMLFormElement>);
+      }
+    }
+  };
+
   const removeAttachment = (index: number, prev: FileUIPart[]) => {
     setFiles(prev.filter((_, i) => i !== index));
   };
@@ -181,6 +190,7 @@ export default function MessageBox({
         <textarea
           value={input}
           onChange={handleTextareaChange}
+          onKeyDown={handleKeyDown}
           placeholder="Tell swiz what you want to build..."
           className={cn(
             "max-h-[260px] min-h-[130px] w-full bg-transparent px-5 py-6 pr-24 text-white placeholder:text-white/50",
