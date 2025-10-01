@@ -1,10 +1,10 @@
 "use client";
 
-import React, {  useState } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import type { ChatMessage } from "~/lib/types";
 import Error from "./ui/error";
-import {  Terminal } from "lucide-react";
+import { Terminal, ChevronDown, Brain } from "lucide-react";
 import { getFileIcon } from "./icons";
 import { audiowide } from "~/lib/font";
 
@@ -23,6 +23,14 @@ export default function ProjectMessageView({
  
   void _regenerate;
   const [isOpenGrep, setIsOpenGrep] = useState(false);
+  const [expandedReasoning, setExpandedReasoning] = useState<Record<string, boolean>>({});
+
+  const toggleReasoning = (key: string) => {
+    setExpandedReasoning((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
@@ -74,43 +82,114 @@ export default function ProjectMessageView({
                     ) : (
 
                       <div className="w-full space-y-3 py-4">
-                        <div className={`text-3xl  tracking-tight text-white ${audiowide.className}`}>
+                      <div className={`text-3xl  tracking-tight text-white ${audiowide.className}`}>
                           swiz
                         </div>
 
                         {message.parts.map((part, partIndex) => {
                           const key = `message-${message.id}-part-${partIndex}`;
-                          // if (part.type === "text") {
-                          //   return (
-                          //     <div
-                          //       key={key}
-                          //       className="rounded-2xl bg-zinc-800/40 px-4 py-3 text-[14px] leading-relaxed text-gray-200 shadow-sm backdrop-blur sm:text-[15px]"
-                          //     >
-                          //       <div className="flex items-start gap-3">
-                          //         <div className="flex-shrink-0">
 
-                          //         </div>
-                          //         <div className="min-w-0 flex-1">
-                          //           <div className="whitespace-pre-wrap break-words break-all">
-                          //             {part.text}
-                          //           </div>
-                          //         </div>
-                          //       </div>
-                          //     </div>
-                          //   );
-                          // }
+                          if (part.type === "text") {
+                            const paragraphs = part.text
+                              ?.split(/\n{2,}/)
+                              .map((paragraph) => paragraph.trimEnd())
+                              .filter((paragraph) => paragraph.length > 0) ?? [""];
+
+                            return (
+                              <div
+                                key={key}
+                                className="rounded-xl border border-zinc-800 bg-zinc-900/70 px-4 py-3 text-[15px] leading-relaxed text-zinc-200 shadow-sm"
+                              >
+                                <div className="space-y-3 text-[15px] leading-7 text-zinc-100">
+                                  {paragraphs.map((paragraph, paragraphIndex) => (
+                                    <p
+                                      key={`${key}-paragraph-${paragraphIndex}`}
+                                      className="whitespace-pre-wrap break-words">
+                                      {paragraph}
+                                    </p>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          }
 
                     
 
                           if (part.type === "reasoning") {
-                            return (
-                              <div
-                                key={key}
-                                className="text-[14px] leading-relaxed whitespace-pre-wrap break-words text-gray-200 sm:text-[15px]"
-                              >
-                                {part.text}
-                              </div>
-                            );
+                            const isStreaming = part.state === "streaming";
+                            const isDone = part.state === "done";
+                            const isExpanded = expandedReasoning[key];
+
+                            if (isStreaming) {
+                              return (
+                                <div
+                                  key={key}
+                                  className="rounded-xl border border-zinc-700/60 bg-zinc-800/50 px-4 py-3 text-[14px] leading-relaxed text-zinc-200 shadow-sm"
+                                >
+                                  <div className="flex items-start gap-3">
+                                    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-zinc-700/70 bg-zinc-900/70 animate-pulse">
+                                      <Brain className="h-4 w-4 text-zinc-300" />
+                                    </div>
+                                    <div className="min-w-0 flex-1 space-y-2">
+                                      <div className="text-sm font-medium text-zinc-200">Thinking</div>
+                                      <div className="max-h-48 overflow-y-auto pr-1 text-[13px] leading-6 text-zinc-300 scrollbar-elegant">
+                                        <p className="whitespace-pre-wrap break-words">
+                                          {part.text || "Working through the next steps…"}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            }
+
+                            if (isDone) {
+                              return (
+                                <div
+                                  key={key}
+                                  className="rounded-xl px-4 py-3 text-[14px] text-zinc-200 border border-zinc-800 bg-zinc-900/70 "
+                                >
+                                  <div className="flex items-center justify-between ">
+                                    <div className="flex items-center gap-3">
+                                      <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg ">
+                                        <Brain className="h-4 w-4 text-zinc-300" />
+                                      </div>
+                                      <div>
+                                        <div className="text-sm font-medium text-zinc-200">
+                                          Reasoning 
+                                        </div>
+                                      
+                                      </div>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => toggleReasoning(key)}
+                                      className="inline-flex items-center gap-1 rounded-md  px-2.5 py-1.5 text-xs font-medium text-zinc-200 transition hover:bg-zinc-800"
+                                    >
+                                     
+                                      <ChevronDown
+                                        className={`h-3.5 w-3.5 transition-transform ${isExpanded ? "rotate-180" : "rotate-0"}`}
+                                      />
+                                    </button>
+                                  </div>
+                                  <div
+                                    className={`mt-3 overflow-hidden transition-all duration-300 ease-out ${
+                                      isExpanded ? "max-h-[600px]" : "max-h-0"
+                                    }`}
+                                  >
+                                    <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 px-3 py-3 text-[13px] text-zinc-300">
+                                      <div className="max-h-64 overflow-y-auto pr-1 scrollbar-elegant">
+                                        <pre className="whitespace-pre-wrap break-words font-sans text-[13px] text-zinc-300/90">
+                                          {part.text?.trim() || "No reasoning steps available."}
+                                        </pre>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            }
+
+                            return null;
                           }
 
                           if (part.type === "tool-bash") {
@@ -123,7 +202,7 @@ export default function ProjectMessageView({
                                   <div
                                     className="inline-flex items-center gap-2 rounded-2xl bg-zinc-800/20 px-3 py-2 shadow-lg backdrop-blur-sm ring-1 ring-white/10"
                                   >
-                                    <code className="font-mono text-sm text-emerald-400 break-all">
+                                    <code className="font-mono text-sm text-zinc-200 break-all">
                                       $ {part.input?.command || 'Unknown command'}
 
                                     </code>
@@ -139,7 +218,7 @@ export default function ProjectMessageView({
                                   className="flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-800/50 px-3 py-2"
                                 >
                                   <Terminal className="h-4 w-4 text-white" />
-                                  <code className="font-mono text-sm text-emerald-400 break-all">
+                                  <code className="font-mono text-sm text-zinc-200 break-all">
                                     $ {part.input?.command || 'Unknown command'}
                                   </code>
                                 </div>

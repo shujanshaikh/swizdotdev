@@ -72,7 +72,7 @@ export async function POST(req: Request) {
       message,
     });
 
-    const sandbox = await Sandbox.create("swizsandbox", {
+    const sandbox = await Sandbox.betaCreate("swizsandbox", {
       requestTimeoutMs: 900_000,
       timeoutMs: 900_000,
       autoPause: true,
