@@ -47,6 +47,7 @@ export const  grep =  ({ sandboxId }: Params) => tool({
         const result = await sandbox.commands.run(command, {
           background : true,
           timeoutMs: 0,
+          stdin: true,
         });
         return result.stdout;
       } catch (error) {

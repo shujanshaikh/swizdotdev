@@ -17,6 +17,7 @@ export const run_tsccheck = ({ sandboxId }: Params) => tool({
         const sandbox = await getSandbox(sandboxId);
         const result = await sandbox.commands.run(`npx tsc --noEmit ${relative_file_path}`, {
           background : true,
+          stdin: false,
           onStdout: (data) => {
             buffer.stdout += data;
           },

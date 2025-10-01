@@ -37,7 +37,7 @@ export const messageRouter = createTRPCRouter({
         };
       }
       const resumedSandbox = await Sandbox.connect(sandboxId , {
-        autoPause: true,
+        //autoPause: true,
         requestTimeoutMs: 900_000,
         timeoutMs: 900_000,
       });

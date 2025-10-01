@@ -17,14 +17,16 @@ export const bash = ({ sandboxId }: Params) => tool({
       try {
         const sandbox = await getSandbox(sandboxId);
         const result = await sandbox.commands.run(command, {
-          background : true,
-          onStdout: (data) => {
+          timeoutMs: 900000, 
+          stdin: true, 
+          onStdout: (data: string) => {
             buffer.stdout += data;
-          },
-          onStderr: (data) => {
+          }, 
+          onStderr: (data: string) => {
             buffer.stderr += data;
-          },
+          }
         });
+
         return result.stdout;
       } catch (error) {
         return `Command failed to execute: ${command}\nOutput: ${buffer.stdout}\nError: ${buffer.stderr}\nError: ${error}`;
