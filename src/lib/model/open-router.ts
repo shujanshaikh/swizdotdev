@@ -10,11 +10,6 @@ export const openRouterModel = [
         value : "openai/gpt-5-mini",
         description : "GPT-5 Mini is a compact version of GPT-5, designed to handle lighter-weight reasoning tasks. It provides the same instruction-following and safety-tuning benefits as GPT-5, but with reduced latency and cost. GPT-5 Mini is the successor to OpenAI's o4-mini model."
     } ,
-    {
-        name : "Grok 4 Fast",
-        value : "x-ai/grok-4-fast:free",
-        description : "Grok 4 Fast is xAI's latest multimodal model with SOTA cost-efficiency and a 2M token context window" 
-    } ,
 
     // {
     //     name : "deepseek-chat-v3.1",
