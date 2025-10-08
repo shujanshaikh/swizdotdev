@@ -36,13 +36,38 @@ export const read_file = ({ sandboxId }: Params) =>
     }) => {
       try {
         const sandbox = await getSandbox(sandboxId);
+        if (!should_read_entire_file) {
+          if (!Number.isInteger(start_line_one_indexed) ||
+            start_line_one_indexed! < 1) {
+            return {
+              success: true,
+              message:
+                'start_line_one_indexed must be a positive integer (1-indexed)',
+              error: 'INVALID_START_LINE',
+            }
+          }
+        }
+
+        if (end_line_one_indexed! < start_line_one_indexed!) {
+          return {
+            success: false,
+            message:
+              'end_line_one_indexed_inclusive must be greater than or equal to start_line_one_indexed',
+            error: 'INVALID_LINE_RANGE',
+          };
+        }
+
+      //   const readOptions = should_read_entire_file
+      // ? undefined
+      // : {
+      //     startLine: start_line_one_indexed,
+      //     endLine: end_line_one_indexed,
+      //   } as string; 
+
+        
         if (should_read_entire_file) {
           const content = await sandbox.files.read(relative_file_path);
           return content;
-        } else {
-          const command = `sed -n '${start_line_one_indexed},${end_line_one_indexed}p' ${relative_file_path}`;
-          const result = await sandbox.commands.run(command);
-          return result.stdout;
         }
       } catch (error) {
         return `Error reading file: ${error} ${relative_file_path} ${start_line_one_indexed} ${end_line_one_indexed}`;

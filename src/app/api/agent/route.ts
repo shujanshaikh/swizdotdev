@@ -23,7 +23,6 @@ import { bash } from "~/lib/ai/tools/bash";
 import { web_search } from "~/lib/ai/tools/web-search";
 import { glob } from "~/lib/ai/tools/glob";
 import { suggestions } from "~/lib/ai/tools/suggestion";
-import { task_agent } from "~/lib/ai/tools/task-agent";
 import { ls } from "~/lib/ai/tools/ls";
 import { webscraper } from "~/lib/ai/tools/web-scrape";
 import { grep } from "~/lib/ai/tools/grep";
@@ -132,7 +131,6 @@ export async function POST(req: Request) {
             grep: grep({ sandboxId }),
             ls: ls({ sandboxId }),
             glob: glob({ sandboxId }),
-            task_agent: task_agent({ sandboxId }),
             bash: bash({ sandboxId }),
             webScraper: webscraper,
             webSearch: web_search,

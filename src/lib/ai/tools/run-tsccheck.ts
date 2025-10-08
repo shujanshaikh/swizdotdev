@@ -17,14 +17,13 @@ export const run_tsccheck = ({ sandboxId }: Params) => tool({
         const sandbox = await getSandbox(sandboxId);
         const result = await sandbox.commands.run(`npx tsc --noEmit ${relative_file_path}`, {
           background : true,
-          stdin: false,
+          stdin: true,
           onStdout: (data) => {
             buffer.stdout += data;
           },
           onStderr: (data) => {
             buffer.stderr += data;
           },
-          timeoutMs: 0, 
         });
         const output = buffer.stdout || result.stdout || "";
         const errors = buffer.stderr || result.stderr || "";
