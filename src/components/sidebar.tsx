@@ -1,6 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
-import { ChevronDown, Clock, Archive, Plus } from "lucide-react";
+import { Archive, Plus } from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
 
 import { Sidebar, SidebarContent } from "~/components/ui/sidebar";
@@ -10,81 +9,36 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { audiowide } from "~/lib/font";
 import { toast } from "sonner";
+import { useState } from "react";
+import { Spinner } from "./ui/spinner";
 
 export default function SidebarComponent() {
   const projects = api.project.getProjects.useQuery();
   const resumeSandboxMutation = api.message.resumeSandbox.useMutation();
+  const [loadingProjectId, setLoadingProjectId] = useState<string | null>(null);
 
   const router = useRouter();
 
-
-  const filterOptions = [
-    { label: "Last 7 days", days: 7 },
-    { label: "Last 30 days", days: 30 },
-    { label: "Last 90 days", days: 90 },
-    { label: "All projects", days: null },
-  ];
-
-  const [selectedFilter, setSelectedFilter] = useState(filterOptions[0]);
-  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
   const handleProjectClick = async (projectId: string) => {
     try {
-      console.log("Resuming sandbox for project:", projectId);
-
+      setLoadingProjectId(projectId);
       const result = await resumeSandboxMutation.mutateAsync({ projectId });
 
       if (result.success) {
-        console.log("Sandbox resumed successfully:", result.sandboxId);
         toast.success("Sandbox resumed successfully");
         router.push(`/project/${projectId}`);
       } else {
-        console.error("Failed to resume sandbox:", result.message);
+        toast.error(result.message);
       }
     } catch (error) {
-      console.error("Error resuming sandbox:", error);
       toast.error("Error resuming sandbox");
-      router.push(`/project/${projectId}`);
+    } finally {
+      setLoadingProjectId(null);
     }
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setShowFilterDropdown(false);
-      }
-    };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  const filteredProjects =
-    projects.data?.filter((project) => {
-      if (selectedFilter?.days === null) return true;
-
-      const filterDate = new Date();
-      filterDate.setDate(filterDate.getDate() - (selectedFilter?.days || 7));
-
-      const projectDate = project.updatedAt
-        ? new Date(project.updatedAt)
-        : project.createdAt
-          ? new Date(project.createdAt)
-          : null;
-
-      return projectDate && projectDate >= filterDate;
-    }) || [];
-
-  const displayProjects =
-    selectedFilter?.days === null
-      ? filteredProjects
-      : filteredProjects.slice(0, 12);
+  const displayProjects = projects.data || [];
 
   return (
     <Sidebar
@@ -131,42 +85,6 @@ export default function SidebarComponent() {
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col">
-          <div className="px-8 pb-4">
-            <div className="relative" ref={dropdownRef}>
-              <button
-                onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-                className="flex items-center gap-2 text-sm text-zinc-400 transition-colors hover:text-zinc-200"
-              >
-                <Clock className="h-4 w-4" />
-                {selectedFilter?.label}
-                <ChevronDown
-                  className={`h-3 w-3 transition-transform ${showFilterDropdown ? "rotate-180" : ""}`}
-                />
-              </button>
-
-              {showFilterDropdown && (
-                <div className="absolute top-full left-0 z-50 mt-2 w-44 overflow-hidden rounded-xl border border-white/10 bg-zinc-900/90 shadow-2xl backdrop-blur-xl">
-                  {filterOptions.map((option) => (
-                    <button
-                      key={option.label}
-                      onClick={() => {
-                        setSelectedFilter(option);
-                        setShowFilterDropdown(false);
-                      }}
-                      className={`w-full px-3 py-2 text-left text-sm transition-colors first:rounded-t-xl last:rounded-b-xl ${
-                        selectedFilter?.label === option.label
-                          ? "bg-zinc-800/80 text-white"
-                          : "text-zinc-300 hover:bg-zinc-800/60 hover:text-white"
-                      }`}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
           <div className="min-h-0 flex-1 px-8">
             <div className="scrollbar-hide h-full overflow-y-auto">
               <div className="space-y-1.5 pb-8">
@@ -183,8 +101,13 @@ export default function SidebarComponent() {
                       onClick={() => handleProjectClick(project.id)}
                       className="group relative w-full rounded-xl border border-transparent bg-zinc-900/40 p-2.5 text-left transition-all duration-200 hover:scale-[1.01] hover:border-white/10 hover:bg-zinc-900/60"
                     >
-                      <div className="truncate text-sm font-medium text-zinc-100 group-hover:text-white">
-                        {project.title}
+                      <div className="flex items-center gap-2">
+                        <div className="truncate text-sm font-semibold text-zinc-100 group-hover:text-white leading-tight">
+                          {project.title}
+                        </div>
+                        {loadingProjectId === project.id && (
+                          <Spinner className="h-4 w-4 text-zinc-400 flex-shrink-0" />
+                        )}
                       </div>
                       <div className="pointer-events-none absolute inset-0 rounded-xl opacity-0 transition-opacity [background:radial-gradient(120px_40px_at_10%_10%,rgba(244,244,245,0.06),transparent)] group-hover:opacity-100" />
                     </button>
@@ -194,9 +117,7 @@ export default function SidebarComponent() {
                     <Archive className="mb-3 h-8 w-8 text-zinc-600" />
                     <div className="text-sm text-zinc-400">No projects</div>
                     <div className="text-xs text-zinc-500">
-                      {selectedFilter?.days === null
-                        ? "Get started"
-                        : "Try a different filter"}
+                      Get started
                     </div>
                   </div>
                 )}

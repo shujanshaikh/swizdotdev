@@ -9,6 +9,7 @@ import Link from "next/link";
 import { Button } from "./ui/button";
 import { authClient } from "~/lib/auth-client";
 import UserProfile from "./user-profile";
+import { ButtonGroup } from "./ui/button-group";
 
 function ChatContent({
   initialMessages,
@@ -55,12 +56,14 @@ function ChatContent({
             <UserProfile />
           ) : (
             <>
-              <Button asChild variant="ghost">
+            <ButtonGroup>
+              <Button asChild >
                 <Link href="/login">Log in</Link>
               </Button>
-              <Button asChild variant="default">
+              <Button asChild variant="secondary" className="bg-zinc-800/50 hover:bg-zinc-800/60">
                 <Link href="/signup">Sign up</Link>
               </Button>
+              </ButtonGroup>
             </>
           )}
         </div>
