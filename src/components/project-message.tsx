@@ -316,7 +316,7 @@ export default function ProjectMessageView({
 
                             if (state === "output-available") {
                               const { output } = part;
-                              return <div key={toolCallId} className="text-[14px] leading-relaxed whitespace-pre-wrap break-words text-gray-200 sm:text-[15px]">{output}</div>;
+                              return <div key={toolCallId} className="text-[14px] leading-relaxed whitespace-pre-wrap break-words text-gray-200 sm:text-[15px]">{output.message}</div>;
                             }
                           }
 
@@ -525,7 +525,7 @@ export default function ProjectMessageView({
                                   </div>
                                   <div className="rounded-xl">
                                     <pre className="text-sm text-zinc-300 font-mono whitespace-pre-wrap break-words overflow-x-auto px-3 py-2">
-                                      {output}
+                                      {output.message}
                                     </pre>
                                   </div>
                                 </div>

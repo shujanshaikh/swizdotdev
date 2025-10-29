@@ -1,14 +1,14 @@
 export const openRouterModel = [ 
     {
-        name : "Gpt 5 codex",
-        value : "openai/gpt-5-codex",
-        description : "GPT-5-Codex is a specialized version of GPT-5 optimized for software engineering and coding workflows. It is designed for both interactive development sessions and long, independent execution of complex engineering tasks"
+        name : "GLM 4.6",
+        value : "glm-4.6",
+        description : "GLM 4.6 is a model from Zai's model"
     },
-
+    
     {
-        name : "Gpt 5 mini",
-        value : "openai/gpt-5-mini",
-        description : "GPT-5 Mini is a compact version of GPT-5, designed to handle lighter-weight reasoning tasks. It provides the same instruction-following and safety-tuning benefits as GPT-5, but with reduced latency and cost. GPT-5 Mini is the successor to OpenAI's o4-mini model."
+        name : "GLM 4.5",
+        value : "glm-4.5",
+        description : "GLM 4.5 is a model from Zai's model"
     } ,
 
     // {

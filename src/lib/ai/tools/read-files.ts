@@ -35,42 +35,95 @@ export const read_file = ({ sandboxId }: Params) =>
       end_line_one_indexed,
     }) => {
       try {
-        const sandbox = await getSandbox(sandboxId);
-        if (!should_read_entire_file) {
-          if (!Number.isInteger(start_line_one_indexed) ||
-            start_line_one_indexed! < 1) {
-            return {
-              success: true,
-              message:
-                'start_line_one_indexed must be a positive integer (1-indexed)',
-              error: 'INVALID_START_LINE',
-            }
-          }
-        }
-
-        if (end_line_one_indexed! < start_line_one_indexed!) {
+        // Validate required parameter
+        if (!relative_file_path) {
           return {
             success: false,
-            message:
-              'end_line_one_indexed_inclusive must be greater than or equal to start_line_one_indexed',
-            error: 'INVALID_LINE_RANGE',
+            message: "Missing required parameter: relative_file_path",
+            error: "MISSING_FILE_PATH",
           };
         }
 
-      //   const readOptions = should_read_entire_file
-      // ? undefined
-      // : {
-      //     startLine: start_line_one_indexed,
-      //     endLine: end_line_one_indexed,
-      //   } as string; 
+        // Validate line numbers if not reading entire file
+        if (!should_read_entire_file) {
+          if (
+            !Number.isInteger(start_line_one_indexed) ||
+            start_line_one_indexed! < 1
+          ) {
+            return {
+              success: false,
+              message:
+                "start_line_one_indexed must be a positive integer (1-indexed)",
+              error: "INVALID_START_LINE",
+            };
+          }
 
-        
-        if (should_read_entire_file) {
-          const content = await sandbox.files.read(relative_file_path);
-          return content;
+          if (
+            !Number.isInteger(end_line_one_indexed) ||
+            end_line_one_indexed! < 1
+          ) {
+            return {
+              success: false,
+              message:
+                "end_line_one_indexed must be a positive integer (1-indexed)",
+              error: "INVALID_END_LINE",
+            };
+          }
+
+          if (end_line_one_indexed! < start_line_one_indexed!) {
+            return {
+              success: false,
+              message:
+                "end_line_one_indexed must be greater than or equal to start_line_one_indexed",
+              error: "INVALID_LINE_RANGE",
+            };
+          }
         }
+
+        const sandbox = await getSandbox(sandboxId);
+
+        // Read the file content from sandbox
+        const fileContent = await sandbox.files.read(relative_file_path);
+
+        if (!fileContent) {
+          return {
+            success: false,
+            message: `Failed to read file: ${relative_file_path}`,
+            error: "READ_ERROR",
+          };
+        }
+
+        const lines = fileContent.split("\n");
+        const totalLines = lines.length;
+
+        let content: string;
+        let message: string;
+
+        if (should_read_entire_file) {
+          content = fileContent;
+          message = `Successfully read entire file: ${relative_file_path} (${totalLines} lines)`;
+        } else {
+          // Extract the requested line range (convert to 0-indexed for array slicing)
+          const startIdx = start_line_one_indexed! - 1;
+          const endIdx = end_line_one_indexed!; // slice is exclusive at the end
+          const selectedLines = lines.slice(startIdx, endIdx);
+          content = selectedLines.join("\n");
+          const linesRead = selectedLines.length;
+          message = `Successfully read lines ${start_line_one_indexed}-${end_line_one_indexed} from file: ${relative_file_path} (${linesRead} lines of ${totalLines} total)`;
+        }
+
+        return {
+          success: true,
+          message: message,
+          content: content,
+          totalLines: totalLines,
+        };
       } catch (error) {
-        return `Error reading file: ${error} ${relative_file_path} ${start_line_one_indexed} ${end_line_one_indexed}`;
+        return {
+          success: false,
+          message: `Failed to read file: ${relative_file_path}. Error: ${error}`,
+          error: "READ_ERROR",
+        };
       }
     },
   });

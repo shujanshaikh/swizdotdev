@@ -105,7 +105,8 @@ export async function POST(req: Request) {
   });
 
   const openrouter = createOpenRouter({
-    apiKey: process.env.OPENROUTER_API_KEY,
+    apiKey: process.env.OPENAI_API_KEY,
+    baseURL : "https://api.z.ai/api/coding/paas/v4"
   });
   const models = openrouter.chat(model);
 
@@ -119,7 +120,7 @@ export async function POST(req: Request) {
           messages: convertToModelMessages(uiMessages),
           model: models,
           system: PROMPT,
-          temperature: 0.1,
+          temperature: 0.7,
           stopWhen: stepCountIs(20),
           experimental_transform: smoothStream({
             delayInMs: 10,
@@ -128,7 +129,7 @@ export async function POST(req: Request) {
           maxRetries: 3,
           tools: {
             edit_file: edit_file({ sandboxId }),
-            grep: grep({ sandboxId }),
+           // grep: grep({ sandboxId }),
             ls: ls({ sandboxId }),
             glob: glob({ sandboxId }),
             bash: bash({ sandboxId }),
@@ -138,7 +139,7 @@ export async function POST(req: Request) {
             read_file: read_file({ sandboxId }),
             delete_file: delete_file({ sandboxId }),
             string_replace: string_replace({ sandboxId }),
-            run_tsccheck: run_tsccheck({ sandboxId }),
+          
           },
 
         });
@@ -165,8 +166,7 @@ export async function POST(req: Request) {
       },
       onError: (error) => {
         console.error(`Error : ${error}`)
-       // console.error(JSON.stringify(error, null, 2))
-        return 'Error communicating with AI'
+        return error instanceof Error ? error.message : String(error)
       },
     }),
 
