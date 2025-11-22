@@ -105,8 +105,7 @@ export async function POST(req: Request) {
   });
 
   const openrouter = createOpenRouter({
-    apiKey: process.env.OPENAI_API_KEY,
-    baseURL : "https://api.z.ai/api/coding/paas/v4"
+    apiKey: process.env.OPENROUTER_API_KEY,
   });
   const models = openrouter.chat(model);
 

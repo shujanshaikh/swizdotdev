@@ -1,15 +1,9 @@
 export const openRouterModel = [ 
     {
-        name : "GLM 4.6",
-        value : "glm-4.6",
-        description : "GLM 4.6 is a model from Zai's model"
-    },
-    
-    {
-        name : "GLM 4.5",
-        value : "glm-4.5",
-        description : "GLM 4.5 is a model from Zai's model"
-    } ,
+        name : "Grok 4.1-fast",
+        value : "x-ai/grok-4.1-fast:free",
+        description : "Grok 4.1 Fast is xAI's best agentic tool calling model that shines in real-world use cases like customer support and deep research. 2M context window"
+    }, 
 
     // {
     //     name : "deepseek-chat-v3.1",
